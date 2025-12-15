@@ -1,0 +1,200 @@
+.title-bar {
+    background-color: rgba(0, 6, 96, 1);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter';
+    height: 38px;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    padding: 0 !important;
+    line-height: normal !important;
+}
+
+.page-content {
+    margin-top: 120px;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    padding-top: 15px;
+    
+}
+.login-title {
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    color: rgba(1, 1, 1, 1);
+    margin-bottom: 25px;
+    margin-top: 0 !important;
+    font-family: 'Poppins-Bold';
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(85, 85, 85, 1);
+    margin-bottom: 2px;
+    font-family: 'Poppins';
+}
+
+.input-wrapper {
+    position: relative;
+    background-color: #f0f0f0;
+    border-radius: 6px;
+    height: 30px;
+    /* control input height here */
+    padding-right: 45px;
+    /* space for icon */
+    display: flex;
+    align-items: center;
+    min-width: 300px
+}
+
+.form-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 11px;
+    height: 100%;
+    /* input takes full height */
+    /* padding: 0 80px; */
+    padding: 0 10px;
+    outline: none;
+}
+
+/* FIX: Icon full height, no gaps */
+.input-icon-btn {
+    position: absolute;
+    right: 0;
+    /* stick to extreme right */
+    top: 0;
+    bottom: 0;
+    /* makes full-height */
+    margin: 0;
+    /* remove spacing */
+    width: 30px;
+    /* adjust width */
+    border: none;
+    background-color: rgba(30, 39, 114, 1);
+    border-radius: 6px 6px 6px 6px;
+    /* match input corners */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-img {
+    width: 16px;
+    height: 16px;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    background-color: rgba(228, 159, 11, 1);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      font-family: 'Poppins';
+}
+
+.login-btn:hover {
+    background-color: #c29400;
+}
+
+.login-btn:active {
+    background-color: #b08500;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    gap: 10px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: #ddd;
+}
+
+.divider-text {
+    color: #999;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.register-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(30, 39, 114, 1);
+    background-color: white;
+    border: 1.2px solid rgba(30, 39, 114, 1);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins';
+}
+
+.register-btn:hover {
+    background-color: #f9f9f9;
+    border-color: #162d5e;
+    color: #162d5e;
+}
+
+.register-btn:active {
+    background-color: #f0f0f0;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .login-card {
+        padding: 30px 20px;
+    }
+
+    .login-title {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .input-icon-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .icon-img {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.error-text{
+    color: red;
+    font-size: 11px;
+     font-family: 'Poppins';
+}

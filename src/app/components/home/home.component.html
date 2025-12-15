@@ -1,0 +1,27 @@
+<!-- <div class="page-content">
+    <div class="title-bar">
+        Mock Exam Portal
+    </div>
+</div> -->
+
+<div class="page-content">
+    <div class="title-bar">
+        <span class="title-text">Mock Exam Portal</span>
+
+        <button class="admin-btn" (click)="AdminLogin()">Admin</button>
+    </div>
+</div>
+
+<div class="tests-scroll">
+    <div class="content-container">
+        <h3>Select Exam Type</h3>
+        <div class="select-wrapper">
+            <select class="custom-select" [(ngModel)]="selectedExam" (change)="onChange($event)">
+                <option value="">-select-</option>
+                <option *ngFor="let exam of exams" [value]="exam" [attr.selected]="exam === selectedExam ? '' : null">
+                    {{ exam }}
+                </option>
+            </select>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,323 @@
+/* .title-bar {
+    background-color: rgba(0, 6, 96, 1);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter';
+    height: 38px;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    padding: 0 !important;
+    line-height: normal !important;
+} */
+ .title-bar {
+    background-color: rgba(0, 6, 96, 1);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter';
+    height: 38px;
+    display: flex;
+    justify-content: center;  /* Title stays centered */
+    align-items: center;
+    position: relative;       /* To position Admin button */
+}
+
+.title-text {
+    pointer-events: none;     /* Ensures perfect centering regardless of button */
+}
+
+.admin-btn {
+    position: absolute;
+    right: 15px;              /* Space from right side */
+    background: transparent;  
+    /* border: 1px solid white; */
+    padding: 3px 10px;
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    align-items: center;
+}
+
+.page-content {
+    margin-top: 120px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.test-container {
+    min-height: 100vh;
+    background: white;
+    padding: 20px;
+}
+
+.test-content {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* Question Header */
+.question-header {
+    margin-bottom: 20px;
+}
+
+.question-label {
+    font-size: 13px;
+    color: rgba(179, 177, 177, 1);
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-family: 'Poppins';
+}
+
+.question-text {
+    font-size: 14px;
+    color: rgb(125, 123, 123);
+    font-weight: 400;
+    line-height: 1.6;
+    font-family: 'Poppins';
+}
+
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    cursor: pointer;
+    user-select: none;
+    width: 100%;
+}
+
+.option input[type="radio"] {
+    pointer-events: none;
+}
+
+.options-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.option {
+  cursor: pointer;
+}
+
+.option-label {
+      font-size: 13px;
+    color: rgb(125, 123, 123);
+    font-weight: 400;
+}
+
+.option-radio {
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+}
+
+.option-text {
+    font-size: 13px;
+   color: rgb(125, 123, 123);
+    font-weight: 400;
+    font-family: 'Poppins';
+}
+
+.navigation-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.btn-custom {
+    padding: 5px 10px;
+    font-size: 12px;
+     font-family: 'Poppins';
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    color: white;
+}
+
+/* Yellow Buttons (Previous + Submit + Next) */
+.btn-yellow {
+    background: #e6a400;
+}
+
+.btn-yellow:hover {
+    background: #cc8f00;
+}
+
+/* Blue Finish Button */
+.btn-finish {
+    background: #000d7a;
+}
+
+.btn-finish:hover {
+    background: #000a5d;
+}
+
+/* .footer-stats {
+    margin-top: 25px;
+    padding: 12px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-around;
+    font-size: 13px;
+    font-weight: 600;
+} */
+ /* Outer light section */
+.footer-wrapper {
+  background: rgba(245, 242, 242, 1);
+  padding: 25px 0;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+   font-family: 'Poppins';
+}
+
+.footer-stats {
+  background: white; 
+  padding: 0 25px;        /* ❗ Remove top/bottom padding */
+  display: flex;
+  align-items: stretch;   /* Ensures full-height border */
+  gap: 25px;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(226, 3, 3, 1);
+  height: 45px;           /* Optional: locks height */
+}
+
+/* each stat gets padding inside */
+.stat {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+/* divider */
+.stat-border {
+  border-right: 1px solid rgba(157, 157, 157, 1);
+  padding-right: 15px;
+  margin-right: 15px;
+}
+
+/* Results Page */
+.results-container {
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.results-card {
+    width: 420px;
+    padding: 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+.results-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+.results-grid {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.result-item {
+    text-align: center;
+}
+
+.result-label {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.result-value {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.correct {
+    color: #28a745;
+}
+
+.wrong {
+    color: #dc3545;
+}
+
+.skipped {
+    color: #ffc107;
+}
+
+.score-box {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.score-value {
+    font-size: 42px;
+    font-weight: bold;
+    color: #001a4d;
+}
+.result-wrapper {
+  background: rgba(245, 242, 242, 1); /* light grey bg */
+  padding: 25px 0;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.result-stats {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: stretch;  /* ensures divider full height */
+  padding: 0 30px;
+  height: 50px;          /* matches screenshot */
+  gap: 20px;
+  color: red;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+}
+
+.stat-border {
+  border-right: 1px solid rgba(157, 157, 157, 1); /* vertical divider */
+}
+.time-up-box {
+  background: #ffcccc;
+  border: 2px solid red;
+  color: #a70000;
+  font-weight: 700;
+  font-size: 20px;
+  text-align: center;
+  padding: 12px;
+  margin: 10px;
+  border-radius: 8px;
+}

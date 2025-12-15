@@ -1,0 +1,236 @@
+.maindiv {
+
+    background: #1C1C26 0% 0% no-repeat padding-box;
+
+}
+
+.maindiv_lmode {
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+}
+
+.p1 {
+    font: normal normal medium 24px/29px Roboto;
+    letter-spacing: 0px;
+    color: #FFFFFF;
+    opacity: 1;
+}
+
+.p1_lmode {
+   font-family: 'Poppins-Bold';
+    font-size: 18px;
+    font-weight: 400;
+    text-align: center;
+    letter-spacing: 0px;
+    color: #000000;
+    opacity: 1;
+    font-weight: bold;
+}
+
+.p1_lmode2 {
+    font-size: 12px;
+    font-weight: 400;
+    text-align: center;
+    letter-spacing: 0px;
+    color: #000000;
+    opacity: 1;
+     font-family: 'Poppins-Bold';
+}
+
+.p2 {
+    font: normal normal medium 18px/22px Roboto;
+    letter-spacing: 0px;
+    color: #FFFFFF;
+    opacity: 1;
+}
+
+.p2_lmode {
+    font: normal normal medium 18px/22px Roboto;
+    letter-spacing: 0px;
+    color: #000000;
+    opacity: 1;
+}
+
+.btnyes {
+    width: 84px;
+    height: 36px;
+    background: #7DF9FF 0% 0% no-repeat padding-box;
+    border-radius: 4px;
+    opacity: 1;
+    font: normal normal medium 15px/18px Roboto;
+    letter-spacing: 0px;
+    color: #000000;
+    opacity: 1;
+    cursor: pointer;
+}
+
+.btnyes_lmode {
+    width: 84px;
+    height: 30px;
+    background: #000000 0% 0% no-repeat padding-box;
+    border-radius: 4px;
+    opacity: 1;
+    font: normal normal medium 15px/18px Roboto;
+    letter-spacing: 0px;
+    color: #FFFFFF;
+    opacity: 1;
+    cursor: pointer;
+}
+
+.btnno {
+    width: 84px;
+    height: 36px;
+    /* border: 0.5px solid #646161; */
+    border-radius: 4px;
+    opacity: 1;
+    background: #1C1C26 0% 0% no-repeat padding-box;
+    cursor: pointer;
+    font: normal normal medium 15px/18px Roboto;
+    letter-spacing: 0px;
+    color: #000000;
+    cursor: pointer;
+}
+
+.btnno_lmode {
+    width: 84px;
+    height: 36px;
+    /* border: 0.5px solid #000000; */
+    border-radius: 4px;
+    opacity: 1;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    font: normal normal medium 15px/18px Roboto;
+    letter-spacing: 0px;
+    color: #000000;
+    cursor: pointer;
+}
+
+/* dark modes */
+.dark-mode {
+    background-color: #1C1C26;
+    color: #FFFFFF;
+    width: 100%;
+    height: 100%;
+}
+
+.light-mode {
+    background-color: #E6F5F6;
+    color: #000000;
+    width: 100%;
+    height: 100%;
+}
+
+.dark-mode1 {
+    background-color: #FFFFFF;
+    color: #000000;
+    /* box-shadow: 1px 3px 0px 0px #000000; */
+}
+
+.light-mode1 {
+    color: #FFFFFF;
+    background-color: black;
+    box-shadow: #0ebbda;
+}
+
+.dark-mode2 {
+    color: #FFFFFF;
+}
+
+.light-mode2 {
+    color: #000000;
+
+}
+
+.dark-mode3 {
+    background-color: #E5E2E2;
+    color: #000000;
+    /* box-shadow: 1px 3px 0px 0px #000000; */
+}
+
+.light-mode3 {
+    color: #FFFFFF;
+    background-color: #34373E;
+    /* box-shadow: #0ebbda;     */
+}
+
+
+.delbtn {
+    border: 0.1px solid #646161;
+    border-radius: 25px !important;
+    opacity: 1;
+    width: 55px;
+    font-size: 11px;
+}
+
+.delbtn2 {
+    border: 0.1px solid #EA352B;
+    border-radius: 25px !important;
+    opacity: 1;
+    width: 55px;
+    font-size: 11px;
+}
+
+.btnsubmit {
+    background: rgba(228, 159, 11, 1);
+    /* box-shadow: 0px 4px 4px 0px #00000040; */
+    font-family: 'Alata';
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 1);
+    padding: 3px 15px;
+    /* border-radius: 6px; */
+    cursor: pointer;
+    border: none;
+}
+
+.btncancel {
+    background: transparent;
+    /* box-shadow: 0px 4px 4px 0px #00000040; */
+    font-family: 'Alata';
+    font-size: 12px;
+    font-weight: 400;
+    color: black;
+    padding: 3px 15px;
+    /* border-radius: 6px; */
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 1)
+}
+
+.form-row {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+.feedback-input {
+    width: 100%;
+    padding: 8px;
+    /* border: 1px rgba(143, 143, 143, 1); */
+    /* border-radius: 4px; */
+    font-family: 'Alata';
+    font-size: 12px;
+}
+
+.form-group {
+    flex: 1;
+  }
+  
+  .form-group :is(label) {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-group :is(label) .required {
+    color: #ff4444;
+    margin-left: 2px;
+  }
+  
+.verifytext {
+    font-family: 'Alata';
+    font-size: 14px;
+    font-weight: 400;
+    color:rgba(55, 54, 54, 1)
+}

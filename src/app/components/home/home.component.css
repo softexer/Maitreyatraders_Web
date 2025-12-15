@@ -1,0 +1,181 @@
+/* Header Section */
+.header-container {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.header-logo img {
+    width: 120px;
+    margin-bottom: 10px;
+}
+
+.header-text h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #006666;
+    margin: 0;
+}
+
+.header-text h2 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1f3bb3;
+    margin: 0;
+}
+
+.header-text p {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Title Bar */
+/* .title-bar {
+    background-color: rgba(0, 6, 96, 1);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter';
+    height: 38px;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    padding: 0 !important;
+    line-height: normal !important;
+} */
+.title-bar {
+    background-color: rgba(0, 6, 96, 1);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter';
+    height: 38px;
+    display: flex;
+    justify-content: center;  /* Title stays centered */
+    align-items: center;
+    position: relative;       /* To position Admin button */
+}
+
+.title-text {
+    pointer-events: none;     /* Ensures perfect centering regardless of button */
+}
+
+.admin-btn {
+    position: absolute;
+    right: 15px;              /* Space from right side */
+    background: transparent;  
+    border: 1px solid white;
+    padding: 3px 10px;
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    align-items: center;
+}
+
+.admin-btn:hover {
+    background: white;
+    color: rgba(0, 6, 96, 1);
+}
+
+.page-content {
+    margin-top: 120px;
+}
+
+/* Content Section */
+.content-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.content-container h3 {
+    margin-bottom: 20px;
+    font-family: 'Inter';
+    font-size: 14px;
+    color: rgba(0, 0, 0, 1)
+}
+
+
+/* Wrapper to control border + full width dropdown look */
+.select-wrapper {
+    width: 450px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.custom-select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Gray box + arrow EXACT like screenshot */
+.select-wrapper::after {
+    content: "▾";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    /* size of right box */
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #c0c0c0;
+    /* gray box */
+    pointer-events: none;
+    font-size: 16px;
+    color: black;
+}
+
+
+/* Remove blue highlight on active/hover option */
+/* .custom-select option:checked,
+.custom-select option:hover,
+.custom-select option:active,
+.custom-select option:focus {
+  background-color: #e6e6e6 !important; 
+  color: black !important;
+} */
+/* Remove hover highlight completely */
+/* Hover color */
+/* remove hover highlight if you don't want it */
+.custom-select option:hover {
+    background-color: rgba(1, 11, 253, 0.12) !important;
+    color: black !important;
+}
+
+/* apply selected bg using attribute selector */
+.custom-select option[selected] {
+    background-color: rgba(1, 11, 253, 0.12) !important;
+    color: black !important;
+}
+
+
+/* Restore bottom border in the option list */
+select option {
+    border-bottom: 1px solid #ddd;
+}
+
+/* Some browsers require this for full dropdown border fix */
+select::-ms-expand {
+    display: none;
+}
+
+.tests-scroll {
+    max-height: 150px;
+    overflow-y: auto;
+}
+.tests-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}

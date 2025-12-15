@@ -1,0 +1,485 @@
+.title-bar {
+    background-color: rgba(0, 6, 96, 1);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Inter';
+    height: 38px;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    padding: 0 !important;
+    line-height: normal !important;
+}
+
+.page-content {
+    margin-top: 120px;
+}
+
+.registration-container {
+    padding: 15px 20px;
+    background-color: white;
+    min-height: 100vh;
+}
+
+.registration-card {
+    background-color: white;
+    /* border-radius: 8px;
+  padding: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+    max-width: 900px;
+     
+    margin: 0 auto;
+}
+
+.registration-title {
+     flex: 0 0 auto; 
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    color: rgba(1, 1, 1, 1);
+    margin-bottom: 25px;
+    margin-top: 0 !important;
+    font-family: 'Poppins-Bold';
+}
+
+.registration-form {
+    width: 100%;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.form-control,
+.form-input {
+    /* padding: 10px 12px; */
+    padding: 7px 10px;
+    font-size: 14px;
+    border: none;
+    background-color: #ececec;
+    border-radius: 6px;
+    color: #333;
+    font-family: inherit;
+    outline: none;
+    transition: background-color 0.3s ease;
+}
+
+.form-control:focus,
+.form-input:focus {
+    background-color: #dcdcdc;
+}
+
+.form-input::placeholder {
+    color: #999;
+}
+
+.form-control option {
+    color: #333;
+}
+
+.mobile-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.mobile-input-wrapper .form-input {
+    width: 100%;
+    padding-right: 80px;
+    /* space for button */
+    height: 32px;
+    /* set input height */
+}
+
+.verify-btn {
+    position: absolute;
+    right: 5px;
+    /* push to end */
+    top: 50%;
+    transform: translateY(-50%);
+    /* width: 32px; */
+    /* smaller icon button */
+    height: 20px;
+     padding: 0 10px;       
+   font-size: 10px;
+  font-weight: 400;
+  background-color:rgba(228, 159, 11, 1);
+    border-radius: 5px;
+    color: white;
+    white-space: nowrap;
+  border: none;
+}
+
+.verify-btn:hover {
+    background-color: #c29400;
+}
+
+.verify-btn:active {
+    background-color: #b08500;
+}
+
+.register-now-btn {
+  width: auto;             /* FIX: no full width */
+  padding: 10px 100px;      /* optional: nice width */
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  background-color: rgba(228, 159, 11, 1);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 10px auto;       /* FIX: centers the button */
+  display: block;          /* needed for margin auto */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins';
+}
+.register-now-btn,
+.login-btn,
+.divider {
+  width: 60%;             /* reduce width */
+  max-width: 350px;       /* prevent being too large */
+  margin: 10px auto;      /* centers horizontally */
+  display: block;         /* ensures center alignment */
+}
+
+.register-now-btn:hover {
+    background-color: #c29400;
+}
+
+.register-now-btn:active {
+    background-color: #b08500;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+   margin: 10px auto;
+    gap: 15px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: #ddd;
+}
+
+.divider-text {
+    color: #999;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(30, 39, 114, 1);
+    background-color: white;
+    border: 1.2px solid rgba(30, 39, 114, 1);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins';
+}
+
+.login-btn:hover {
+    background-color: #f9f9f9;
+    border-color: #162d5e;
+    color: #162d5e;
+}
+
+.login-btn:active {
+    background-color: #f0f0f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  
+
+    .registration-card {
+        padding: 30px 20px;
+    }
+
+    .registration-title {
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+
+   
+}
+
+@media (max-width: 576px) {
+   
+    .registration-card {
+        padding: 20px 15px;
+    }
+
+    .registration-title {
+        font-size: 20px;
+    }
+
+    .mobile-input-wrapper {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .mobile-input-wrapper .form-input {
+        width: 100%;
+    }
+
+    .verify-btn {
+        width: 100%;
+    }
+}
+
+*::-webkit-scrollbar {
+  width: 0px !important;
+  background-color:transparent !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  width: 0px !important;
+  background-color:transparent !important;
+  border-radius: 0px !important;
+}
+
+*::-webkit-scrollbar:horizontal {
+  width: 0px !important;
+  background-color:transparent !important;
+}
+
+*::-webkit-scrollbar-thumb:horizontal {
+  width: 0px !important;
+  background-color:transparent !important;
+  border-radius: 0px;
+}
+
+
+/* sucess page  css*/
+.success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  /* padding: 15px 10px; */
+  font-family: Arial, sans-serif;
+}
+
+/* Avatar Section */
+.avatar-section {
+  margin-bottom: 15px;
+}
+
+.avatar {
+  position: relative;
+  /* width: 80px;
+  height: 80px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-img {
+    width:70x;
+   /* width: 40px;
+  height: 40px; */
+  /* border-radius: 50%; */
+  object-fit: cover;
+  /* background-color: #ffffff; */
+  /* border: 2px solid #e0e0e0; */
+}
+
+.checkmark {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: #f0a800;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #ffffff;
+}
+
+.checkmark-img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Success Heading */
+.success-heading {
+     flex: 0 0 auto; 
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    color: rgba(1, 1, 1, 1);
+    margin-bottom: 25px;
+    margin-top: 0 !important;
+    font-family: 'Poppins-Bold';
+}
+
+/* Credentials Box */
+.credentials-box {
+  background-color: #e8e8e8;
+  padding:5px 20px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.credential-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.credential-item:last-child {
+  margin-bottom: 0;
+}
+
+.credential-label {
+  font-size: 14px;
+  color: #555555;
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.credential-value {
+  font-size: 14px;
+  color: #333333;
+  font-weight: bold;
+  flex: 1;
+  text-align: right;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  transition: transform 0.2s;
+}
+
+.copy-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Instruction Text */
+.instruction-text {
+  font-size: 14px;
+  color: #666666;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* Login Button */
+.login-btn2 {
+  background-color: rgba(228, 159, 11, 1);
+  color: #ffffff;
+  border: none;
+  padding: 12px 25px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.login-btn2:hover {
+  background-color: #d48c00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(240, 168, 0, 0.3);
+}
+
+.login-btn2.credentials-box {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .success-container {
+    padding: 15px;
+  }
+
+  .success-heading {
+    font-size: 20px;
+    margin-bottom: 25px;
+  }
+
+  .credentials-box {
+    padding: 20px;
+    max-width: 100%;
+  }
+
+  .credential-item {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .credential-value {
+    text-align: left;
+    width: 100%;
+    margin-top: 5px;
+  }
+
+  .login-btn {
+    padding: 10px 30px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .checkmark {
+    width: 30px;
+    height: 30px;
+  }
+
+  .checkmark-img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .success-heading {
+    font-size: 18px;
+  }
+
+  .credentials-box {
+    padding: 15px;
+  }
+
+  .login-btn {
+    width: 100%;
+  }
+}
+
+.text-danger{
+  font-size: 11px;
+  color: red
+}

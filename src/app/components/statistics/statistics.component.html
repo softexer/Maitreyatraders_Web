@@ -1,0 +1,196 @@
+<div class="page-content">
+    <!-- <div class="title-bar">
+        Mock Exam Portal
+    </div> -->
+
+    <div class="title-bar">
+        <span class="title-text">Mock Exam Portal</span>
+
+        <button class="admin-btn" (click)="Logout()">Logout</button>
+    </div>
+</div>
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="header-section">
+        <h1>Welcome to mock EMET</h1>
+    </div>
+    <div class="tests-section">
+        Taking AP EAPCET mock tests regularly and continuously on OurSelfStudy can prove to be extremely beneficial
+        to an aspiring student in the long run. AP EAPCET guarantees admission into various colleges across both the
+        states of Telangana and Andhra Pradesh in the streams of Engineering, Medicine and Agriculture. So
+        naturally, this exam is of utmost importance for any student aspiring to go into any of these fields in
+        south India.
+    </div>
+
+    <!-- Preliminary Tests Section -->
+    <div class="tests-section">
+        <h2>Preliminary Tests (Direct Access)</h2>
+        <div class="tests-grid">
+            <div class="tests-grid">
+                <button *ngFor="let test of preliminaryTests" class="test-button"
+                    (click)="DirestTestPaper(test, 'preliminary')">
+                    {{ test.name }}
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Application Number Based Tests Section -->
+    <div class="tests-section">
+        <h2>Application Number Based Tests</h2>
+        <div class="tests-grid">
+            <button *ngFor="let test of appNumberTests" class="test-button" (click)="onTestClick(test, 'application')">
+                {{ test.name }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Hall Ticket Number Based Tests Section -->
+    <div class="tests-section">
+        <h2>Hall Ticket Number Based Tests</h2>
+        <div class="tests-grid">
+            <button *ngFor="let test of hallTicketTests" class="test-button" (click)="onTestClick(test, 'hallTicket')">
+                {{ test.name }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Video Lectures Section -->
+    <div class="video-section">
+        <h2>Video Lectures</h2>
+        <!-- <div class="video-grid">
+            <div *ngFor="let video of videos" class="video-card">
+                <div class="video-thumbnail" *ngIf="!video.playing">
+                    <img [src]="video.thumbnail" [alt]="video.title">
+                    <button class="play-button" (click)="onPlayVideo(video)">
+                        <span class="play-icon">▶</span>
+                    </button>
+                </div>
+                <video *ngIf="video.playing" controls autoplay width="100%">
+                    <source [src]="video.videoUrl" type="video/mp4">
+                </video>
+                <p class="video-title">{{ video.title }}</p>
+            </div>
+        </div> -->
+        <!-- <div class="row">
+            <div class="col-md-3" *ngFor="let video of videos; let i = index">
+                <div class="card video-card">
+
+                    <div class="thumb-wrapper" *ngIf="!video.playing">
+                        <img [src]="video.thumbnail" class="thumb-img" alt="Video Thumbnail" />
+
+                        <button class="play-button" (click)="playVideo(video)">
+                            <img src="../../../assets/playvedio.png" width="20px">
+                        </button>
+                    </div>
+
+                    <div class="thumb-wrapper" *ngIf="video.playing">
+                        <video class="video-player" controls autoplay>
+                            <source [src]="video.url" type="video/mp4" />
+                        </video>
+                    </div>
+
+
+                </div>
+            </div>
+        </div> -->
+        <div class="tests-scroll">
+            <div class="tests-container">
+                <div class="col-md-3" *ngFor="let video of videos; let i = index">
+                    <div class="card video-card" style="padding-bottom: 5px;">
+                        <div class="thumb-wrapper" *ngIf="!video.playing">
+                            <img [src]="video.thumbnail" class="thumb-img" alt="Video Thumbnail" />
+
+                            <button class="play-button" (click)="playVideo(video)">
+                                <img src="../../../assets/playvedio.png" width="20px">
+                            </button>
+                        </div>
+
+                        <div class="thumb-wrapper" *ngIf="video.playing">
+                            <video class="video-player" controls autoplay>
+                                <source [src]="video.url" type="video/mp4" />
+                            </video>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<!-- <div class="page-content">
+    <div class="title-bar">
+        Mock Exam Portal
+    </div>
+</div>
+<div class="dashboard-container">
+    <div class="header-section">
+        <h1>Welcome to mock EMET</h1>
+    </div>
+    <div class="tests-section">
+        Taking AP EAPCET mock tests regularly and continuously on OurSelfStudy can prove to be extremely beneficial
+        to an aspiring student in the long run. AP EAPCET guarantees admission into various colleges across both the
+        states of Telangana and Andhra Pradesh in the streams of Engineering, Medicine and Agriculture. So
+        naturally, this exam is of utmost importance for any student aspiring to go into any of these fields in
+        south India.
+    </div>
+
+    <div class="tests-section">
+        <h2>Preliminary Tests (Direct Access)</h2>
+        <div class="tests-grid">
+            <button *ngFor="let test of preliminaryTests" class="test-button"
+                (click)="onTestClick(test, 'preliminary')">
+                {{ test.name }}
+            </button>
+        </div>
+    </div>
+
+    <div class="tests-section">
+        <h2>Application Number Based Tests</h2>
+        <div class="tests-grid">
+            <button *ngFor="let test of appNumberTests" class="test-button" (click)="onTestClick(test, 'application')">
+                {{ test.name }}
+            </button>
+        </div>
+    </div>
+
+    <div class="tests-section">
+        <h2>Hall Ticket Number Based Tests</h2>
+        <div class="tests-grid">
+            <button *ngFor="let test of hallTicketTests" class="test-button" (click)="onTestClick(test, 'hallTicket')">
+                {{ test.name }}
+            </button>
+        </div>
+    </div>
+
+    <div class="video-section">
+        <h2>Video Lectures</h2>
+        <div class="video-grid">
+            <div *ngFor="let video of videos" class="video-card">
+                <div class="video-thumbnail" *ngIf="!video.playing">
+                    <img [src]="video.thumbnail" [alt]="video.title">
+                    <button class="play-button" (click)="onPlayVideo(video)">
+                        <span class="play-icon">▶</span>
+                    </button>
+                </div>
+                <video *ngIf="video.playing" controls autoplay width="100%">
+                    <source [src]="video.videoUrl" type="video/mp4">
+                </video>
+                <p class="video-title">{{ video.title }}</p>
+            </div>
+        </div>
+    </div>
+</div> -->
