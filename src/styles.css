@@ -392,5 +392,57 @@ body {
   font-style: normal;
 
 }
+.blur-background {
+  filter: blur(4px);
+}
+.custom-backdrop {
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.blur-background {
+  filter: blur(4px);
+  transition: filter 0.3s ease;
+}
 
 
+.blur-background {
+  filter: blur(4px);
+  transition: filter 0.25s ease;
+}
+
+/* Cart backdrop */
+.cart-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1000;
+  transition: opacity 0.25s ease;
+}
+
+.cart-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Side panel */
+.cart-panel {
+  width: 400px;
+  height: 100vh;
+  background: #000;
+  color: #fff;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}

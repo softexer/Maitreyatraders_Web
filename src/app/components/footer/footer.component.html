@@ -1,0 +1,113 @@
+<footer class="footer">
+  <!-- <div class="container"> -->
+
+    <!-- Footer Top -->
+    <div class="row">
+
+      <!-- Logo -->
+      <div class="col-md-4 footer-section logo-section">
+        <div class="logo">
+          <img [src]="logoPath" alt="Logo" class="logo-icon">
+        </div>
+        <p class="description">{{ companyDescription }}</p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="col-md-2  footer-section">
+        <h3 class="section-title">Quick Links</h3>
+        <ul class="links-list">
+          <li *ngFor="let link of quickLinks">
+            <a [href]="link.url">{{ link.label }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="col-md-4 footer-section">
+        <h3 class="section-title">Contact Us</h3>
+        <div class="contact-info">
+          <p><strong>KH No:</strong> {{ contactInfo.khNo }}<br/>
+            {{ contactInfo.address }}
+        </p>
+
+          <!-- <p>{{ contactInfo.address }}</p> -->
+          <p><strong>Tel:</strong> {{ contactInfo.phone }}</p>
+          <p><strong>Email:</strong>
+            <a [href]="'mailto:' + contactInfo.email">{{ contactInfo.email }}</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Social -->
+      <div class="col-md-2  footer-section">
+        <h3 class="section-title">Follow Us</h3>
+        <div class="social-icons">
+          <a *ngFor="let social of socialLinks" [href]="social.url" target="_blank">
+            <img [src]="social.icon" class="social-icon">
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer Bottom -->
+    <div class="footer-bottom d-flex justify-content-between align-items-center">
+      <p class="copyright">{{ copyrightText }}</p>
+      <div class="footer-links">
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms</a>
+      </div>
+      <div></div>
+    </div>
+
+  <!-- </div> -->
+</footer>
+
+
+
+<!-- <footer class="footer">
+  <div class="footer-container">
+    <div class="footer-section logo-section">
+      <div class="logo">
+        <img [src]="logoPath" alt="Maitreya Traders Limited Logo" class="logo-icon">
+      </div>
+      <p class="description">{{ companyDescription }}</p>
+    </div>
+
+    <div class="footer-section">
+      <h3 class="section-title">Quick Links</h3>
+      <ul class="links-list">
+        <li *ngFor="let link of quickLinks">
+          <a [href]="link.url">{{ link.label }}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h3 class="section-title">Contact Us</h3>
+      <div class="contact-info">
+        <p><strong>KH No:</strong> {{ contactInfo.khNo }}</p>
+        <p>{{ contactInfo.address }}</p>
+        <p><strong>Tel:</strong> {{ contactInfo.phone }}</p>
+        <p><strong>Email:</strong> <a [href]="'mailto:' + contactInfo.email">{{ contactInfo.email }}</a></p>
+      </div>
+    </div>
+
+    <div class="footer-section">
+      <h3 class="section-title">Follow Us</h3>
+      <div class="social-icons">
+        <a *ngFor="let social of socialLinks" [href]="social.url" target="_blank" rel="noopener noreferrer">
+          <img [src]="social.icon" [alt]="social.name" class="social-icon">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="copyright">{{ copyrightText }}</p>
+    <div class="footer-links">
+      <a href="/privacy-policy">Privacy Policy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+</footer> -->

@@ -1,0 +1,396 @@
+<div class="website-container">
+    <!-- Top Info Bar -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <span>Minimum order £35</span>
+            <span class="separator">|</span>
+            <span>Free Delivery for order over £80.</span>
+            <span class="separator">|</span>
+            <span>£2.99 surcharge for frozen products packing.</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image" width="250">
+            </div>
+
+            <!-- Navigation -->
+            <nav class="nav">
+                <a href="#" class="nav-item" [class.active]="activeSection === 'home'"
+                    (click)="setActive('home')">Home</a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
+                    (click)="setActive('about'); scrollToSection('about')">
+                    About
+                </a>
+
+                <!-- (mouseenter)="showDropdown()" (mouseleave)="hideDropdown()" -->
+                <div class="nav-item-wrapper">
+                    <a href="#" class="nav-item" [class.active]="activeSection === 'products'"
+                        (click)="toggleProductsDropdown($event)">
+                        Products <span class="dropdown-arrow" [class.rotated]="showProductsDropdown">▼</span>
+                    </a>
+                </div>
+
+                <div style="position: absolute; color : red;top:100%; left:50%; border: 1px solid #333;
+                    border-radius: 8px; background-color: #1a1a1a;  border: 1px solid #333;  border-radius: 8px; min-width: 250px;"
+                    *ngIf="showProductsDropdown">
+                    <a *ngFor="let category of productCategories" class="dropdown-item"
+                        (click)="navigateToCategory(category); scrollToSection('products')"
+                        [class.active]="selectedCategoryId === category.id" (click)="selectCategory(category.id)">
+                        {{ category.name }}
+                    </a>
+
+                </div>
+                <a href="#" class="nav-item" [class.active]="activeSection === 'recipes'"
+                    (click)="setActive('recipes')">Recipes</a>
+                <a href="#" class="nav-item" [class.active]="activeSection === 'blog'"
+                    (click)="setActive('blog')">Blog</a>
+                <a href="#" class="nav-item" [class.active]="activeSection === 'contact'"
+                    (click)="setActive('contact')">Contact Us</a>
+            </nav>
+
+            <!-- Header Actions -->
+            <div class="header-actions">
+                <button class="icon-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
+                <button class="icon-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+
+    <div class="checkout-container">
+        <!-- Left Side - Contact & Delivery Details -->
+        <!-- class="left-section -->
+        <div class="col-md-5">
+            <!-- Contact Section -->
+            <section class="form-section">
+                <h2>Contact</h2>
+                <label class="form-label">Email or Mobile Number</label>
+                <input type="text" [(ngModel)]="contactInfo_cart.emailOrMobile" class="form-input" />
+                <label class="checkbox-label">
+                    <input type="checkbox" [(ngModel)]="contactInfo_cart.emailMeOffers" />
+                    <span>Email me with news and offers</span>
+                </label>
+            </section>
+
+            <!-- Delivery Section -->
+            <section class="form-section">
+                <h2>Delivery</h2>
+                <label class="form-label">Country / Region</label>
+                <select [(ngModel)]="deliveryInfo.country" class="form-input">
+                    <option value="" style="color:black">Country / Region</option>
+                    <option value="US" style="color:black">United States</option>
+                    <option value="UK" style="color:black">United Kingdom</option>
+                    <option value="CA" style="color:black">Canada</option>
+                    <option value="IN" style="color:black">India</option>
+                </select>
+
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="form-label">First name</label>
+                        <input type="text" [(ngModel)]="deliveryInfo.firstName" class="form-input" />
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Last name</label>
+                        <input type="text" [(ngModel)]="deliveryInfo.lastName" class="form-input" />
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label">Address</label>
+                    <input type="text" [(ngModel)]="deliveryInfo.address" class="form-input" />
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label">Apartment , Suit, etc..</label>
+                    <input type="text" [(ngModel)]="deliveryInfo.apartment" class="form-input" />
+                </div>
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="form-label">City</label>
+                        <input type="text" [(ngModel)]="deliveryInfo.city" class="form-input third" />
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">State</label>
+                        <input type="text" [(ngModel)]="deliveryInfo.state" class="form-input third" />
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Pincode</label>
+                        <input type="text" [(ngModel)]="deliveryInfo.pinCode" class="form-input third" />
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" [(ngModel)]="deliveryInfo.phoneNumber" class="form-input" />
+                </div>
+            </section>
+
+            <!-- Shipping Method Section -->
+            <section class="form-section">
+                <h2>Shipping method</h2>
+                <div class="shipping-method">
+                    <span>{{shippingMethod}}</span>
+                    <span class="free-badge">FREE</span>
+                </div>
+            </section>
+
+            <!-- Payment Section -->
+            <section class="form-section">
+                <h2>Payment</h2>
+                <div class="payment-info">
+                    <p>Razorpay (UPI, Cards, Net Banking, All Debit, Credit Cards, Wallets)</p>
+                    <div class="payment-placeholder">
+                        <div class="card-icon"></div>
+                        <p class="payment-note">
+                            After clicking "Pay now", you will be redirected to Razorpay (Secure UPI, Cards, Net
+                            Banking, Wallets) to complete your purchase securely.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Billing Address Section -->
+            <section class="form-section">
+                <h2>Billing address</h2>
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="radio-label">
+                            <input type="radio" name="billingAddress" [(ngModel)]="billingAddress.sameAsShipping"
+                                [value]="true" />
+                            <span>Same as shipping address</span>
+                        </label>
+                    </div>
+                    <div class="form-field">
+                        <label class="radio-label">
+                            <input type="radio" name="billingAddress" [(ngModel)]="billingAddress.sameAsShipping"
+                                [value]="false" />
+                            <span>Use a different billing address</span>
+                        </label>
+                    </div>
+                </div>
+
+
+
+                <div *ngIf="!billingAddress.sameAsShipping" class="billing-form">
+                    <label class="form-label">Country / Region</label>
+                    <select [(ngModel)]="billingAddress.country" class="form-input">
+                        <option value="" style="color:black">Country / Region</option>
+                        <option value="US" style="color:black">United States</option>
+                        <option value="UK" style="color:black">United Kingdom</option>
+                        <option value="CA" style="color:black">Canada</option>
+                        <option value="IN" style="color:black">India</option>
+                    </select>
+
+                    <!-- <div class="form-row">
+                        <input type="text" [(ngModel)]="billingAddress.firstName" class="form-input half" />
+                        <input type="text" [(ngModel)]="billingAddress.lastName" class="form-input half" />
+                    </div> -->
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">First name</label>
+                            <input type="text" [(ngModel)]="billingAddress.firstName" class="form-input" />
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Last name</label>
+                            <input type="text" [(ngModel)]="billingAddress.lastName" class="form-input" />
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label">Address</label>
+                        <input type="text" [(ngModel)]="billingAddress.address" class="form-input" />
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label">Apartment , Suit, etc..</label>
+                        <input type="text" [(ngModel)]="billingAddress.apartment" class="form-input" />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">City</label>
+                            <input type="text" [(ngModel)]="billingAddress.city" class="form-input third" />
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">State</label>
+                            <input type="text" [(ngModel)]="billingAddress.state" class="form-input third" />
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Pincode</label>
+                            <input type="text" [(ngModel)]="billingAddress.pinCode" class="form-input third" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" [(ngModel)]="billingAddress.phoneNumber" class="form-input" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Side - Cart Summary -->
+        <!-- right-section -->
+        <div class="col-md-2"></div>
+        <div class="col-md-3">
+            <!-- Cart Items -->
+            <div class="cart-items">
+                <div *ngFor="let item of cartItems" class="cart-item">
+                    <div class="item-image-wrapper">
+                        <img [src]="item.image" [alt]="item.name" class="item-image" />
+                        <span class="item-quantity-badge">{{item.quantity}}</span>
+                    </div>
+                    <div class="item-details">
+                        <h3>{{item.name}}</h3>
+                        <p class="item-weight">{{item.weight}}</p>
+                        <p class="item-price">£ {{item.salePrice.toFixed(2)}}</p>
+                    </div>
+                    <div class="item-actions">
+                        <div class="quantity-controls">
+                            <button (click)="decrementQuantity(item)" class="qty-btn">-</button>
+                            <span class="qty-value">{{item.quantity}}</span>
+                            <button (click)="incrementQuantity(item)" class="qty-btn">+</button>
+                        </div>
+                        <button (click)="removeItem(item)" class="remove-btn">
+                            <span>×</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Promo Code -->
+            <div class="promo-section">
+                <div class="promo-wrapper">
+                    <input type="text" placeholder="Discount code" [(ngModel)]="promoCode" class="promo-input" />
+                    <button type="button" (click)="applyPromoCode()" class="apply-btn">
+                        Apply
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- Summary -->
+            <div class="summary">
+                <div class="summary-row">
+                    <span>Sub Total</span>
+                    <span>£{{subtotal.toFixed(2)}}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery Fee</span>
+                    <span>£{{deliveryFee.toFixed(2)}}</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total to pay</span>
+                    <span>£{{totalToPay.toFixed(2)}}</span>
+                </div>
+            </div>
+
+            <!-- Pay Now Button -->
+            <button (click)="processPayment()" class="pay-now-btn">
+                Pay Now
+            </button>
+        </div>
+    </div>
+
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="section-container">
+            <div class="about-content">
+                <div class="about-image-wrapper">
+                    <!-- <div class="about-image-circle"></div> -->
+                    <img src="../../../assets/about us.png" alt="Plant Based Products" class="about-product-image">
+                </div>
+
+                <div class="about-text">
+                    <h2 class="about-title">About</h2>
+                    <p class="about-description">
+                        At Maitreya Traders, we believe in combining health, taste, and tradition. Our mission is to
+                        make plant-based eating exciting and accessible by offering premium-quality vegan and vegetarian
+                        frozen food sourced from around the world. We are committed to bringing only authentic,
+                        flavourful, and thoughtfully crafted products that align with your lifestyle.
+                    </p>
+                    <button class="read-more-btn">Read More</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="row">
+            <div class="col-md-4 footer-section logo-section">
+                <div class="logo">
+                    <img [src]="logoPath" alt="Logo" class="logo-icon">
+                </div>
+                <p class="description">{{ companyDescription }}</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-md-2  footer-section">
+                <h3 class="section-title2">Quick Links</h3>
+                <ul class="links-list">
+                    <li *ngFor="let link of quickLinks">
+                        <a href="javascript:void(0)" (click)="scrollToSection(link.sectionId)">
+                            {{ link.label }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div class="col-md-4 footer-section">
+                <h3 class="section-title2">Contact Us</h3>
+                <div class="contact-info">
+                    <p><strong>KH No:</strong> {{ contactInfo.khNo }}<br />
+                        {{ contactInfo.address }}
+                    </p>
+                    <p><strong>Tel:</strong> {{ contactInfo.phone }}</p>
+                    <p><strong>Email:</strong>
+                        <a [href]="'mailto:' + contactInfo.email">{{ contactInfo.email }}</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Social -->
+            <div class="col-md-2  footer-section">
+                <h3 class="section-title2">Follow Us</h3>
+                <div class="social-icons">
+                    <a *ngFor="let social of socialLinks" [href]="social.url" target="_blank">
+                        <img [src]="social.icon" class="social-icon">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom d-flex justify-content-between align-items-center">
+            <p class="copyright">{{ copyrightText }}</p>
+            <div class="footer-links">
+                <a href="/privacy-policy">Privacy Policy</a>
+                <a href="/terms">Terms</a>
+            </div>
+            <div></div>
+        </div>
+    </footer>
+</div>

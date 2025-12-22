@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef, HostListener } from "@angular/core";
 import { Router, NavigationEnd, ActivatedRoute } from "@angular/router";
-import { SVITCustomerService } from "./services/Maitreya-Customer.service";
+import { MaitreyaCustomerService } from "./services/maitreya-customer.service";
 
 @Component({
   selector: 'app-root',
@@ -10,9 +10,16 @@ import { SVITCustomerService } from "./services/Maitreya-Customer.service";
 export class AppComponent {
   title = 'Maitreya-Customer';
   loading: boolean = false;
+
+   isCartOpen = false;
+
+
+
+
+  
   constructor(
     private router: Router,
-    private customerservice: SVITCustomerService,
+    private customerservice: MaitreyaCustomerService,
     private activatedRoute: ActivatedRoute) {
     this.customerservice.showLoader.subscribe((flag: boolean) => {
       if (this.loading !== flag) {
@@ -26,4 +33,23 @@ export class AppComponent {
       window.scrollTo(0, 0);
     });
   }
+    ngOnInit() {
+    this.customerservice.isOpen$.subscribe(v => this.isCartOpen = v);
+  }
+  closeCart() {
+    this.customerservice.close();
+  }
+  
+// isCartOpen = false;
+
+//   openCart(event?: MouseEvent) {
+//     event?.stopPropagation();
+//     this.isCartOpen = true;
+//     document.body.style.overflow = 'hidden';
+//   }
+
+//   closeCart() {
+//     this.isCartOpen = false;
+//     document.body.style.overflow = '';
+//   }
 }

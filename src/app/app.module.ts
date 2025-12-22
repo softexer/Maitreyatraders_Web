@@ -24,28 +24,24 @@ import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
 import { HttpClientModule } from '@angular/common/http';
-import { LoginComponent } from './components/login/login.component';
-import { RegisterPageComponent } from './components/register-page/register-page.component';
-import { VerificationComponent } from './components/verification/verification.component';
-import { StatisticsComponent } from './components/statistics/statistics.component';
-import { GetnumberComponent } from './components/getnumber/getnumber.component';
-import { TestPageComponent } from './components/test-page/test-page.component';
 
 
 
 import { environment } from 'src/environments/environment';
+import { FooterComponent } from './components/footer/footer.component';
+import { ProductsComponent } from './components/products/products.component';
+import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.component';
+import { CheckoutPageComponent } from './components/checkout-page/checkout-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     HomeComponent,
-    LoginComponent,
-    RegisterPageComponent,
-    VerificationComponent,
-    StatisticsComponent,
-    GetnumberComponent,
-    TestPageComponent,
+    FooterComponent,
+    ProductsComponent,
+    ShoppingCartComponent,
+    CheckoutPageComponent,
   ],
   imports: [
     BrowserModule,

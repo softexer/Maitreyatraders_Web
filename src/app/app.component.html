@@ -1,2 +1,16 @@
-<app-header></app-header>
-<router-outlet></router-outlet>
+<!-- <app-header></app-header>
+<router-outlet></router-outlet> -->
+
+
+<!-- BLUR THIS -->
+<!-- BLUR THIS CONTENT -->
+<!-- BLUR ONLY ROUTED PAGE -->
+<div class="route-container" [class.blur-background]="isCartOpen">
+  <router-outlet></router-outlet>
+</div>
+
+<!-- GLOBAL CART -->
+<app-shopping-cart
+  [isCartOpen]="isCartOpen"
+  (closeCartEvent)="closeCart()">
+</app-shopping-cart>
