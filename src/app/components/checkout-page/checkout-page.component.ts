@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ShopsService } from "src/app/services/shops.service";
@@ -29,6 +29,7 @@ interface CartItem {
   categoryId: number
   subcatId: number
   productID: string
+   locqunatity: number;   // ✅ ADD THIS
 }
 
 @Component({
@@ -110,34 +111,21 @@ export class CheckoutPageComponent {
 
   promoCode = ""
 
-  // Cart items
-  // cartItems: CartItem[] = [
-  //   {
-  //     id: 1,
-  //     name: "Mock Chicken",
-  //     weight: "400 g",
-  //     price: 5.99,
-  //     quantity: 1,
-  //     image: "/mock-chicken.jpg",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Mock Chicken",
-  //     weight: "1 Kg",
-  //     price: 12.99,
-  //     quantity: 1,
-  //     image: "/mock-chicken-1kg.jpg",
-  //   },
-  // ]
-
   deliveryFee = 0.0
   cartItems: CartItem[] = [];
   serverCartItems: Array<any> = [];
+  formSubmitted = false;
+   cartCount: number = 0;
+     @Output() openCart = new EventEmitter<MouseEvent>();
+   
+    
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
     private CustomerService: MaitreyaCustomerService,
-    private shopService: ShopsService) { }
+    private shopService: ShopsService) {this.shopService.cartCountItems.subscribe(count => {
+      this.cartCount = count;
+    }); }
 
   getCartItems() {
     this.serverCartItems = this.shopService.getCartItems();
@@ -152,10 +140,11 @@ export class CheckoutPageComponent {
       image: item.cartImage,
       categoryId: item.categoryID,
       subcatId: item.subcatID,
-      productID: item.productID
+      productID: item.productID,
+       locqunatity: item.locqunatity,  // ✅ ADD THIS
     }));
 
-    this.shopService.updateCartCountFromApi(this.serverCartItems);
+    // this.shopService.updateCartCountFromApi(this.serverCartItems);
   }
   setActive(section: string): void {
     this.activeSection = section;
@@ -164,19 +153,36 @@ export class CheckoutPageComponent {
 
   ngOnInit() {
     this.GetAllCategories();
-    this.getCartItems();
+    // this.getCartItems();
+      this.subscribeCart();
   }
+ cartpage(event: MouseEvent) {
+       event.stopPropagation();
+       // this.router.navigate(['/cart']);
+       // this.openCart.emit(event);
+       this.CustomerService.open();
+     }
+ private subscribeCart() {
+    this.shopService.getCart().subscribe(cart => {
+      this.serverCartItems = cart;
 
+      this.cartItems = cart.map((item: any) => ({
+        id: item.itemID,
+        name: item.categoryName,
+        weight: item.cartTitle || '',
+        originalPrice: Number(item.price),
+        salePrice: Number(item.price),
+        quantity: item.locqunatity,
+        image: item.cartImage,
+        categoryId: item.categoryID,
+        subcatId: item.subcatID,
+        productID: item.productID,
+        locqunatity: item.locqunatity,
+      }));
+    });
 
-  // addToCart(product: Product) {
-  //   console.log("[v0] Adding to cart:", product.name, product.selectedWeight)
-  //   console.log("[v0] Adding to cart:", {
-  //     product: this.productName,
-  //     weight: this.selectedWeight,
-  //     price: this.currentPrice,
-  //   })
-  //   // Cart logic would go here
-  // }
+  }
+ 
 
 
   scrollToAbout() {
@@ -262,15 +268,6 @@ export class CheckoutPageComponent {
     console.log("[v0] Selected weight:", this.selectedWeight)
   }
 
-  // Add to cart functionality
-  addToCart2(): void {
-    console.log("[v0] Adding to cart:", {
-      product: this.productName,
-      weight: this.selectedWeight,
-      price: this.currentPrice,
-    })
-    // Add your cart logic here
-  }
 
   // Navigate to products page on + button click
   navigateToProducts(): void {
@@ -278,12 +275,7 @@ export class CheckoutPageComponent {
     this.router.navigate(["/products"])
   }
 
-  productCategories: ProductCategory[] = [
-    // { id: "1", name: "Frozen Vegan Food", route: "/products" },
-    // { id: "2", name: "Frozen Vegetarian Food", route: "/products" },
-    // { id: "3", name: "Sauces / Pastes", route: "/products" },
-
-  ]
+  productCategories: ProductCategory[] = [ ]
   // main category
   selectedMainCategoryId: string | null = null;
 
@@ -350,36 +342,6 @@ export class CheckoutPageComponent {
     // this.Subcategories = category?.subCategories || [];
   }
 
-  //   GetAllCategories() {
-  //   this.CustomerService.showLoader.next(true);
-
-  //   this.CustomerService.LoadAllCategories().subscribe(
-  //     (posRes: any) => {
-  //       console.log(posRes);
-
-  //       if (posRes.response === 3) {
-
-  //            this.productCategories = posRes.CategoriesData.map((cat: any) => ({
-  //           id: cat.categoryID,
-  //           name: cat.categoryName,
-  //           // route: `/products/${cat.categoryID}`   // or '/products'
-  //            route: `/products`   
-  //         }));
-
-  //         this.CustomerService.showLoader.next(false);
-
-  //       } else {
-  //         this.openSnackBar(posRes.message, '');
-  //         this.CustomerService.showLoader.next(false);
-  //       }
-  //     },
-  //     (err) => {
-  //       this.openSnackBar(err.message, '');
-  //       this.CustomerService.showLoader.next(false);
-  //       console.warn(err.error);
-  //     }
-  //   );
-  // }
   openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action, {
       duration: 3000,
@@ -419,21 +381,30 @@ export class CheckoutPageComponent {
   }
 
 
-  // Cart methods
   incrementQuantity(item: CartItem): void {
-    item.quantity++
-  }
+  this.shopService.updateItem({
+    itemID: item.id,
+    locqunatity: item.quantity + 1
+  });
+}
 
-  decrementQuantity(item: CartItem): void {
-    if (item.quantity > 1) {
-      item.quantity--
-    }
+decrementQuantity(item: CartItem): void {
+  if (item.quantity > 1) {
+    this.shopService.updateItem({
+      itemID: item.id,
+      locqunatity: item.quantity - 1
+    });
+  } else {
+    this.shopService.removeFromCart(item.id);
   }
+}
 
   removeItem(item: CartItem): void {
-    this.cartItems = this.cartItems.filter((i) => i.id !== item.id)
+    const index = this.cartItems.indexOf(item)
+    if (index > -1) {
+      this.cartItems.splice(index, 1)
+    }
   }
-
   // get subtotal(): number {
   //   return this.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   // }
@@ -449,10 +420,67 @@ export class CheckoutPageComponent {
     // Add your promo code logic here
   }
 
-  processPayment(): void {
-    console.log("Cart Items:", this.cartItems)
-    console.log("Processing payment...");
+  // processPayment(): void {
+  //   console.log("Cart Items:", this.cartItems)
+  //   console.log("Processing payment...");
 
+  markAllTouched(form: any) {
+    Object.values(form.controls).forEach((control: any) => {
+      control.markAsTouched();
+      control.markAsDirty();
+
+      // for nested forms
+      if (control.controls) {
+        Object.values(control.controls).forEach((c: any) => {
+          c.markAsTouched();
+          c.markAsDirty();
+        });
+      }
+    });
+  }
+  scrollToFirstError() {
+    const el = document.querySelector('.invalid');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  onBillingToggle() {
+    if (this.billingAddress.sameAsShipping) {
+      this.billingAddress = {
+        sameAsShipping: true,
+        useDifferentAddress: false,
+        country: this.deliveryInfo.country,
+        firstName: this.deliveryInfo.firstName,
+        lastName: this.deliveryInfo.lastName,
+        address: this.deliveryInfo.address,
+        apartment: this.deliveryInfo.apartment,
+        city: this.deliveryInfo.city,
+        state: this.deliveryInfo.state,
+        pinCode: this.deliveryInfo.pinCode,
+        phoneNumber: this.deliveryInfo.phoneNumber,
+      };
+    }
+  }
+
+  processPayment(form: any): void {
+    if (form.invalid) {
+      form.form.markAllAsTouched();   // 🔥 KEY FIX
+      // this.markAllTouched(form);
+      // this.openSnackBar('Please fill all required fields', '');
+      return;
+    }
+
+    if (this.cartItems.length === 0) {
+      this.openSnackBar('Your cart is empty', '');
+      return;
+    }
+    // this.formSubmitted = true;
+
+    // if (form.invalid) {
+    //   // optional: scroll to first error
+    //   const firstInvalid = document.querySelector('.ng-invalid');
+    //   firstInvalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    //   return;
+    // }
     /* ---------- Contact ---------- */
     const contactData = this.contactInfo_cart.emailOrMobile;
 
@@ -558,60 +586,4 @@ export class CheckoutPageComponent {
       }
     );
   }
-
-
-  // processPayment(): void {
-  //   console.log("Processing payment...")
-  //   console.log("Contact Info:", this.contactInfo_cart)
-  //   console.log("Delivery Info:", this.deliveryInfo)
-  //   console.log("Cart Items:", this.cartItems)
-  //   console.log("Total:", this.totalToPay)
-  //   // Add your payment processing logic here
-
-  //   let apiPaylod = {
-  //     contactData: "8106022423",
-  //     addressDetails: {
-  //       "country": "India",
-  //       "firstName": "Venkat",
-  //       "lastName": "Reddy", "address": "ATP", "apartment": "Sai radha residency 404", "city": "Anantapur", "state": "Andra Pradesh", "pincode": "515001"
-  //     },
-  //     shippingMethod: "Free",
-  //     billingAddressDetails: {
-  //       "country": "India",
-  //       "firstName": "Venkat",
-  //       "lastName": "Reddy", "address": "ATP", "apartment": "Sai radha residency 404", "city": "Anantapur", "state": "Andra Pradesh", "pincode": "515001"
-  //     },
-  //     coupanCode: "",
-  //     coupanAmount: 0,
-  //     subTotal: 1500,
-  //     deliveryFee: 10,
-  //     totalToPay: 1510,
-  //     paymentType: "Card",
-  //     Products: [{ "productID": "PID@1765806952079", "productName": "milk powder cream One", "categoryID": "CIDUJcthg@1765795811719", "subCategoryID": "subCIDVWqZ4NM@1765796186523", "quantity": 3, "price": 500, "weight": "1 Kg", "productImagePath": "/images/productsimages/PID@1765817274592134032461114700790.jpg" }],
-  //     paymentData: {}
-  //   }
-  //   this.CustomerService.showLoader.next(true);
-  //   this.CustomerService.InsertOrder(apiPaylod).subscribe((posRes: any) => {
-  //     if (posRes.response == 3) {
-  //       this.CustomerService.showLoader.next(false);
-
-
-  //     } else {
-  //       this.CustomerService.showLoader.next(false);
-  //       this.openSnackBar(posRes.message, "");
-  //       this.router.navigateByUrl('/login')
-  //     }
-
-  //   },
-  //     (err: HttpErrorResponse) => {
-  //       this.openSnackBar(err.message, "");
-  //       this.CustomerService.showLoader.next(false);
-  //       // this.loading = false;
-  //       if (err.error instanceof Error) {
-  //         console.warn("Client SIde Error", err.error);
-  //       } else {
-  //         console.warn("Server Error", err.error);
-  //       }
-  //     })
-  // }
 }

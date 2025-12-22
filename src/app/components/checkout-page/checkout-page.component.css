@@ -190,13 +190,28 @@
     cursor: pointer;
     padding: 8px;
     transition: color 0.3s;
+    position: relative;  
 }
 
 .icon-btn:hover {
     color: #d4af37;
 }
 
-
+.cart-badge {
+    position: absolute;   /* position relative to button */
+    top: 10px;               /* adjust top */
+    right: 0;             /* adjust right */
+    transform: translate(50%, -50%);  /* center over corner */
+    background: red;
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+    padding: 2px 8px;
+    padding: 6px;
+    border-radius: 50%;
+    line-height: 1;
+    pointer-events: none; /* allow clicking the button below */
+}
 .product-display {
     position: relative;
     display: flex;
@@ -784,7 +799,7 @@
   border-radius: 4px;
   color: #fff;
   font-size: 13px;
-  margin-bottom: 12px;
+  margin-bottom: 5px;
   outline: none;
   transition: border-color 0.3s;
 }
@@ -1176,4 +1191,16 @@ select.form-input {
   .left-section {
     max-width: 100%;
   }
+}
+.error {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 0px !important
+}
+
+/* input.ng-invalid.ng-touched {
+  border: 1px solid #ff4d4f;
+} */
+.pay-now-btn.disabled {
+  opacity: 0.6;
 }

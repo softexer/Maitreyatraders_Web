@@ -55,18 +55,7 @@ export class MaitreyaCustomerService {
     );
   }
 
- private _open = new BehaviorSubject<boolean>(false);
-  isOpen$ = this._open.asObservable();
 
-  open() {
-    this._open.next(true);
-    document.body.style.overflow = 'hidden';
-  }
-
-  close() {
-    this._open.next(false);
-    document.body.style.overflow = '';
-  }
   //Cart item procedures
   addToCart(item: any): void {
     const existingItem = this.addcartItems.find(cartItem => cartItem.ShopBookID === item.ShopBookID);
@@ -152,4 +141,18 @@ export class MaitreyaCustomerService {
       this.saveCartItems();
     }
   }
+
+private _open = new BehaviorSubject<boolean>(false);
+isOpen$ = this._open.asObservable();
+
+open() {
+  this._open.next(true);
+  document.body.style.overflow = 'hidden';
+}
+
+close() {
+  this._open.next(false);
+  document.body.style.overflow = '';
+}
+
 }

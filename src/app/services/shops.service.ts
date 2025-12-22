@@ -5,7 +5,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 interface CartItems {
   userID?: string;
   categoryID?: string;
-  itemID?: string;
+  // itemID?: string;
+  itemID?: number;
   subcatID?: string;
   qunatity?: number;
   locqunatity: number;
@@ -16,11 +17,8 @@ interface CartItems {
   packetSize?: string;
   categoryName?: string;
   subCategoryName?: string;
-  // deliveryDate: string;
   deliveryDate: number;
    productID: string
-  // typeOfBook: "Journals" | "BookStore" | "SchoolZone" | "ScientficSupplies";
-  // booksList?: BookItem[];
 }
 
 @Injectable({
@@ -61,64 +59,76 @@ export class ShopsService {
     this.cartCountItems.next(totalCount);
   }
 
-  private updateLocalStorage() {
-    localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
-    this.cartSubject.next(this.cartItems);
-    // Recalculate total quantity
-    const totalCount = this.cartItems.reduce((acc, item) => acc + item.locqunatity, 0);
-    this.cartCountItems.next(totalCount);
+
+private updateLocalStorage() {
+  localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+  this.cartSubject.next(this.cartItems);
+
+  const totalCount = this.cartItems.reduce(
+    (acc, item) => acc + item.locqunatity,
+    0
+  );
+
+  this.cartCountItems.next(totalCount);
+}
+
+
+addToCart(product: any) {
+  const stored = localStorage.getItem('cartItems');
+  this.cartItems = stored ? JSON.parse(stored) : [];
+
+  const itemId = product.itemID || product.bookstoreID || product.id;
+
+  const existing = this.cartItems.find(i => i.itemID === itemId);
+
+  if (existing) {
+    existing.locqunatity += 1;
+  } else {
+    this.cartItems.push({
+      itemID: itemId,
+      categoryID: product.categoryId,
+      subcatID: product.subcatId,
+      productID: product.productID,
+      qunatity: 1,
+      locqunatity: 1,
+      categoryName: product.name,
+      price: product.price,
+      cartImage: product.image,
+      cartTitle: product.type,
+      deliveryDate: Date.now() + 7 * 24 * 60 * 60 * 1000
+    });
   }
 
+  // ✅ SINGLE SOURCE UPDATE
+  localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+  this.cartSubject.next(this.cartItems);
 
-  addToCart(product: any) {
-    const stored = localStorage.getItem('cartItems');
-    this.cartItems = stored ? JSON.parse(stored) : [];
+  const total = this.cartItems.reduce((s, i) => s + i.locqunatity, 0);
+  this.cartCountItems.next(total);
+}
 
-    const itemId = product.itemID || product.bookstoreID || product.id;
 
-    const existing = this.cartItems.find(i => i.itemID === itemId);
+ 
+updateItem(updatedItem: any) {
+  const index = this.cartItems.findIndex(
+    item => item.itemID === updatedItem.itemID
+  );
 
-    if (existing) {
-      existing.locqunatity = (existing.locqunatity || 0) + 1;
-    } else {
-      this.cartItems.push({
-        itemID: itemId,
-        categoryID: product.categoryId,
-        subcatID: product.subcatId,
-         productID: product.productID,
-        qunatity: 1,
-        locqunatity: 1,
-        categoryName: product.name,
-        price: product.price,
-        cartImage: product.image,
-        cartTitle: product.type,
-        deliveryDate: new Date(
-          Date.now() + 7 * 24 * 60 * 60 * 1000
-        ).getTime()
-      });
-    }
+  if (index !== -1) {
+    this.cartItems[index] = {
+      ...this.cartItems[index],   // ✅ keep image & all data
+      ...updatedItem              // ✅ update only changed fields
+    };
 
-    localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
-
-    const total = this.cartItems.reduce(
-      (s, i) => s + (i.locqunatity || 0),
-      0
-    );
-
-    this.cartCountItems.next(total);
-  }
-
-  updateItem(updatedItem: any) {
-    const index = this.cartItems.findIndex(item => item.itemID === updatedItem.itemID);
-    if (index !== -1) {
-      this.cartItems[index] = { ...updatedItem };
-      this.updateLocalStorage();
-    }
-  }
-  removeFromCart(productId: string) {
-    this.cartItems = this.cartItems.filter(p => p.itemID !== productId);
     this.updateLocalStorage();
   }
+}
+
+
+removeFromCart(productId: number) {
+  this.cartItems = this.cartItems.filter(p => p.itemID !== productId);
+  this.updateLocalStorage();
+}
 
   clearCart() {
     this.cartItems = [];
@@ -190,16 +200,57 @@ export class ShopsService {
   private saveCartItems(): void {
     localStorage.setItem('cartItems', JSON.stringify(this.addcartItems));
   }
-  // getCartItems(): any[] {
-  //   return this.addcartItems;
-  // }
+ 
 
   getCartItems(): CartItems[] {
     const stored = localStorage.getItem('cartItems');
     this.cartItems = stored ? JSON.parse(stored) : [];
     return this.cartItems;
   }
+ // getCartItems(): any[] {
+  //   return this.addcartItems;
+  // }
+ // addToCart(product: any) {
+  //   const stored = localStorage.getItem('cartItems');
+  //   this.cartItems = stored ? JSON.parse(stored) : [];
 
+  //   const itemId = product.itemID || product.bookstoreID || product.id;
 
+  //   const existing = this.cartItems.find(i => i.itemID === itemId);
+
+  //   if (existing) {
+  //     existing.locqunatity = (existing.locqunatity || 0) + 1;
+  //   } else {
+  //     this.cartItems.push({
+  //       itemID: itemId,
+  //       categoryID: product.categoryId,
+  //       subcatID: product.subcatId,
+  //        productID: product.productID,
+  //       qunatity: 1,
+  //       locqunatity: 1,
+  //       categoryName: product.name,
+  //       price: product.price,
+  //       cartImage: product.image,
+  //       cartTitle: product.type,
+  //       deliveryDate: new Date(
+  //         Date.now() + 7 * 24 * 60 * 60 * 1000
+  //       ).getTime()
+  //     });
+  //   }
+  //   console.log(this.cartItems)
+
+  //   localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+
+  //   const total = this.cartItems.reduce(
+  //     (s, i) => s + (i.locqunatity || 0),
+  //     0
+  //   );
+
+  //   this.cartCountItems.next(total);
+  // }
+  // removeFromCart(productId: string) {
+  //   this.cartItems = this.cartItems.filter(p => p.itemID !== productId);
+  //   this.updateLocalStorage();
+  // }
 }
 

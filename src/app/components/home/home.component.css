@@ -116,12 +116,27 @@
     cursor: pointer;
     padding: 8px;
     transition: color 0.3s;
+       position: relative;  /* 🔥 added */
 }
 
 .icon-btn:hover {
     color: #d4af37;
 }
-
+.cart-badge {
+    position: absolute;   /* position relative to button */
+    top: 10px;               /* adjust top */
+    right: 0;             /* adjust right */
+    transform: translate(50%, -50%);  /* center over corner */
+    background: red;
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+    padding: 2px 8px;
+    padding: 6px;
+    border-radius: 50%;
+    line-height: 1;
+    pointer-events: none; /* allow clicking the button below */
+}
 /* Carousel Section */
 .carousel-section {
     background-color: #000;
@@ -1572,3 +1587,4 @@
   color: #f4b223;
   padding-left: 25px;
 }
+

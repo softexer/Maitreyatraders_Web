@@ -3,7 +3,7 @@ import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, O
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { MaitreyaCustomerService } from 'src/app/services/maitreya-customer.service';
-
+import { ShopsService } from 'src/app/services/shops.service';
 
 interface CarouselSlide {
   title: string
@@ -20,19 +20,35 @@ interface CarouselSlide {
 }
 
 interface Product {
+  // id: number
+  // name: string
+  // subtitle?: string
+  // image: string
+  // discount: number
+  // originalPrice: string
+  // price: string
+  // weights: string[]
+  // selectedWeight: string
+  // categoryId: number
+  // subcatId: number
+  // productID: string
+
   id: number
+  productID: string
   name: string
   subtitle?: string
   image: string
-  // discount: number
-  discount: number
+  productImagesList?: string[]
   originalPrice: string
-  price: string
+  price: number
   weights: string[]
   selectedWeight: string
+  discount?: number
+  type: string
   categoryId: number
   subcatId: number
-  productID: string
+  description?: string[]
+  highlights?: string[]
 }
 
 
@@ -105,31 +121,29 @@ export class HomeComponent implements OnInit, OnDestroy {
       price: "6.20",
     },
   ]
+
+
+  newLaunchedProducts: Product[] = [];
+  bestSellers: Product[] = []
+  isCartOpen: boolean = false;
+  cartCount: number = 0;
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
-    private CustomerService: MaitreyaCustomerService
-  ) { }
+    private CustomerService: MaitreyaCustomerService,
+    private shopService: ShopsService
+  ) {
+    this.shopService.cartCountItems.subscribe(count => {
+      this.cartCount = count;
+    });
+  }
 
   activeSection: string = 'home';
 
   setActive(section: string): void {
     this.activeSection = section;
   }
-  // setProduct(event: Event, section: string): void {
-  //   console.log("lskjfkdljf")
-  //   event.preventDefault(); // 🔥 REQUIRED
-  //   // this.router.navigate(['/products']);
-  //   this.showProductsDropdown = !this.showProductsDropdown;
 
-  // }
-
-  newLaunchedProducts: Product[] = [
-  ]
-
-  bestSellers: Product[] = [
-  ]
-isCartOpen: boolean = false;
   ngOnInit() {
     this.baseUrl = this.CustomerService.baseUrl;
     this.startAutoPlay();
@@ -169,7 +183,7 @@ isCartOpen: boolean = false;
 
   addToCart(product: Product) {
     console.log("[v0] Adding to cart:", product.name, product.selectedWeight)
-    // Cart logic would go here
+    this.shopService.addToCart(product);
   }
 
   scrollBestSellersLeft() {
@@ -284,7 +298,7 @@ isCartOpen: boolean = false;
   copyrightText = `Maitreya Traders Copyright ${new Date().getFullYear()}. All Rights Reserved.`;
   // isCartOpen: boolean = false;
   @Output() openCart = new EventEmitter<MouseEvent>();
- cartpage(event: MouseEvent) {
+  cartpage(event: MouseEvent) {
     event.stopPropagation();
     // this.router.navigate(['/cart']);
     // this.openCart.emit(event);
@@ -345,25 +359,51 @@ isCartOpen: boolean = false;
           /* 🔥 NEW LAUNCHED PRODUCTS */
           this.newLaunchedProducts = posRes.NewProducts.map(
             (item: any, index: number): Product => ({
+              // id: index + 1,
+              // name: item.productName,
+              // subtitle: item.subCategoryName ? `(${item.subCategoryName})` : '',
+              // image: item.productImagesList?.length
+              //   ? `${this.baseUrl}${item.productImagesList[0]}`
+              //   : 'assets/no-image.png',
+              // // discount: item.offerPercentage ? Number(item.offerPercentage) : 0,
+              // discount: this.getDiscount(item.offerPercentage),
+              // originalPrice: item.productPrice.toFixed(2),
+              // price:
+              //   item.disCountProductprice && item.disCountProductprice > 0
+              //     ? item.disCountProductprice.toFixed(2)
+              //     : item.productPrice.toFixed(2),
+              // weights: item.weightList?.length
+              //   ? item.weightList
+              //   : ['450 g', '900 g', '1350 g'],
+              // selectedWeight: item.weightList?.length
+              //   ? item.weightList[0]
+              //   : '450 g',
+              // categoryId: item.categoryID,
+              // subcatId: item.subCategoryID,
+              // productID: item.productID
+
               id: index + 1,
+              type: item.categoryName ? `(${item.categoryName})` : '',
               name: item.productName,
               subtitle: item.subCategoryName ? `(${item.subCategoryName})` : '',
-              image: item.productImagesList?.length
-                ? `${this.baseUrl}${item.productImagesList[0]}`
-                : 'assets/no-image.png',
-              // discount: item.offerPercentage ? Number(item.offerPercentage) : 0,
+              image:
+                item.productImagesList?.length && item.productImagesList[0]
+                  ? this.baseUrl + item.productImagesList[0]
+                  : 'assets/no-image.png',
+
+              productImagesList: item.productImagesList?.length
+                ? item.productImagesList.map((img: string) => this.baseUrl + img)
+                : item.image
+                  ? [item.image]
+                  : ['assets/no-image.png'],
+
               discount: this.getDiscount(item.offerPercentage),
-              originalPrice: item.productPrice.toFixed(2),
-              price:
-                item.disCountProductprice && item.disCountProductprice > 0
-                  ? item.disCountProductprice.toFixed(2)
-                  : item.productPrice.toFixed(2),
-              weights: item.weightList?.length
-                ? item.weightList
-                : ['450 g', '900 g', '1350 g'],
-              selectedWeight: item.weightList?.length
-                ? item.weightList[0]
-                : '450 g',
+              originalPrice: item.productPrice,
+              price: item.disCountProductprice > 0
+                ? item.disCountProductprice
+                : item.productPrice,
+              weights: item.weightList || [],
+              selectedWeight: item.weightList?.[0] || '',
               categoryId: item.categoryID,
               subcatId: item.subCategoryID,
               productID: item.productID
@@ -374,21 +414,50 @@ isCartOpen: boolean = false;
           /* 🔥 BEST SELLERS */
           this.bestSellers = posRes.BestSalesProductsData.map(
             (item: any, index: number): Product => ({
+              // id: index + 1,
+              // name: item.productName,
+              // image: item.productImagesList?.length
+              //   ? `${this.baseUrl}${item.productImagesList[0]}`
+              //   : 'assets/no-image.png',
+              // // discount: item.offerPercentage ? Number(item.offerPercentage) : 0,
+              // discount: this.getDiscount(item.offerPercentage),
+              // originalPrice: item.productPrice.toFixed(2),
+              // price:
+              //   item.disCountProductprice && item.disCountProductprice > 0
+              //     ? item.disCountProductprice.toFixed(2)
+              //     : item.productPrice.toFixed(2),
+              // weights: item.weightList?.length
+              //   ? item.weightList
+              //   : ['420 g', '840 g', '1260 g'],
+              // selectedWeight: item.weightList?.length
+              //   ? item.weightList[0]
+              //   : '420 g',
+              // categoryId: item.categoryID,
+              // subcatId: item.subCategoryID,
+              // productID: item.productID
+
               id: index + 1,
+              type: item.categoryName ? `(${item.categoryName})` : '',
               name: item.productName,
-              image: item.productImagesList?.length
-                ? `${this.baseUrl}${item.productImagesList[0]}`
-                : 'assets/no-image.png',
-              // discount: item.offerPercentage ? Number(item.offerPercentage) : 0,
+              subtitle: item.subCategoryName ? `(${item.subCategoryName})` : '',
+              image:
+                item.productImagesList?.length && item.productImagesList[0]
+                  ? this.baseUrl + item.productImagesList[0]
+                  : 'assets/no-image.png',
+
+              productImagesList: item.productImagesList?.length
+                ? item.productImagesList.map((img: string) => this.baseUrl + img)
+                : item.image
+                  ? [item.image]
+                  : ['assets/no-image.png'],
+
               discount: this.getDiscount(item.offerPercentage),
-              originalPrice: item.productPrice.toFixed(2),
-              price:
-                item.disCountProductprice && item.disCountProductprice > 0
-                  ? item.disCountProductprice.toFixed(2)
-                  : item.productPrice.toFixed(2),
-              weights: item.weightList?.length
-                ? item.weightList
-                : ['420 g', '840 g', '1260 g'],
+              originalPrice: item.productPrice,
+              price: item.disCountProductprice > 0
+                ? item.disCountProductprice
+                : item.productPrice,
+              weights: item.weightList || [],
+              // selectedWeight: item.weightList?.[0] || '',
               selectedWeight: item.weightList?.length
                 ? item.weightList[0]
                 : '420 g',

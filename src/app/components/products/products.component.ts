@@ -156,12 +156,17 @@ export class ProductsComponent {
   // productHighlights: string[] = []
   // productDescription: string[] = []
   selectedProduct!: ProductPreview;
+  cartCount: number = 0;
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
     private CustomerService: MaitreyaCustomerService,
     private shopService: ShopsService
-  ) { }
+  ) {
+    this.shopService.cartCountItems.subscribe(count => {
+      this.cartCount = count;
+    });
+  }
 
   @Output() openCart = new EventEmitter<MouseEvent>();
 
@@ -169,7 +174,7 @@ export class ProductsComponent {
     event.stopPropagation();
     // this.router.navigate(['/cart']);
     // this.openCart.emit(event);
-     this.CustomerService.open();
+    this.CustomerService.open();
   }
   setActive(section: string): void {
     this.activeSection = section;
@@ -707,10 +712,4 @@ export class ProductsComponent {
     this.router.navigate(["/products"])
   }
 
-  // cartpage(event: Event) {
-  //   console.log("22")
-  //   //  event.preventDefault();   // 🔥 REQUIRED
-  //   event.stopPropagation();
-  //   this.router.navigate(['/cart']);
-  // }
 }
