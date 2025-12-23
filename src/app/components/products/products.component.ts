@@ -142,21 +142,20 @@ export class ProductsComponent {
   activeSection: string = 'products';
   titleFirstPart: string = '';
   titleSecondPart: string = '';
-
-  // productImages: string[] = []
   selectedImage = ''
-
-  // productName = ''
-  // originalPrice = ''
-  // currentPrice = ''
-
-  // weightOptions: string[] = []
-  // selectedWeight = ''
-
-  // productHighlights: string[] = []
-  // productDescription: string[] = []
   selectedProduct!: ProductPreview;
   cartCount: number = 0;
+
+  Subcategories: SubCategory[] = []
+  newLaunchedProducts: Product[] = []
+  allProducts: Product[] = []
+  selectedCategory = 2
+
+
+  productCategories: ProductCategory[] = []
+  selectedMainCategoryId: string | null = null;
+  selectedSubCategoryId: string | null = null;
+
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
@@ -172,8 +171,6 @@ export class ProductsComponent {
 
   cartpage(event: MouseEvent) {
     event.stopPropagation();
-    // this.router.navigate(['/cart']);
-    // this.openCart.emit(event);
     this.CustomerService.open();
   }
   setActive(section: string): void {
@@ -321,15 +318,6 @@ export class ProductsComponent {
       behavior: 'smooth'
     });
   }
-  // scrollToSection(sectionId: string): void {
-  //   const element = document.getElementById(sectionId);
-  //   if (element) {
-  //     element.scrollIntoView({
-  //       behavior: 'smooth',
-  //       block: 'start'
-  //     });
-  //   }
-  // }
   scrollToSection(sectionId: string): void {
     const element = document.getElementById(sectionId);
     if (!element) return;
@@ -392,20 +380,6 @@ export class ProductsComponent {
   copyrightText = `Maitreya Traders Copyright ${new Date().getFullYear()}. All Rights Reserved.`;
 
 
-  Subcategories: SubCategory[] = []
-  newLaunchedProducts: Product[] = []
-  allProducts: Product[] = [
-  ]
-
-  selectedCategory = 2
-  filteredProducts: Product[] = []
-  paginatedProducts: Product[] = []
-
-  currentPage = 1
-  itemsPerPage = 6
-  totalPages = 1
-
-
   selectCategory(categoryId: string) {
     this.selectedCategoryId = categoryId;
     const selected = this.productCategories.find(c => c.id === categoryId);
@@ -422,30 +396,6 @@ export class ProductsComponent {
       : 'Products';
   }
 
-  // productImages: string[] = [
-  //   "../../../assets/blur1.png",
-  //   "../../../assets/side1.png",
-  //   "../../../assets/side2.png",
-  // ]
-
-  // selectedImage: string = this.productImages[0]
-
-  // // Product Information
-  // productName = "Mock Chicken"
-  // originalPrice = "£ 6.00"
-  // currentPrice = "£ 6.50"
-
-  // // Weight Options
-  // weightOptions: string[] = ["250 g", "450 g", "500 g", "750 g"]
-  // selectedWeight = "450 g"
-
-  // // Product Highlights
-  // productHighlights: string[] = [
-  //   "Indulge guilt-free in the delectable taste of vegan mock chicken, a plant-based delight.",
-  //   "Elevate your meals with the savory satisfaction of canned vegan mock chicken.",
-  //   "Savor the protein-packed goodness of mock chicken in every convenient can.",
-  //   "From stir-fries to sandwiches, explore versatile creations with canned vegan mock chicken.",
-  // ]
 
   // // Offer Section
   offerText = "Buy 3 Canned Product Get 1 Free Soya Chaap"
@@ -457,17 +407,6 @@ export class ProductsComponent {
     { src: "../../../assets/trus_brd.png", alt: "Trusted Seller" },
     { src: "../../../assets/secu_brd.png", alt: "Secure Payment" },
   ]
-
-  // Product Description
-  // productDescription: string[] = [
-  //   "The emergence of plant-based chicken alternatives has ushered in a delightful culinary revolution, providing a novel experience that closely mimics the taste, texture, and appearance of traditional chicken, all while remaining entirely vegetarian.",
-  //   "Crafted from an assortment of plant-based ingredients, these alternatives offer a cruelty-free and ethical option for individuals who adhere to vegetarian or vegan dietary preferences.",
-  //   "One of the standout benefits of these mock chicken products is their health-conscious profile. Compared to conventional chicken, they tend to contain lower levels of cholesterol and saturated fat, making them a heart-healthy choice.",
-  //   "However, they don't compromise on protein content, and they often provide an abundant source of plant-based protein. This not only supports muscle growth and repair but also contributes to an overall balanced diet.",
-  //   "Furthermore, plant-based chicken alternatives frequently incorporate dietary fiber and other essential nutrients, contributing to a nutritionally robust choice for those looking to maintain a wholesome diet.",
-  //   "Whether you're a dedicated vegetarian, a flexitarian exploring plant-based options, or simply seeking a healthier alternative to traditional chicken, these innovative products offer a tasty, ethical, and nutritious solution that aligns with both your values and your well-being.",
-  // ]
-
   // Select image from thumbnails
   selectImage(image: string): void {
     this.selectedImage = image
@@ -482,19 +421,6 @@ export class ProductsComponent {
   // Add to cart functionality
   addToCart2(product: any): void {
     console.log("selprd", product);
-    //  let obj = {
-    //   categoryID: product.categoryId,
-    //   // itemID: product.bookstoreID,
-    //   qunatity: 1,
-    //   locqunatity: 1,
-    //   categoryName: product.name,
-    //   price: product.price,
-    //   cartImage: product.image,
-    //   cartTitle: product.type,
-    //   // typeOfBook: "BookStore",
-    //   // booksList: [],
-    //   deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).getTime()
-    // }
     this.shopService.addToCart(product);
   }
 
@@ -504,12 +430,6 @@ export class ProductsComponent {
     this.router.navigate(["/products"])
   }
 
-  productCategories: ProductCategory[] = []
-  // main category
-  selectedMainCategoryId: string | null = null;
-
-  // sub category
-  selectedSubCategoryId: string | null = null;
 
   GetAllCategories() {
     this.CustomerService.showLoader.next(true);
@@ -518,7 +438,6 @@ export class ProductsComponent {
       (res: any) => {
         console.log(res)
         if (res.response === 3) {
-
           this.productCategories = res.CategoriesData.map((cat: any) => ({
             id: cat.categoryID,
             name: cat.categoryName,
@@ -530,26 +449,13 @@ export class ProductsComponent {
             }))
           }));
           console.log(this.productCategories)
-          // OPTIONAL: auto-select first category
-          // if (this.productCategories.length) {
-          //   this.selectCategory(this.productCategories[0].id);
-          // }
-
-          // if (this.productCategories.length) {
-          //   this.selectMainCategory(this.productCategories[0].id);
-          // }
-          // 🔥 GET categoryId from localStorage
           const storedCategoryId = localStorage.getItem("CategoryID");
-
-          // 🔥 FIND matching category
           const matchedCategory = this.productCategories.find(
             cat => cat.id === storedCategoryId
           );
 
           if (matchedCategory) {
             console.log(matchedCategory);
-
-            // ✅ Split category name dynamically
             const nameParts = matchedCategory.name.trim().split(' ');
 
             this.titleFirstPart = nameParts[0] || '';
@@ -566,8 +472,6 @@ export class ProductsComponent {
             this.selectCategory(this.productCategories[0].id);
             this.selectMainCategory(this.productCategories[0].id);
           }
-
-
           this.CustomerService.showLoader.next(false);
         } else {
           this.openSnackBar(res.message, '');
@@ -583,11 +487,8 @@ export class ProductsComponent {
 
   selectMainCategory(categoryId: string) {
     this.selectedMainCategoryId = categoryId;
-
     const category = this.productCategories.find(c => c.id === categoryId);
     this.Subcategories = category?.subCategories || [];
-
-    // 🔥 Auto-select first subcategory
     if (this.Subcategories.length) {
       this.selectSubCategory(this.Subcategories[0].id);
     } else {
@@ -596,10 +497,7 @@ export class ProductsComponent {
   }
   selectSubCategory(subCategoryId: string) {
     this.selectedSubCategoryId = subCategoryId;
-
-    // reset products before loading new ones
     this.newLaunchedProducts = [];
-
     this.GetSubCategoryProducts(this.selectedSubCategoryId);
   }
 
@@ -646,7 +544,6 @@ export class ProductsComponent {
             })
           );
 
-          // 🔥 APPEND response to existing array
           this.newLaunchedProducts = [
             ...this.newLaunchedProducts,
             ...mappedProducts
@@ -702,7 +599,6 @@ export class ProductsComponent {
     this.activeSection = "products"
     this.showProductsDropdown = false;
     this.IsProductView = false;
-    // this.router.navigate(["/products"])
     this.GetAllCategories();
 
   }

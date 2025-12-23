@@ -113,7 +113,7 @@ export class ShoppingCartComponent {
   incrementQuantity(item: CartItem): void {
     this.shopService.updateItem({
       itemID: item.id,
-      locqunatity: item.quantity + 1
+      locqunatity: item.locqunatity + 1
     });
   }
 
@@ -121,19 +121,18 @@ export class ShoppingCartComponent {
     if (item.quantity > 1) {
       this.shopService.updateItem({
         itemID: item.id,
-        locqunatity: item.quantity - 1
+        locqunatity: item.locqunatity - 1
       });
     } else {
       this.shopService.removeFromCart(item.id);
     }
   }
-
   removeItem(item: CartItem): void {
-    const index = this.cartItems.indexOf(item)
-    if (index > -1) {
-      this.cartItems.splice(index, 1)
-    }
+    this.shopService.removeFromCart(item.id);
   }
+
+
+
 
   applyDiscount(): void {
     if (this.discountCode.trim()) {

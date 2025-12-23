@@ -384,7 +384,7 @@ export class CheckoutPageComponent {
   incrementQuantity(item: CartItem): void {
   this.shopService.updateItem({
     itemID: item.id,
-    locqunatity: item.quantity + 1
+    locqunatity: item.locqunatity + 1
   });
 }
 
@@ -392,22 +392,16 @@ decrementQuantity(item: CartItem): void {
   if (item.quantity > 1) {
     this.shopService.updateItem({
       itemID: item.id,
-      locqunatity: item.quantity - 1
+      locqunatity: item.locqunatity - 1
     });
   } else {
     this.shopService.removeFromCart(item.id);
   }
 }
-
   removeItem(item: CartItem): void {
-    const index = this.cartItems.indexOf(item)
-    if (index > -1) {
-      this.cartItems.splice(index, 1)
-    }
-  }
-  // get subtotal(): number {
-  //   return this.cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  // }
+  this.shopService.removeFromCart(item.id);
+}
+ 
   get subtotal(): number {
     return this.cartItems.reduce((total, item) => total + item.salePrice * item.quantity, 0)
   }
