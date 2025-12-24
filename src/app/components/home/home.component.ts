@@ -149,6 +149,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.startAutoPlay();
     this.GetHomepageData();
     this.GetAllCategories();
+    this.newLaunchedProducts.forEach(p => {
+      if (!p.selectedWeight) {
+        p.selectedWeight = p.weights?.[0];
+      }
+    });
+
+    this.subscribeCart();
   }
 
   ngOnDestroy() {
@@ -359,29 +366,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           /* 🔥 NEW LAUNCHED PRODUCTS */
           this.newLaunchedProducts = posRes.NewProducts.map(
             (item: any, index: number): Product => ({
-              // id: index + 1,
-              // name: item.productName,
-              // subtitle: item.subCategoryName ? `(${item.subCategoryName})` : '',
-              // image: item.productImagesList?.length
-              //   ? `${this.baseUrl}${item.productImagesList[0]}`
-              //   : 'assets/no-image.png',
-              // // discount: item.offerPercentage ? Number(item.offerPercentage) : 0,
-              // discount: this.getDiscount(item.offerPercentage),
-              // originalPrice: item.productPrice.toFixed(2),
-              // price:
-              //   item.disCountProductprice && item.disCountProductprice > 0
-              //     ? item.disCountProductprice.toFixed(2)
-              //     : item.productPrice.toFixed(2),
-              // weights: item.weightList?.length
-              //   ? item.weightList
-              //   : ['450 g', '900 g', '1350 g'],
-              // selectedWeight: item.weightList?.length
-              //   ? item.weightList[0]
-              //   : '450 g',
-              // categoryId: item.categoryID,
-              // subcatId: item.subCategoryID,
-              // productID: item.productID
-
               id: index + 1,
               type: item.categoryName ? `(${item.categoryName})` : '',
               name: item.productName,
@@ -521,9 +505,87 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return numericValue ? Number(numericValue) : 0;
   }
+  cartItems: any[] = [];
 
-  //  showProductsDropdown = false
+  isInCart(product: any): boolean {
+    console.log('PRODUCT', product.productID, product.selectedWeight);
+    console.log('CART', this.cartItems);
 
+    return this.cartItems.some(item =>
+      item.productID === product.productID &&
+      item.weight === product.selectedWeight
+    );
+  }
+
+
+  getCartItem(product: Product) {
+    return this.cartItems.find(item =>
+      item.productID === product.productID &&
+      item.weight === product.selectedWeight
+    );
+  }
+incrementQuantity(item: any) {
+  this.shopService.updateItem({
+    productID: item.productID,
+    cartTitle: item.weight,          // ✅ REQUIRED
+    locqunatity: item.locqunatity + 1
+  });
+}
+
+decrementQuantity(item: any) {
+  if (item.locqunatity > 1) {
+    this.shopService.updateItem({
+      productID: item.productID,
+      cartTitle: item.weight,        // ✅ REQUIRED
+      locqunatity: item.locqunatity - 1
+    });
+  } else {
+    this.shopService.removeFromCart(item.productID, item.weight);
+  }
+}
+
+
+  // incrementQuantity(item: any) {
+  //   this.shopService.updateItem({
+  //     itemID: item.id,
+  //       productID: item.productID,
+  //     locqunatity: item.locqunatity + 1
+  //   });
+  // }
+
+  // decrementQuantity(item: any) {
+  //   if (item.locqunatity > 1) {
+  //     if (item.quantity > 1) {
+  //       this.shopService.updateItem({
+  //         itemID: item.id,
+  //           productID: item.productID,
+  //         locqunatity: item.locqunatity - 1
+  //       });
+  //     } else {
+  //       this.shopService.removeFromCart(item.productID, item.weight);
+  //     }
+  //   }
+  // }
+  private subscribeCart() {
+    this.shopService.getCart().subscribe(cart => {
+      // this.serverCartItems = cart;
+
+      this.cartItems = cart.map((item: any) => ({
+        id: item.itemID,
+        name: item.categoryName,
+        weight: item.cartTitle || '',
+        originalPrice: Number(item.price),
+        salePrice: Number(item.price),
+        quantity: item.locqunatity,
+        image: item.cartImage,
+        categoryId: item.categoryID,
+        subcatId: item.subcatID,
+        productID: item.productID,
+        locqunatity: item.locqunatity,
+      }));
+    });
+
+  }
 
 
 }

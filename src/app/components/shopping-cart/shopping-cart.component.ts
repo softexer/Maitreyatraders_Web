@@ -71,6 +71,8 @@ export class ShoppingCartComponent {
         subcatId: item.subcatID,
         productID: item.productID,
         locqunatity: item.locqunatity,
+
+        
       }));
     });
 
@@ -93,6 +95,7 @@ export class ShoppingCartComponent {
       subcatId: item.subcatID,
       productID: item.productID,
       locqunatity: item.locqunatity,
+      
     }));
 
     this.shopService.updateCartCountFromApi(this.serverCartItems);
@@ -110,26 +113,47 @@ export class ShoppingCartComponent {
   get totalAmount(): number {
     return this.subTotal + this.deliveryFee
   }
-  incrementQuantity(item: CartItem): void {
+  // incrementQuantity(item: CartItem): void {
+  //   this.shopService.updateItem({
+  //     itemID: item.id,
+  //     locqunatity: item.locqunatity + 1
+  //   });
+  // }
+incrementQuantity(item: CartItem): void {
+  this.shopService.updateItem({
+    productID: item.productID,
+    cartTitle: item.weight,
+    locqunatity: item.locqunatity + 1
+  });
+}
+decrementQuantity(item: CartItem): void {
+  if (item.locqunatity > 1) {
     this.shopService.updateItem({
-      itemID: item.id,
-      locqunatity: item.locqunatity + 1
+      productID: item.productID,
+      cartTitle: item.weight,
+      locqunatity: item.locqunatity - 1
     });
+  } else {
+    this.shopService.removeFromCart(item.productID, item.weight);
   }
+}
+removeItem(item: CartItem): void {
+  this.shopService.removeFromCart(item.productID, item.weight);
+}
 
-  decrementQuantity(item: CartItem): void {
-    if (item.quantity > 1) {
-      this.shopService.updateItem({
-        itemID: item.id,
-        locqunatity: item.locqunatity - 1
-      });
-    } else {
-      this.shopService.removeFromCart(item.id);
-    }
-  }
-  removeItem(item: CartItem): void {
-    this.shopService.removeFromCart(item.id);
-  }
+  // decrementQuantity(item: CartItem): void {
+  //   if (item.quantity > 1) {
+  //     this.shopService.updateItem({
+  //       itemID: item.id,
+  //       locqunatity: item.locqunatity - 1
+  //     });
+  //   } else {
+  //     this.shopService.removeFromCart(item.id);
+  //   }
+  // }
+  // removeItem(item: CartItem): void {
+  //   this.shopService.removeFromCart(item.id);
+  // }
 
 
 

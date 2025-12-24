@@ -379,28 +379,49 @@ export class CheckoutPageComponent {
     this.activeSection = section
     this.router.navigate(["/products"])
   }
-
-
-  incrementQuantity(item: CartItem): void {
+incrementQuantity(item: CartItem): void {
   this.shopService.updateItem({
-    itemID: item.id,
+    productID: item.productID,
+    cartTitle: item.weight,
     locqunatity: item.locqunatity + 1
   });
 }
-
 decrementQuantity(item: CartItem): void {
-  if (item.quantity > 1) {
+  if (item.locqunatity > 1) {
     this.shopService.updateItem({
-      itemID: item.id,
+      productID: item.productID,
+      cartTitle: item.weight,
       locqunatity: item.locqunatity - 1
     });
   } else {
-    this.shopService.removeFromCart(item.id);
+    this.shopService.removeFromCart(item.productID, item.weight);
   }
 }
-  removeItem(item: CartItem): void {
-  this.shopService.removeFromCart(item.id);
+removeItem(item: CartItem): void {
+  this.shopService.removeFromCart(item.productID, item.weight);
 }
+
+
+//   incrementQuantity(item: CartItem): void {
+//   this.shopService.updateItem({
+//     itemID: item.id,
+//     locqunatity: item.locqunatity + 1
+//   });
+// }
+
+// decrementQuantity(item: CartItem): void {
+//   if (item.quantity > 1) {
+//     this.shopService.updateItem({
+//       itemID: item.id,
+//       locqunatity: item.locqunatity - 1
+//     });
+//   } else {
+//     this.shopService.removeFromCart(item.id);
+//   }
+// }
+//   removeItem(item: CartItem): void {
+//   this.shopService.removeFromCart(item.id);
+// }
  
   get subtotal(): number {
     return this.cartItems.reduce((total, item) => total + item.salePrice * item.quantity, 0)

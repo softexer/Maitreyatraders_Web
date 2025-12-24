@@ -62,7 +62,7 @@
                         <path d="m21 21-4.35-4.35"></path>
                     </svg>
                 </button>
-               <button class="icon-btn" (click)="cartpage($event)">
+                <button class="icon-btn" (click)="cartpage($event)">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="9" cy="21" r="1"></circle>
                         <circle cx="20" cy="21" r="1"></circle>
@@ -82,7 +82,7 @@
                 <span class="title-launched">{{ titleSecondPart }}</span>
             </h2>
 
-            <div class="row" >
+            <div class="row">
                 <!-- *ngIf="newLaunchedProducts.length>0" -->
                 <div class="col-md-2 col-sm-6 col-12 mobileapps scrollable-content"
                     style="height: 500px; overflow-y: auto;" *ngIf="Subcategories.length>0">
@@ -124,8 +124,18 @@
                                         </div>
 
 
-                                        <button class="add-to-cart-btn" (click)="addToCart(product)">Add to
-                                            Cart</button>
+                                        <!-- <button class="add-to-cart-btn" (click)="addToCart(product)">Add to
+                                            Cart</button> -->
+                                        <button *ngIf="!isInCart(product)" class="add-to-cart-btn"
+                                            (click)="addToCart(product)">
+                                            Add to Cart
+                                        </button>
+                                        <div *ngIf="isInCart(product)" class="quantity-controls">
+                                            <button (click)="decrementQuantity(getCartItem(product))"
+                                                [disabled]="getCartItem(product)?.locqunatity <= 1">-</button>
+                                            <span>{{ getCartItem(product)?.locqunatity }}</span>
+                                            <button (click)="incrementQuantity(getCartItem(product))">+</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -194,6 +204,7 @@
 
                 <!-- Add to Cart Button -->
                 <button class="add-to-cart-btn2" (click)="addToCart2(selectedProduct)">Add to Cart</button>
+
 
                 <!-- Product Highlight Section -->
                 <div class="product-highlight">

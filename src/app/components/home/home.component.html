@@ -168,9 +168,20 @@
                                 </option>
                             </select>
                         </div>
+                        <!-- <button class="add-to-cart-btn" (click)="addToCart(product)">Add to Cart</button> -->
+                        <!-- ADD TO CART -->
+                        <button *ngIf="!isInCart(product)" class="add-to-cart-btn" (click)="addToCart(product)">
+                            Add to Cart
+                        </button>
+                        <div *ngIf="isInCart(product)" class="quantity-controls">
+                            <button (click)="decrementQuantity(getCartItem(product))"
+                                [disabled]="getCartItem(product)?.locqunatity <= 1">-</button>
+                            <span>{{ getCartItem(product)?.locqunatity }}</span>
+                            <button (click)="incrementQuantity(getCartItem(product))">+</button>
+                        </div>
 
 
-                        <button class="add-to-cart-btn" (click)="addToCart(product)">Add to Cart</button>
+
                     </div>
                 </div>
             </div>
@@ -211,7 +222,16 @@
                                     </option>
                                 </select>
                             </div>
-                            <button class="add-to-cart-btn" (click)="addToCart(product)">Add to Cart</button>
+                            <!-- <button class="add-to-cart-btn" (click)="addToCart(product)">Add to Cart</button> -->
+                             <button *ngIf="!isInCart(product)" class="add-to-cart-btn" (click)="addToCart(product)">
+                            Add to Cart
+                        </button>
+                        <div *ngIf="isInCart(product)" class="quantity-controls">
+                            <button (click)="decrementQuantity(getCartItem(product))"
+                                [disabled]="getCartItem(product)?.locqunatity <= 1">-</button>
+                            <span>{{ getCartItem(product)?.locqunatity }}</span>
+                            <button (click)="incrementQuantity(getCartItem(product))">+</button>
+                        </div>
                         </div>
                     </div>
                 </div>

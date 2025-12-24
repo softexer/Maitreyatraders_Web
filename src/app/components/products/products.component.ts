@@ -183,6 +183,14 @@ export class ProductsComponent {
     this.IsProductView = false;
     this.startAutoPlay();
     this.GetAllCategories();
+
+     this.newLaunchedProducts.forEach(p => {
+      if (!p.selectedWeight) {
+        p.selectedWeight = p.weights?.[0];
+      }
+    });
+
+    this.subscribeCart();
   }
 
   ngOnDestroy() {
@@ -429,8 +437,63 @@ export class ProductsComponent {
     console.log("[v0] Navigating to products page")
     this.router.navigate(["/products"])
   }
+  cartItems: any[] = [];
+  isInCart(product: any): boolean {
+    console.log('PRODUCT', product.productID, product.selectedWeight);
+    console.log('CART', this.cartItems);
+
+    return this.cartItems.some(item =>
+      item.productID === product.productID &&
+      item.weight === product.selectedWeight
+    );
+  }
 
 
+  getCartItem(product: Product) {
+    return this.cartItems.find(item =>
+      item.productID === product.productID &&
+      item.weight === product.selectedWeight
+    );
+  }
+  incrementQuantity(item: any) {
+    this.shopService.updateItem({
+      productID: item.productID,
+      cartTitle: item.weight,          // ✅ REQUIRED
+      locqunatity: item.locqunatity + 1
+    });
+  }
+
+  decrementQuantity(item: any) {
+    if (item.locqunatity > 1) {
+      this.shopService.updateItem({
+        productID: item.productID,
+        cartTitle: item.weight,        // ✅ REQUIRED
+        locqunatity: item.locqunatity - 1
+      });
+    } else {
+      this.shopService.removeFromCart(item.productID, item.weight);
+    }
+  }
+ private subscribeCart() {
+    this.shopService.getCart().subscribe(cart => {
+      // this.serverCartItems = cart;
+
+      this.cartItems = cart.map((item: any) => ({
+        id: item.itemID,
+        name: item.categoryName,
+        weight: item.cartTitle || '',
+        originalPrice: Number(item.price),
+        salePrice: Number(item.price),
+        quantity: item.locqunatity,
+        image: item.cartImage,
+        categoryId: item.categoryID,
+        subcatId: item.subcatID,
+        productID: item.productID,
+        locqunatity: item.locqunatity,
+      }));
+    });
+
+  }
   GetAllCategories() {
     this.CustomerService.showLoader.next(true);
 

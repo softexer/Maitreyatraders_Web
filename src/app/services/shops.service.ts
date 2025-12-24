@@ -70,61 +70,129 @@ export class ShopsService {
 
     this.cartCountItems.next(totalCount);
   }
+addToCart(product: any) {
+  const stored = localStorage.getItem('cartItems');
+  this.cartItems = stored ? JSON.parse(stored) : [];
 
+  // 🔑 UNIQUE MATCH (IMPORTANT)
+  const existing = this.cartItems.find(i =>
+    i.productID === product.productID &&
+    i.cartTitle === product.selectedWeight
+  );
 
-  addToCart(product: any) {
-    const stored = localStorage.getItem('cartItems');
-    this.cartItems = stored ? JSON.parse(stored) : [];
-
-    const itemId = product.itemID || product.bookstoreID || product.id;
-
-    const existing = this.cartItems.find(i => i.itemID === itemId);
-
-    if (existing) {
-      existing.locqunatity += 1;
-    } else {
-      this.cartItems.push({
-        itemID: itemId,
-        categoryID: product.categoryId,
-        subcatID: product.subcatId,
-        productID: product.productID,
-        qunatity: 1,
-        locqunatity: 1,
-        categoryName: product.name,
-        price: product.price,
-        cartImage: product.image,
-        cartTitle: product.type,
-        deliveryDate: Date.now() + 7 * 24 * 60 * 60 * 1000
-      });
-    }
-
-    // ✅ SINGLE SOURCE UPDATE
-    localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
-    this.cartSubject.next(this.cartItems);
-
-    const total = this.cartItems.reduce((s, i) => s + i.locqunatity, 0);
-    this.cartCountItems.next(total);
+  if (existing) {
+    existing.locqunatity += 1;
+  } else {
+    this.cartItems.push({
+      // ⚠️ itemID is NOT used for matching anymore
+      itemID: product.productID,              // optional, keep if backend needs
+      productID: product.productID,            // ✅ MUST MATCH PRODUCT
+      categoryID: product.categoryId,
+      subcatID: product.subcatId,
+      categoryName: product.name,
+      price: product.originalPrice,
+      cartImage: product.image,
+      cartTitle: product.selectedWeight,       // ✅ weight
+      qunatity: 1,
+      locqunatity: 1,
+      deliveryDate: Date.now() + 7 * 24 * 60 * 60 * 1000
+    });
   }
 
-  updateItem(updatedItem: any) {
-    const index = this.cartItems.findIndex(
-      item => item.itemID === updatedItem.itemID
-    );
+  // ✅ SINGLE SOURCE UPDATE
+  localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+  this.cartSubject.next(this.cartItems);
 
-    if (index !== -1) {
-      this.cartItems[index] = {
-        ...this.cartItems[index],   // ✅ keep image & all data
-        ...updatedItem              // ✅ update only changed fields
-      };
+  const total = this.cartItems.reduce((s, i) => s + i.locqunatity, 0);
+  this.cartCountItems.next(total);
+}
 
-      this.updateLocalStorage();
-    }
+
+  // addToCart(product: any) {
+  //   const stored = localStorage.getItem('cartItems');
+  //   this.cartItems = stored ? JSON.parse(stored) : [];
+
+  //   const itemId = product.itemID || product.bookstoreID || product.id;
+
+  //   const existing = this.cartItems.find(i => i.itemID === itemId);
+
+  //   if (existing) {
+  //     existing.locqunatity += 1;
+  //   } else {
+  //     this.cartItems.push({
+  //       itemID: itemId,        
+  //       categoryID: product.categoryId,
+  //       subcatID: product.subcatId,
+  //       productID: product.productID,
+  //       qunatity: 1,
+  //       locqunatity: 1,
+  //       categoryName: product.name,
+  //       price: product.price,
+  //       cartImage: product.image,
+  //       // cartTitle: product.type,
+  //         cartTitle: product.selectedWeight, 
+  //       deliveryDate: Date.now() + 7 * 24 * 60 * 60 * 1000
+  //     });
+  //   }
+
+  //   // ✅ SINGLE SOURCE UPDATE
+  //   localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+  //   this.cartSubject.next(this.cartItems);
+
+  //   const total = this.cartItems.reduce((s, i) => s + i.locqunatity, 0);
+  //   this.cartCountItems.next(total);
+  // }
+updateItem(data: {
+  productID: string;
+  cartTitle: string;
+  locqunatity: number;
+}) {
+  const stored = localStorage.getItem('cartItems');
+  this.cartItems = stored ? JSON.parse(stored) : [];
+
+  const item = this.cartItems.find(i =>
+    i.productID === data.productID &&
+    i.cartTitle === data.cartTitle
+  );
+
+  if (item) {
+    item.locqunatity = data.locqunatity;
   }
 
-  removeFromCart(productId: number) {
-    this.cartItems = this.cartItems.filter(p => p.itemID !== productId);
-    this.updateLocalStorage();
-  }
+  localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+  this.cartSubject.next(this.cartItems);
+}
+
+  // updateItem(updatedItem: any) {
+  //   const index = this.cartItems.findIndex(
+  //     item => item.itemID === updatedItem.itemID
+  //   );
+
+  //   if (index !== -1) {
+  //     this.cartItems[index] = {
+  //       ...this.cartItems[index],   // ✅ keep image & all data
+  //       ...updatedItem              // ✅ update only changed fields
+  //     };
+
+  //     this.updateLocalStorage();
+  //   }
+  // }
+removeFromCart(productID: string, cartTitle: string) {
+  const stored = localStorage.getItem('cartItems');
+  this.cartItems = stored ? JSON.parse(stored) : [];
+
+  this.cartItems = this.cartItems.filter(i =>
+    !(i.productID === productID && i.cartTitle === cartTitle)
+  );
+
+  localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+  this.cartSubject.next(this.cartItems);
+}
+
+  // removeFromCart(productId: number) {
+  //   this.cartItems = this.cartItems.filter(p => p.itemID !== productId);
+  //   this.updateLocalStorage();
+  // }
 
   clearCart() {
     this.cartItems = [];

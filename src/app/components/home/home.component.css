@@ -131,8 +131,8 @@
     color: white;
     font-size: 8px;
     font-weight: bold;
-    padding: 2px 8px;
-    padding: 6px;
+    padding: 3px 4px;
+    /* padding: 6px; */
     border-radius: 50%;
     line-height: 1;
     pointer-events: none; /* allow clicking the button below */
@@ -595,7 +595,7 @@
 
 .add-to-cart-btn {
   width: 100%;
-  padding: 8px;
+  padding: 6px;
   background-color: #f4a300;
   color: #000;
   border: none;
@@ -613,6 +613,43 @@
 
 .add-to-cart-btn:active {
   transform: scale(0.98);
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color:  #f4a300;
+  border-radius: 20px;
+  padding: 2px 40px;
+  width: fit-content;
+    width: 100%;
+}
+
+.quantity-controls button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.3s;
+}
+
+.quantity-controls button:hover:not(:disabled) {
+  color: black
+}
+
+.quantity-controls button:disabled {
+  color: white;
+  cursor: not-allowed;
+}
+
+.quantity-controls span {
+  min-width: 20px;
+  text-align: center;
+  font-size: 14px;
+   color: white;
 }
 
 /* Adding styles for Best Sellers Section */
