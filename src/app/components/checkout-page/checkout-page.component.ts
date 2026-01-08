@@ -4,6 +4,9 @@ import { Router } from '@angular/router';
 import { ShopsService } from "src/app/services/shops.service";
 import { MaitreyaCustomerService } from "src/app/services/maitreya-customer.service";
 import { HttpErrorResponse } from '@angular/common/http';
+import { StripePaymentsComponent } from '../stripe-payments/stripe-payments.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfpaymentStatusComponent } from '../confpayment-status/confpayment-status.component';
 interface ProductCategory {
   id: string
   name: string
@@ -19,17 +22,40 @@ interface SubCategory {
 }
 
 interface CartItem {
-  id: number
-  name: string
-  weight: string
-  originalPrice: number
-  salePrice: number
-  quantity: number
-  image: string
-  categoryId: number
-  subcatId: number
-  productID: string
-   locqunatity: number;   // ✅ ADD THIS
+  // id: number
+  // name: string
+  // weight: string
+  // originalPrice: number
+  // salePrice: number
+  // quantity: number
+  // image: string
+  // categoryId: number
+  // subcatId: number
+  // productID: string
+  // locqunatity: number;   // ✅ ADD THIS
+
+  id: number;
+  productID: string;
+  name: string;
+  // 👇 ADD THIS
+  cartTitle: {
+    weightNumber: number;
+    weightUnit: string;
+    productPrice: number;
+    disCountProductprice: number;
+  };
+
+  weightLabel: string;
+
+  originalPrice: number;
+  salePrice: number;
+
+  quantity: number;
+  locqunatity: number;
+
+  image: string;
+  categoryId: string;
+  subcatId: string;
 }
 
 @Component({
@@ -115,37 +141,22 @@ export class CheckoutPageComponent {
   cartItems: CartItem[] = [];
   serverCartItems: Array<any> = [];
   formSubmitted = false;
-   cartCount: number = 0;
-     @Output() openCart = new EventEmitter<MouseEvent>();
-   
-    
+  cartCount: number = 0;
+  @Output() openCart = new EventEmitter<MouseEvent>();
+
+
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
     private CustomerService: MaitreyaCustomerService,
-    private shopService: ShopsService) {this.shopService.cartCountItems.subscribe(count => {
+    private dialog: MatDialog,
+    private shopService: ShopsService) {
+    this.shopService.cartCountItems.subscribe(count => {
       this.cartCount = count;
-    }); }
-
-  getCartItems() {
-    this.serverCartItems = this.shopService.getCartItems();
-    console.log(this.serverCartItems);
-    this.cartItems = this.serverCartItems.map((item: any) => ({
-      id: item.itemID,
-      name: item.categoryName,
-      weight: item.cartTitle || '',
-      originalPrice: Number(item.price),
-      salePrice: Number(item.price),   // adjust if discount exists
-      quantity: item.locqunatity,
-      image: item.cartImage,
-      categoryId: item.categoryID,
-      subcatId: item.subcatID,
-      productID: item.productID,
-       locqunatity: item.locqunatity,  // ✅ ADD THIS
-    }));
-
-    // this.shopService.updateCartCountFromApi(this.serverCartItems);
+    });
   }
+
+
   setActive(section: string): void {
     this.activeSection = section;
     this.showProductsDropdown = false;
@@ -154,36 +165,88 @@ export class CheckoutPageComponent {
   ngOnInit() {
     this.GetAllCategories();
     // this.getCartItems();
-      this.subscribeCart();
+    this.subscribeCart();
   }
- cartpage(event: MouseEvent) {
-       event.stopPropagation();
-       // this.router.navigate(['/cart']);
-       // this.openCart.emit(event);
-       this.CustomerService.open();
-     }
- private subscribeCart() {
+  cartpage(event: MouseEvent) {
+    event.stopPropagation();
+    // this.router.navigate(['/cart']);
+    // this.openCart.emit(event);
+    this.CustomerService.open();
+  }
+  // private subscribeCart() {
+  //   this.shopService.getCart().subscribe(cart => {
+  //     this.serverCartItems = cart;
+
+  //     this.cartItems = cart.map((item: any) => ({
+  //       id: item.itemID,
+  //       name: item.categoryName,
+  //       weight: item.cartTitle || '',
+  //       originalPrice: Number(item.price),
+  //       salePrice: Number(item.price),
+  //       quantity: item.locqunatity,
+  //       image: item.cartImage,
+  //       categoryId: item.categoryID,
+  //       subcatId: item.subcatID,
+  //       productID: item.productID,
+  //       locqunatity: item.locqunatity,
+  //     }));
+  //   });
+
+  // }
+
+  private subscribeCart() {
     this.shopService.getCart().subscribe(cart => {
       this.serverCartItems = cart;
+      // this.cartItems = cart.map((item: any) => {
+      //   const w = item.cartTitle;
+      //   return {
+      //     id: item.itemID,
+      //     name: item.categoryName,
 
+      //     // ✅ Weight display
+      //     weight: w ? `${w.weightNumber} ${w.weightUnit}` : '',
+
+      //     // ✅ Prices from cartTitle
+      //     originalPrice: w?.productPrice || 0,
+      //     salePrice:
+      //       w?.disCountProductprice && w.disCountProductprice > 0
+      //         ? w.disCountProductprice
+      //         : w?.productPrice || 0,
+
+      //     quantity: item.locqunatity,
+      //     locqunatity: item.locqunatity,
+
+      //     image: item.cartImage,
+      //     categoryId: item.categoryID,
+      //     subcatId: item.subcatID,
+      //     productID: item.productID,
+      //   };
+      // });
       this.cartItems = cart.map((item: any) => ({
         id: item.itemID,
+        productID: item.productID,
         name: item.categoryName,
-        weight: item.cartTitle || '',
-        originalPrice: Number(item.price),
-        salePrice: Number(item.price),
+
+        cartTitle: item.cartTitle,   // 👈 REQUIRED
+
+        weightLabel: `${item.cartTitle.weightNumber} ${item.cartTitle.weightUnit}`,
+
+        originalPrice: item.cartTitle.productPrice,
+        // salePrice:
+        //   item.cartTitle.disCountProductprice > 0
+        //     ? item.cartTitle.disCountProductprice
+        //     : item.cartTitle.productPrice,
+        salePrice: item.price,
+
         quantity: item.locqunatity,
+        locqunatity: item.locqunatity,
+
         image: item.cartImage,
         categoryId: item.categoryID,
         subcatId: item.subcatID,
-        productID: item.productID,
-        locqunatity: item.locqunatity,
       }));
     });
-
   }
- 
-
 
   scrollToAbout() {
     document.getElementById('about')?.scrollIntoView({
@@ -275,7 +338,7 @@ export class CheckoutPageComponent {
     this.router.navigate(["/products"])
   }
 
-  productCategories: ProductCategory[] = [ ]
+  productCategories: ProductCategory[] = []
   // main category
   selectedMainCategoryId: string | null = null;
 
@@ -379,50 +442,30 @@ export class CheckoutPageComponent {
     this.activeSection = section
     this.router.navigate(["/products"])
   }
-incrementQuantity(item: CartItem): void {
-  this.shopService.updateItem({
-    productID: item.productID,
-    cartTitle: item.weight,
-    locqunatity: item.locqunatity + 1
-  });
-}
-decrementQuantity(item: CartItem): void {
-  if (item.locqunatity > 1) {
+  incrementQuantity(item: CartItem): void {
     this.shopService.updateItem({
       productID: item.productID,
-      cartTitle: item.weight,
-      locqunatity: item.locqunatity - 1
+      cartTitle: item.cartTitle,
+      locqunatity: item.locqunatity + 1
     });
-  } else {
-    this.shopService.removeFromCart(item.productID, item.weight);
   }
-}
-removeItem(item: CartItem): void {
-  this.shopService.removeFromCart(item.productID, item.weight);
-}
+  decrementQuantity(item: CartItem): void {
+    if (item.locqunatity > 1) {
+      this.shopService.updateItem({
+        productID: item.productID,
+        cartTitle: item.cartTitle,
+        locqunatity: item.locqunatity - 1
+      });
+    } else {
+      this.shopService.removeFromCart(item.productID, item.cartTitle);
+    }
+  }
+  removeItem(item: CartItem): void {
+    this.shopService.removeFromCart(item.productID, item.cartTitle);
+  }
 
 
-//   incrementQuantity(item: CartItem): void {
-//   this.shopService.updateItem({
-//     itemID: item.id,
-//     locqunatity: item.locqunatity + 1
-//   });
-// }
 
-// decrementQuantity(item: CartItem): void {
-//   if (item.quantity > 1) {
-//     this.shopService.updateItem({
-//       itemID: item.id,
-//       locqunatity: item.locqunatity - 1
-//     });
-//   } else {
-//     this.shopService.removeFromCart(item.id);
-//   }
-// }
-//   removeItem(item: CartItem): void {
-//   this.shopService.removeFromCart(item.id);
-// }
- 
   get subtotal(): number {
     return this.cartItems.reduce((total, item) => total + item.salePrice * item.quantity, 0)
   }
@@ -434,11 +477,6 @@ removeItem(item: CartItem): void {
     console.log("Applying promo code:", this.promoCode)
     // Add your promo code logic here
   }
-
-  // processPayment(): void {
-  //   console.log("Cart Items:", this.cartItems)
-  //   console.log("Processing payment...");
-
   markAllTouched(form: any) {
     Object.values(form.controls).forEach((control: any) => {
       control.markAsTouched();
@@ -475,7 +513,6 @@ removeItem(item: CartItem): void {
       };
     }
   }
-
   processPayment(form: any): void {
     if (form.invalid) {
       form.form.markAllAsTouched();   // 🔥 KEY FIX
@@ -488,14 +525,114 @@ removeItem(item: CartItem): void {
       this.openSnackBar('Your cart is empty', '');
       return;
     }
-    // this.formSubmitted = true;
+    let apiPayload = {
+      // userID: this.user.userID,
+      // conferenceID: this.pid,
+      // Currency: "" + cifrmpayload.currency,
+      // date: cifrmpayload.orderDate,
+      // Amount: amts == 0 && !this.isAbroadPay ? "" + cifrmpayload.amount : "" + amts,
+      // TotalAmount: totamt == 0 && !this.isAbroadPay ? "" + cifrmpayload.total : "" + totamt,
+      // usdAmount: usdamts == 0 && this.isAbroadPay ? "" + cifrmpayload.amount : "" + usdamts,
+      // usdTotalAmount: usdtotamt == 0 && this.isAbroadPay ? "" + cifrmpayload.total : "" + usdtotamt,
+      // VAT: "" + cifrmpayload.vat,
+      // VATRegistrationNo: cifrmpayload.vatRegisterNo,
+      // PurchaseOrderNo: cifrmpayload.purchaseOrderNo,
+      // PaymentType: this.selectedOption,
+      // PaymentData: ptmtdata,
+      // AddDelegatelist: deligateData,
+      // YourAccountDetails: {
+      //   userID: addrpayload.userID,
+      //   Title: addrpayload.Title,
+      //   FirstName: addrpayload.FirstName,
+      //   LastName: addrpayload.LastName,
+      //   JobTitle: addrpayload.JobTitle,
+      //   Gender: addrpayload.Gender,
+      //   VATRegistration: addrpayload.VATRegistration,
+      // },
+      // AddressDetails: {
+      //   Institute_Company: addrpayload.Institute_Company,
+      //   Address: addrpayload.Address,
+      //   City: addrpayload.City,
+      //   PostalCode: addrpayload.PostalCode,
+      //   Country: addrpayload.Country,
+      // }
+    }
+    let dailogRef = this.dialog.open(StripePaymentsComponent, {
+      panelClass: "col-md-4",
+      hasBackdrop: true,
+      disableClose: true,
+      data: {
+        // totalAmt: cifrmpayload.total,
+        // inrAmt: cifrmpayload.total,
+        totalAmt: 1,
+        inrAmt: 1,
+      }
+    });
+    dailogRef.afterClosed().subscribe((res) => {
+      if (res) {
+        // if (res.pstatus) {
+        //   this.processPayment1(form, res.paymentData);
+        // } else {
+        //   let obj = {
+        //     isSuccess: false,
+        //   };
+        //   let dialog = this.dialog.open(ConfpaymentStatusComponent, {
+        //     panelClass: "col-md-4",
+        //     hasBackdrop: true,
+        //     disableClose: true,
+        //     data: obj,
+        //   });
+        //   this.CustomerService.showLoader.next(false);
+        // }
+        this.processPayment1(form, res.paymentData);
+      }
 
-    // if (form.invalid) {
-    //   // optional: scroll to first error
-    //   const firstInvalid = document.querySelector('.ng-invalid');
-    //   firstInvalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    //   return;
-    // }
+    });
+  }
+  stripePaymentComplete(paymentStatusObj: any) {
+    this.CustomerService.RegisterConference(paymentStatusObj).subscribe((posRes: any) => {
+      if (posRes.response == 3) {
+        this.openSnackBar(posRes.message, "");
+        localStorage.removeItem("conferencePayStatus");
+        this.CustomerService.showLoader.next(false);
+        let obj = {
+          isSuccess: true,
+        };
+        let dialog = this.dialog.open(ConfpaymentStatusComponent, {
+          panelClass: "col-md-4",
+          hasBackdrop: true,
+          disableClose: true,
+          data: obj,
+        });
+        dialog.afterClosed().subscribe((res: any) => {
+          // this.CustomerService.isRozarPayStatus.next(true);
+          // this.isloading = false;
+        })
+      } else {
+        // this.isloading = false;
+        this.openSnackBar(posRes.message, "");
+        this.CustomerService.showLoader.next(false);
+      }
+    }, (err: HttpErrorResponse) => {
+      this.openSnackBar(err.message, "");
+      this.CustomerService.showLoader.next(false);
+      if (err.error instanceof Error) {
+        console.warn("Client SIde Error", err.error);
+      } else {
+        console.warn("Server Error", err.error);
+      }
+    })
+  }
+  processPayment1(form: any, paymentData: any): void {
+    if (form.invalid) {
+      form.form.markAllAsTouched();   // 🔥 KEY FIX
+      return;
+    }
+
+    if (this.cartItems.length === 0) {
+      this.openSnackBar('Your cart is empty', '');
+      return;
+    }
     /* ---------- Contact ---------- */
     const contactData = this.contactInfo_cart.emailOrMobile;
 
@@ -509,7 +646,6 @@ removeItem(item: CartItem): void {
       city: this.deliveryInfo.city,
       state: this.deliveryInfo.state,
       pincode: this.deliveryInfo.pinCode,
-      // phoneNumber: this.deliveryInfo.phoneNumber
     };
 
     /* ---------- Billing Address ---------- */
@@ -524,17 +660,37 @@ removeItem(item: CartItem): void {
         city: this.billingAddress.city,
         state: this.billingAddress.state,
         pincode: this.billingAddress.pinCode,
-        // phoneNumber: this.billingAddress.phoneNumber
       };
     /* ---------- Products ---------- */
+    // const products = this.cartItems.map(item => ({
+    //   productID: item.productID,
+    //   productName: item.name,
+    //   categoryID: "" + item.categoryId,
+    //   subCategoryID: "" + item.subcatId,
+    //   quantity: item.quantity,
+    //   price: item.salePrice,
+    //   weight: item.weight,
+    //   productImagePath: item.image
+    // }));
     const products = this.cartItems.map(item => ({
       productID: item.productID,
       productName: item.name,
-      categoryID: "" + item.categoryId,
-      subCategoryID: "" + item.subcatId,
+
+      categoryID: String(item.categoryId),
+      subCategoryID: String(item.subcatId),
+
       quantity: item.quantity,
-      price: item.salePrice,
-      weight: item.weight,
+
+      // ✅ PRICE LOCKED TO WEIGHT
+      price: item.cartTitle.productPrice,
+      // discountPrice: item.cartTitle.disCountProductprice,
+      weight: item.cartTitle.weightNumber + " " + item.cartTitle.weightUnit,
+      // ✅ FULL WEIGHT OBJECT
+      // weightDetails: {
+      //   weightNumber: item.cartTitle.weightNumber,
+      //   weightUnit: item.cartTitle.weightUnit
+      // },
+
       productImagePath: item.image
     }));
 
@@ -552,7 +708,7 @@ removeItem(item: CartItem): void {
       totalToPay: this.totalToPay,
       paymentType: "Razorpay",
       Products: products,
-      paymentData: {} // filled after Razorpay success
+      paymentData: paymentData // filled after Razorpay success
     };
 
     console.log("API Payload:", apiPayload);

@@ -1605,6 +1605,7 @@
   text-decoration: none;
   font-size: 13px;
   transition: color 0.3s ease;
+    cursor: none;
 }
 
 .footer-links a:hover {
@@ -1807,8 +1808,11 @@
 }
 
 .thumbnail-image {
-  width: 100%;
+  /* width: 100%;
   height: 100%;
+  object-fit: cover; */
+  width: 60px;
+  height: 60px;
   object-fit: cover;
   transition: filter 0.3s ease;
 }

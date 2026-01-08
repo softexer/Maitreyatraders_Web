@@ -5,7 +5,7 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from 'src/material/material.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
+import { NgxStripeModule } from 'ngx-stripe';
 
 // import { AngularFireModule } from '@angular/fire/compat';
 // import { AngularFireAuth } from '@angular/fire/compat/auth';
@@ -32,6 +32,8 @@ import { FooterComponent } from './components/footer/footer.component';
 import { ProductsComponent } from './components/products/products.component';
 import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.component';
 import { CheckoutPageComponent } from './components/checkout-page/checkout-page.component';
+import { StripePaymentsComponent } from './components/stripe-payments/stripe-payments.component';
+import { ConfpaymentStatusComponent } from './components/confpayment-status/confpayment-status.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +44,8 @@ import { CheckoutPageComponent } from './components/checkout-page/checkout-page.
     ProductsComponent,
     ShoppingCartComponent,
     CheckoutPageComponent,
+    StripePaymentsComponent,
+    ConfpaymentStatusComponent,
   ],
   imports: [
     BrowserModule,
@@ -51,7 +55,7 @@ import { CheckoutPageComponent } from './components/checkout-page/checkout-page.
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-
+   NgxStripeModule.forRoot(environment.stripe.publicKey),
   ],
   schemas: [NO_ERRORS_SCHEMA],
   providers: [

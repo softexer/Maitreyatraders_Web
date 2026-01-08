@@ -1,0 +1,40 @@
+<div class="bg-light p-3 header-bar">
+    <h5 class="title-text">
+        To Payment Maitreya Traders USD
+    </h5>
+
+    <button class="close-btn" (click)="closeTab()" type="button">
+        <img src="../../../assets/cancel.png" alt="Close" />
+    </button>
+</div>
+
+
+<div class="container-fluid scroll" style="max-height: 80vh; overflow-y: auto">
+    <div>
+        <form novalidate (ngSubmit)="createToken()" [formGroup]="stripeTest">
+            <div class="text-center">
+                <label>Munvar</label>
+            </div>
+            <div style="margin: 3px;">
+                <ngx-stripe-card [options]="cardOptions" (change)="onstripeChange($event)"
+                    [elementsOptions]="elementsOptions">
+                </ngx-stripe-card>
+            </div>
+            <div class="text-center m-3">
+                <span>
+                    <!-- <button type="submit" style="text-decoration: underline"
+                        [ngClass]="stripeCardValid ? 'btn-submit' : 'btn-submit1'" [disabled]="!stripeCardValid">
+                        Pay Now ( ${{budjet}} )
+                    </button> -->
+                </span>
+                <button type="submit" style="text-decoration: underline" [ngClass]="{
+    'btn-submit': stripeCardValid,
+    'btn-submit1': !stripeCardValid
+  }" [disabled]="!stripeCardValid">
+                    Pay Now ( ${{ budjet }} )
+                </button>
+
+            </div>
+        </form>
+    </div>
+</div>

@@ -13,23 +13,27 @@
     <div class="cart-items">
       <div class="cart-item" *ngFor="let item of cartItems">
         <img [src]="item.image" [alt]="item.name" class="product-image" />
-        
+
         <div class="item-details">
           <h3>{{ item.name }}</h3>
-          <p class="weight">{{ item.weight }}</p>
-          
+          <!-- <p class="weight">{{ item.weight }}</p> -->
+          <p class="item-weight">
+            {{ item.cartTitle.weightNumber }} {{ item.cartTitle.weightUnit }}
+          </p>
+
+
           <div class="price-section">
             <span class="original-price">£ {{ item.originalPrice.toFixed(2) }}</span>
             <span class="sale-price">£ {{ item.salePrice.toFixed(2) }}</span>
           </div>
-          
+
           <div class="quantity-controls">
             <button (click)="decrementQuantity(item)" [disabled]="item.quantity <= 1">-</button>
             <span>{{ item.locqunatity }}</span>
             <button (click)="incrementQuantity(item)">+</button>
           </div>
         </div>
-        
+
         <button class="delete-btn" (click)="removeItem(item)">
           <img src="../../../assets/Remove.png" alt="Delete" />
         </button>
@@ -40,14 +44,10 @@
       <div class="discount-section">
         <div class="discount-input-group">
           <img src="../../../assets/ticket.png" alt="Discount" class="discount-icon" />
-          <input 
-            type="text" 
-            placeholder="discount code" 
-            [(ngModel)]="discountCode"
-          />
+          <input type="text" placeholder="discount code" [(ngModel)]="discountCode" />
           <button class="apply-btn" (click)="applyDiscount()">Apply</button>
         </div>
-        
+
         <p class="offer-text" *ngIf="offerApplied">
           Buy 3 canned products Get 1 Free Soya Chaap
         </p>

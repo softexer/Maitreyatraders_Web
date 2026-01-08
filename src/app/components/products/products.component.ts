@@ -19,26 +19,53 @@ interface CarouselSlide {
   price: string
 }
 
+// interface Product {
+//   id: number
+//   productID: string
+//   name: string
+//   subtitle?: string
+//   image: string
+//   productImagesList?: string[]
+//   originalPrice: string
+//   price: number
+//   weights: string[]
+//   selectedWeight: string
+//   discount?: number
+//   type: string
+//   categoryId: number
+//   subcatId: number
+//   description?: string[]
+//   highlights?: string[]
+// }
+
+interface ProductWeight {
+  productPrice: number;
+  disCountProductprice: number;
+  weightNumber: number;
+  weightUnit: string;
+}
+
 interface Product {
-  id: number
-  productID: string
-  name: string
-  subtitle?: string
-  image: string
-  productImagesList?: string[]
-  originalPrice: string
-  price: number
-  weights: string[]
-  selectedWeight: string
-  discount?: number
-  type: string
-  categoryId: number
-  subcatId: number
+  id: number;
+  productID: string;
+  name: string;
+  subtitle?: string;
+  image: string;
+  productImagesList?: string[];
+
+  weights: ProductWeight[];
+  selectedWeight: ProductWeight;
+
+  originalPrice: number;
+  price: number;
+
+  discount?: number;
+  type: string;
+  categoryId: string;
+  subcatId: string;
   description?: string[]
   highlights?: string[]
 }
-
-
 interface Testimonial {
   text: string
   name: string
@@ -73,8 +100,10 @@ interface ProductPreview {
   discount?: number;
   originalPrice: number;
   price: number;
-  weights: string[];
-  selectedWeight?: string;
+  // weights: string[];
+  // selectedWeight?: string;
+  weights: ProductWeight[];
+  selectedWeight: ProductWeight;
   categoryId?: string;
   description?: string[];
   highlights?: string[];
@@ -171,7 +200,9 @@ export class ProductsComponent {
 
   cartpage(event: MouseEvent) {
     event.stopPropagation();
-    this.CustomerService.open();
+    if (this.cartCount > 0) {
+      this.CustomerService.open();
+    }
   }
   setActive(section: string): void {
     this.activeSection = section;
@@ -184,7 +215,7 @@ export class ProductsComponent {
     this.startAutoPlay();
     this.GetAllCategories();
 
-     this.newLaunchedProducts.forEach(p => {
+    this.newLaunchedProducts.forEach(p => {
       if (!p.selectedWeight) {
         p.selectedWeight = p.weights?.[0];
       }
@@ -227,46 +258,94 @@ export class ProductsComponent {
     console.log(product)
     this.shopService.addToCart(product);
   }
+ViewToProductDetails(product: Product) {
+  console.log(product)
+  this.IsProductView = true;
+
+  const firstWeight = product.weights?.[0];
+
+  this.selectedProduct = {
+    ...product,
+
+    weights: product.weights || [],
+    selectedWeight: firstWeight,
+
+    originalPrice: firstWeight?.productPrice || 0,
+    price: firstWeight
+      ? firstWeight.productPrice - (firstWeight.disCountProductprice || 0)
+      : 0,
+
+    discount: firstWeight?.disCountProductprice
+      ? Math.round(
+          (firstWeight.disCountProductprice / firstWeight.productPrice) * 100
+        )
+      : 0,
+
+    highlights: typeof product.highlights === 'string'
+      ? (product.highlights as string).split('.').filter((h:any) => h.trim())
+      : product.highlights || [],
+
+  description: typeof product.description === 'string'
+    ? (product.description as string).split('.').filter((h:any) => h.trim())
+    : product.description || []
+  };
+
+  this.selectedImage =
+    this.selectedProduct.productImagesList?.[0] || 'assets/no-image.png';
+}
 
 
-  ViewToProductDetails(product: any) {
-    console.log("[v0] Product selected:", product);
+  // ViewToProductDetails(product: any) {
+  //   console.log("[v0] Product selected:", product);
 
-    this.IsProductView = true;
+  //   this.IsProductView = true;
 
-    this.selectedProduct = {
-      id: product.id,
-      type: product.type,
-      name: product.name,
-      subtitle: product.subtitle,
-      image: product.image,
-      productImagesList: product.productImagesList?.length
-        ? product.productImagesList.map((img: string) => img)
-        : product.image
-          ? [product.image]
-          : ['assets/no-image.png'],
+  //   this.selectedProduct = {
+  //     id: product.id,
+  //     type: product.type,
+  //     name: product.name,
+  //     subtitle: product.subtitle,
+  //     image: product.image,
+  //     productImagesList: product.productImagesList?.length
+  //       ? product.productImagesList.map((img: string) => img)
+  //       : product.image
+  //         ? [product.image]
+  //         : ['assets/no-image.png'],
 
-      discount: product.discount,
-      originalPrice: Number(product.originalPrice),
-      price: Number(product.price),
-      weights: product.weights || [],
-      selectedWeight: product.selectedWeight || product.weights?.[0],
-      categoryId: product.categoryId,
-      highlights: product.highlights ?? [
-        'High-quality premium product',
-        'Fresh and carefully selected',
-        'Perfect for daily use'
-      ],
-      description: product.description ?? [
-        'This product is crafted with care using premium ingredients.'
-      ]
-    };
+  //     discount: product.discount,
+  //     // originalPrice: Number(product.originalPrice),
+  //     // price: Number(product.price),
+  //     // weights: product.weights || [],
+  //     // selectedWeight: product.selectedWeight || product.weights?.[0],
 
-    this.selectedImage = this.selectedProduct.productImagesList?.[0] || 'assets/no-image.png';
 
-    this.IsProductView = true;
+  //      weights: product.weightList || [],
+  //             selectedWeight: product.weightList?.[0],
+  //             originalPrice: product.weightList?.[0]?.productPrice || product.productPrice,
 
-  }
+  //              price:
+  //               product.weightList?.[0]
+  //                 ? (product.weightList[0].productPrice -
+  //                   (product.weightList[0].disCountProductprice || 0))
+  //                 : product.productPrice || 0,
+
+
+  //     categoryId: product.categoryId,
+  //     highlights: product.highlights ?? [
+  //       'High-quality premium product',
+  //       'Fresh and carefully selected',
+  //       'Perfect for daily use'
+  //     ],
+  //     description: product.description ?? [
+  //       'This product is crafted with care using premium ingredients.'
+  //     ]
+  //   };
+
+  //   this.selectedImage = this.selectedProduct.productImagesList?.[0] || 'assets/no-image.png';
+
+  //   this.IsProductView = true;
+
+  // }
 
 
   scrollBestSellersLeft() {
@@ -363,7 +442,7 @@ export class ProductsComponent {
   quickLinks = [
     { label: 'Home', sectionId: 'home' },
     { label: 'About', sectionId: 'about' },
-    { label: 'Products', sectionId: 'products' },
+    // { label: 'Products', sectionId: 'products' },
     { label: 'Recipes', sectionId: 'recipes' },
     { label: 'Blog', sectionId: 'blog' }
 
@@ -421,10 +500,6 @@ export class ProductsComponent {
     console.log("[v0] Selected image:", image)
   }
 
-  // Handle weight change
-  onWeightChange(): void {
-    // console.log("[v0] Selected weight:", this.selectedWeight)
-  }
 
   // Add to cart functionality
   addToCart2(product: any): void {
@@ -439,8 +514,8 @@ export class ProductsComponent {
   }
   cartItems: any[] = [];
   isInCart(product: any): boolean {
-    console.log('PRODUCT', product.productID, product.selectedWeight);
-    console.log('CART', this.cartItems);
+    // console.log('PRODUCT', product.productID, product.selectedWeight);
+    // console.log('CART', this.cartItems);
 
     return this.cartItems.some(item =>
       item.productID === product.productID &&
@@ -474,7 +549,7 @@ export class ProductsComponent {
       this.shopService.removeFromCart(item.productID, item.weight);
     }
   }
- private subscribeCart() {
+  private subscribeCart() {
     this.shopService.getCart().subscribe(cart => {
       // this.serverCartItems = cart;
 
@@ -594,16 +669,33 @@ export class ProductsComponent {
                   ? [item.image]
                   : ['assets/no-image.png'],
 
-              discount: this.getDiscount(item.offerPercentage),
-              originalPrice: item.productPrice,
-              price: item.disCountProductprice > 0
-                ? item.disCountProductprice
-                : item.productPrice,
-              weights: item.weightList || [],
-              selectedWeight: item.weightList?.[0] || '',
+              // discount: this.getDiscount(item.offerPercentage),
+              // originalPrice: item.productPrice,
+              // price: item.disCountProductprice > 0
+              //   ? item.disCountProductprice
+              //   : item.productPrice,
+              // weights: item.weightList || [],
+              // selectedWeight: item.weightList?.[0] || '',
               categoryId: item.categoryID,
               subcatId: item.subCategoryID,
-              productID: item.productID
+              productID: item.productID,
+
+               weights: item.weightList || [],
+              selectedWeight: item.weightList?.[0],
+              originalPrice: item.weightList?.[0]?.productPrice || item.productPrice,
+              // price:
+              //   item.weightList?.[0]?.disCountProductprice > 0
+              //     ? item.weightList[0].disCountProductprice
+              //     : item.weightList?.[0]?.productPrice || item.productPrice,
+
+               price:
+                item.weightList?.[0]
+                  ? (item.weightList[0].productPrice -
+                    (item.weightList[0].disCountProductprice || 0))
+                  : item.productPrice || 0,
+
+                  highlights: item.productHighlight,
+                  description : item.productDescription
             })
           );
 
@@ -624,6 +716,53 @@ export class ProductsComponent {
       }
     );
   }
+onWeightChange(product: {
+  selectedWeight: {
+    productPrice: number;
+    disCountProductprice?: number;
+  };
+  originalPrice: number;
+  price: number;
+  discount?: number;
+}) {
+  const w = product.selectedWeight;
+  if (!w) return;
+
+  product.originalPrice = w.productPrice;
+  product.price = w.productPrice - (w.disCountProductprice || 0);
+
+  product.discount = w.disCountProductprice
+    ? Math.round((w.disCountProductprice / w.productPrice) * 100)
+    : 0;
+}
+
+   onWeightChange2(product: Product) {
+  const w = product.selectedWeight;
+
+  if (!w) return;
+
+  // Original price always = productPrice
+  product.originalPrice = w.productPrice || 0;
+
+  // Final price = productPrice - disCountProductprice
+  product.price =
+    w.productPrice - (w.disCountProductprice || 0);
+
+  // Optional: update discount field for badge
+  product.discount = w.disCountProductprice
+    ? Math.round((w.disCountProductprice / w.productPrice) * 100)
+    : 0;
+}
+  //  onWeightChange(product: Product) {
+  //   const w = product.selectedWeight;
+
+  //   product.originalPrice = (w.productPrice || 0);
+
+  //   product.price =
+  //     w.disCountProductprice && w.disCountProductprice > 0
+  //       ? w.disCountProductprice
+  //       : w.productPrice || 0;
+  // }
   private getDiscount(value: any): number {
     if (!value || typeof value !== 'string') {
       return 0;
@@ -670,5 +809,19 @@ export class ProductsComponent {
     this.activeSection = section
     this.router.navigate(["/products"])
   }
+newsletterEmail: string = '';
 
+sendEmail() {
+  if (!this.newsletterEmail) {
+    this.openSnackBar('Please enter email', '');
+    return;
+  }
+
+  this.openSnackBar('Send to email in progress', '');
+
+  // 👉 call API / EmailJS here
+
+  // ✅ clear input after snackbar
+  this.newsletterEmail = '';
+}
 }

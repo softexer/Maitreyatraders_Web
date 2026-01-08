@@ -163,7 +163,7 @@
                     <div class="form-field">
                         <label class="form-label">Apartment, Suite, etc.</label>
                         <input type="text" name="deliveryApartment" [(ngModel)]="deliveryInfo.apartment"
-                            class="form-input"  maxlength="100"/>
+                            class="form-input" maxlength="100" />
                     </div>
 
                     <!-- City / State / Pincode -->
@@ -330,7 +330,7 @@
                         <div class="form-field">
                             <label class="form-label">Apartment, Suite, etc.</label>
                             <input type="text" name="billingApartment" [(ngModel)]="billingAddress.apartment"
-                                class="form-input"  maxlength="100"/>
+                                class="form-input" maxlength="100" />
                         </div>
 
                         <!-- City / State / Pincode -->
@@ -338,10 +338,10 @@
                             <div class="form-field">
                                 <label class="form-label">City</label>
                                 <input type="text" name="billingCity" required [(ngModel)]="billingAddress.city"
-                                    #billingCity="ngModel" class="form-input"  maxlength="70"
+                                    #billingCity="ngModel" class="form-input" maxlength="70"
                                     [class.invalid]="billingCity.invalid && (billingCity.touched || checkoutForm.submitted)" />
 
-                                <div class="error" 
+                                <div class="error"
                                     *ngIf="billingCity.invalid && (billingCity.touched || checkoutForm.submitted)">
                                     City is required
                                 </div>
@@ -350,7 +350,7 @@
                             <div class="form-field">
                                 <label class="form-label">State</label>
                                 <input type="text" name="billingState" required [(ngModel)]="billingAddress.state"
-                                    #billingState="ngModel" class="form-input"  maxlength="70"
+                                    #billingState="ngModel" class="form-input" maxlength="70"
                                     [class.invalid]="billingState.invalid && (billingState.touched || checkoutForm.submitted)" />
 
                                 <div class="error"
@@ -362,7 +362,7 @@
                             <div class="form-field">
                                 <label class="form-label">Pincode</label>
                                 <input type="text" name="billingPincode" required [(ngModel)]="billingAddress.pinCode"
-                                    #billingPincode="ngModel" class="form-input"  maxlength="10"
+                                    #billingPincode="ngModel" class="form-input" maxlength="10"
                                     [class.invalid]="billingPincode.invalid && (billingPincode.touched || checkoutForm.submitted)" />
 
                                 <div class="error"
@@ -375,7 +375,7 @@
                         <!-- Phone -->
                         <div class="form-field">
                             <label class="form-label">Phone Number</label>
-                            <input type="text" name="billingPhone" required pattern="^[0-9]{10}$"  
+                            <input type="text" name="billingPhone" required pattern="^[0-9]{10}$"
                                 [(ngModel)]="billingAddress.phoneNumber" #billingPhone="ngModel" class="form-input"
                                 [class.invalid]="billingPhone.invalid && (billingPhone.touched || checkoutForm.submitted)" />
 
@@ -401,14 +401,20 @@
                         </div>
                         <div class="item-details">
                             <h3>{{item.name}}</h3>
-                            <p class="item-weight">{{item.weight}}</p>
+                            <!-- <p class="item-weight">{{item.weight}}</p> -->
+                            <p class="item-weight">
+                                {{ item.cartTitle.weightNumber }} {{ item.cartTitle.weightUnit }}
+                            </p>
+
                             <p class="item-price">£ {{item.salePrice.toFixed(2)}}</p>
                         </div>
                         <div class="item-actions">
                             <div class="quantity-controls">
-                                <button (click)="decrementQuantity(item); $event.preventDefault()" class="qty-btn">-</button>
+                                <button (click)="decrementQuantity(item); $event.preventDefault()"
+                                    class="qty-btn">-</button>
                                 <span class="qty-value">{{item.locqunatity }}</span>
-                                <button (click)="incrementQuantity(item); $event.preventDefault()" class="qty-btn">+</button>
+                                <button (click)="incrementQuantity(item); $event.preventDefault()"
+                                    class="qty-btn">+</button>
                             </div>
                             <button (click)="removeItem(item)" class="remove-btn">
                                 <span><img src="../../../assets/Remove.png" width="20"></span>

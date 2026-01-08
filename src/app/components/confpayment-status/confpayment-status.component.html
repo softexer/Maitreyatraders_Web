@@ -1,0 +1,12 @@
+<div class="dialog-container" *ngIf="!isSucess">
+    <img src="../../../assets/paymentcancel.jpg" alt="Failure" class="status-icon">
+    <h2 class="title">Payment Failed!</h2>
+    <p class="titldesc">There was a problem processing your transaction. Please try again.</p>
+    <button mat-button color="warn" (click)="retryPayment()">Try Again</button>
+</div>
+<div class="dialog-container" *ngIf="isSucess">
+    <img src="../../../assets/done.png" alt="Success" class="status-icon">
+    <h2 class="title">Payment Success..!!</h2>
+    <p class="titldesc">Your transaction has been completed successfully.</p>
+    <button mat-button color="primary" (click)="closeTab()">OK</button>
+</div>

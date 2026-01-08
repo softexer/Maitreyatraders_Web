@@ -1,0 +1,46 @@
+.btn-submit {
+    background-color: #ffc107;
+    color: white;
+    border: none;
+    padding: 15px;
+}
+
+.btn-sumbit1 {
+    background-color: rgba(0, 0, 0, .12);
+    color: rgba(0, 0, 0, .26);
+    border: none;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.title-text {
+  margin: 0;
+  font-weight: 600;
+  text-align: center;
+}
+
+.close-btn {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.close-btn img {
+  width: 40px;
+  border-radius: 50%;
+  padding: 10px;
+}

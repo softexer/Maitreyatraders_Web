@@ -6,7 +6,7 @@ import { Observable, BehaviorSubject, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class MaitreyaCustomerService {
-  public baseUrl: string = "http://192.168.1.16:3000";
+  public baseUrl: string = "http://18.205.217.76:3000";
   public userID: string = "";
   public checkIsLoggedIn = new BehaviorSubject(false);
   public Signout = new BehaviorSubject(false);
@@ -46,8 +46,8 @@ export class MaitreyaCustomerService {
     );
   }
 
-    //Order-insert
-  InsertOrder(data: any, token:any): Observable<any> {
+  //Order-insert
+  InsertOrder(data: any, token: any): Observable<any> {
     return this.http.post(
       `${this.baseUrl}/api/orders/orderinsert`,
       data,
@@ -55,7 +55,21 @@ export class MaitreyaCustomerService {
     );
   }
 
+  //stripe
+  createNewCustomer(data: any): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/api/payment/createnewcustomer`,
+      data,
+      // { headers: { aieonki: token } }
+    );
+  }
 
+  createPaymentIntentInfo(obj: any): Observable<any> {
+    return this.http.post(this.baseUrl + "/api/payment/stripepaymentinit", obj);
+  }
+ RegisterConference(data: any) {
+    return this.http.post(`${this.baseUrl}/api/Conference/userconferenceregister`, data)
+  }
   //Cart item procedures
   addToCart(item: any): void {
     const existingItem = this.addcartItems.find(cartItem => cartItem.ShopBookID === item.ShopBookID);
@@ -142,17 +156,17 @@ export class MaitreyaCustomerService {
     }
   }
 
-private _open = new BehaviorSubject<boolean>(false);
-isOpen$ = this._open.asObservable();
+  private _open = new BehaviorSubject<boolean>(false);
+  isOpen$ = this._open.asObservable();
 
-open() {
-  this._open.next(true);
-  document.body.style.overflow = 'hidden';
-}
+  open() {
+    this._open.next(true);
+    document.body.style.overflow = 'hidden';
+  }
 
-close() {
-  this._open.next(false);
-  document.body.style.overflow = '';
-}
+  close() {
+    this._open.next(false);
+    document.body.style.overflow = '';
+  }
 
 }

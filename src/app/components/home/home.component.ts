@@ -19,36 +19,62 @@ interface CarouselSlide {
   price: string
 }
 
-interface Product {
-  // id: number
-  // name: string
-  // subtitle?: string
-  // image: string
-  // discount: number
-  // originalPrice: string
-  // price: string
-  // weights: string[]
-  // selectedWeight: string
-  // categoryId: number
-  // subcatId: number
-  // productID: string
+// interface Product {
+//   id: number
+//   productID: string
+//   name: string
+//   subtitle?: string
+//   image: string
+//   productImagesList?: string[]
+//   originalPrice: string
+//   price: number
+//   // weights: string[]
+//   // selectedWeight: string
+//   weights: ProductWeight[];
+//   selectedWeight: ProductWeight;
 
-  id: number
-  productID: string
-  name: string
-  subtitle?: string
-  image: string
-  productImagesList?: string[]
-  originalPrice: string
-  price: number
-  weights: string[]
-  selectedWeight: string
-  discount?: number
-  type: string
-  categoryId: number
-  subcatId: number
-  description?: string[]
-  highlights?: string[]
+
+//   discount?: number
+//   type: string
+//   categoryId: number
+//   subcatId: number
+//   description?: string[]
+//   highlights?: string[]
+// }
+
+// interface ProductWeight {
+//   weightNumber: number;
+//   weightUnit: string;
+//   price: number;
+//   discountPrice?: number;
+//   productPrice?: number;
+//   disCountProductprice?: number;
+// }
+interface ProductWeight {
+  productPrice: number;
+  disCountProductprice: number;
+  weightNumber: number;
+  weightUnit: string;
+}
+
+interface Product {
+  id: number;
+  productID: string;
+  name: string;
+  subtitle?: string;
+  image: string;
+  productImagesList?: string[];
+
+  weights: ProductWeight[];
+  selectedWeight: ProductWeight;
+
+  originalPrice: number;
+  price: number;
+
+  discount?: number;
+  type: string;
+  categoryId: string;
+  subcatId: string;
 }
 
 
@@ -280,7 +306,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   quickLinks = [
     { label: 'Home', sectionId: 'home' },
     { label: 'About', sectionId: 'about' },
-    { label: 'Products', sectionId: 'products' },
+    // { label: 'Products', sectionId: 'products' },
     { label: 'Recipes', sectionId: 'recipes' },
     { label: 'Blog', sectionId: 'blog' }
 
@@ -307,9 +333,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   @Output() openCart = new EventEmitter<MouseEvent>();
   cartpage(event: MouseEvent) {
     event.stopPropagation();
-    // this.router.navigate(['/cart']);
-    // this.openCart.emit(event);
-    this.CustomerService.open();
+    if (this.cartCount > 0) {
+      this.CustomerService.open();
+    }
+
   }
 
   openSnackBar(message: string, action: string) {
@@ -382,44 +409,40 @@ export class HomeComponent implements OnInit, OnDestroy {
                   : ['assets/no-image.png'],
 
               discount: this.getDiscount(item.offerPercentage),
-              originalPrice: item.productPrice,
-              price: item.disCountProductprice > 0
-                ? item.disCountProductprice
-                : item.productPrice,
-              weights: item.weightList || [],
-              selectedWeight: item.weightList?.[0] || '',
+              // originalPrice: item.productPrice,
+              // price: item.disCountProductprice > 0
+              //   ? item.disCountProductprice
+              //   : item.productPrice,
+              // weights: item.weightList || [],
+              // selectedWeight: item.weightList?.[0] || '',
               categoryId: item.categoryID,
               subcatId: item.subCategoryID,
-              productID: item.productID
+              productID: item.productID,
+
+              weights: item.weightList || [],
+              selectedWeight: item.weightList?.[0],
+
+              originalPrice: item.weightList?.[0]?.productPrice || item.productPrice,
+
+              // price:
+              //   item.weightList?.[0]?.disCountProductprice > 0
+              //     ? item.weightList[0].disCountProductprice
+              //     : item.weightList?.[0]?.productPrice || item.productPrice,
+
+              price:
+                item.weightList?.[0]
+                  ? (item.weightList[0].productPrice -
+                    (item.weightList[0].disCountProductprice || 0))
+                  : item.productPrice || 0,
+
 
             })
           );
+          console.log(this.newLaunchedProducts)
 
           /* 🔥 BEST SELLERS */
           this.bestSellers = posRes.BestSalesProductsData.map(
             (item: any, index: number): Product => ({
-              // id: index + 1,
-              // name: item.productName,
-              // image: item.productImagesList?.length
-              //   ? `${this.baseUrl}${item.productImagesList[0]}`
-              //   : 'assets/no-image.png',
-              // // discount: item.offerPercentage ? Number(item.offerPercentage) : 0,
-              // discount: this.getDiscount(item.offerPercentage),
-              // originalPrice: item.productPrice.toFixed(2),
-              // price:
-              //   item.disCountProductprice && item.disCountProductprice > 0
-              //     ? item.disCountProductprice.toFixed(2)
-              //     : item.productPrice.toFixed(2),
-              // weights: item.weightList?.length
-              //   ? item.weightList
-              //   : ['420 g', '840 g', '1260 g'],
-              // selectedWeight: item.weightList?.length
-              //   ? item.weightList[0]
-              //   : '420 g',
-              // categoryId: item.categoryID,
-              // subcatId: item.subCategoryID,
-              // productID: item.productID
-
               id: index + 1,
               type: item.categoryName ? `(${item.categoryName})` : '',
               name: item.productName,
@@ -435,19 +458,35 @@ export class HomeComponent implements OnInit, OnDestroy {
                   ? [item.image]
                   : ['assets/no-image.png'],
 
-              discount: this.getDiscount(item.offerPercentage),
-              originalPrice: item.productPrice,
-              price: item.disCountProductprice > 0
-                ? item.disCountProductprice
-                : item.productPrice,
-              weights: item.weightList || [],
-              // selectedWeight: item.weightList?.[0] || '',
-              selectedWeight: item.weightList?.length
-                ? item.weightList[0]
-                : '420 g',
+              // discount: this.getDiscount(item.offerPercentage),
+              // originalPrice: item.productPrice,
+              // price: item.disCountProductprice > 0
+              //   ? item.disCountProductprice
+              //   : item.productPrice,
+              // weights: item.weightList || [],
+              // selectedWeight: item.weightList?.length
+              //   ? item.weightList[0]
+              //   : '420 g',
               categoryId: item.categoryID,
               subcatId: item.subCategoryID,
-              productID: item.productID
+              productID: item.productID,
+
+              weights: item.weightList || [],
+              selectedWeight: item.weightList?.[0],
+
+              originalPrice: item.weightList?.[0]?.productPrice || item.productPrice,
+
+              // price:
+              //   item.weightList?.[0]?.disCountProductprice > 0
+              //     ? item.weightList[0].disCountProductprice
+              //     : item.weightList?.[0]?.productPrice || item.productPrice,
+
+               price:
+                item.weightList?.[0]
+                  ? (item.weightList[0].productPrice -
+                    (item.weightList[0].disCountProductprice || 0))
+                  : item.productPrice || 0,
+
             })
           );
 
@@ -465,6 +504,35 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     );
   }
+  // onWeightChange(product: Product) {
+  //   const w = product.selectedWeight;
+
+  //   product.originalPrice = (w.productPrice || 0);
+
+  //   product.price =
+  //     w.disCountProductprice && w.disCountProductprice > 0
+  //       ? w.disCountProductprice
+  //       : w.productPrice || 0;
+  // }
+
+ onWeightChange(product: Product) {
+  const w = product.selectedWeight;
+
+  if (!w) return;
+
+  // Original price always = productPrice
+  product.originalPrice = w.productPrice || 0;
+
+  // Final price = productPrice - disCountProductprice
+  product.price =
+    w.productPrice - (w.disCountProductprice || 0);
+
+  // Optional: update discount field for badge
+  product.discount = w.disCountProductprice
+    ? Math.round((w.disCountProductprice / w.productPrice) * 100)
+    : 0;
+}
+
 
   GetAllCategories() {
     this.CustomerService.showLoader.next(true);
@@ -508,8 +576,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   cartItems: any[] = [];
 
   isInCart(product: any): boolean {
-    console.log('PRODUCT', product.productID, product.selectedWeight);
-    console.log('CART', this.cartItems);
+    // console.log('PRODUCT', product.productID, product.selectedWeight);
+    // console.log('CART', this.cartItems);
 
     return this.cartItems.some(item =>
       item.productID === product.productID &&
@@ -524,25 +592,25 @@ export class HomeComponent implements OnInit, OnDestroy {
       item.weight === product.selectedWeight
     );
   }
-incrementQuantity(item: any) {
-  this.shopService.updateItem({
-    productID: item.productID,
-    cartTitle: item.weight,          // ✅ REQUIRED
-    locqunatity: item.locqunatity + 1
-  });
-}
-
-decrementQuantity(item: any) {
-  if (item.locqunatity > 1) {
+  incrementQuantity(item: any) {
     this.shopService.updateItem({
       productID: item.productID,
-      cartTitle: item.weight,        // ✅ REQUIRED
-      locqunatity: item.locqunatity - 1
+      cartTitle: item.weight,          // ✅ REQUIRED
+      locqunatity: item.locqunatity + 1
     });
-  } else {
-    this.shopService.removeFromCart(item.productID, item.weight);
   }
-}
+
+  decrementQuantity(item: any) {
+    if (item.locqunatity > 1) {
+      this.shopService.updateItem({
+        productID: item.productID,
+        cartTitle: item.weight,        // ✅ REQUIRED
+        locqunatity: item.locqunatity - 1
+      });
+    } else {
+      this.shopService.removeFromCart(item.productID, item.weight);
+    }
+  }
 
 
   // incrementQuantity(item: any) {
@@ -586,7 +654,21 @@ decrementQuantity(item: any) {
     });
 
   }
+newsletterEmail: string = '';
 
+sendEmail() {
+  if (!this.newsletterEmail) {
+    this.openSnackBar('Please enter email', '');
+    return;
+  }
+
+  this.openSnackBar('Send to email in progress', '');
+
+  // 👉 call API / EmailJS here
+
+  // ✅ clear input after snackbar
+  this.newsletterEmail = '';
+}
 
 }
 

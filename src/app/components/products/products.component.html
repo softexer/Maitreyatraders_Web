@@ -56,12 +56,12 @@
 
             <!-- Header Actions -->
             <div class="header-actions">
-                <button class="icon-btn">
+                <!-- <button class="icon-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"></circle>
                         <path d="m21 21-4.35-4.35"></path>
                     </svg>
-                </button>
+                </button> -->
                 <button class="icon-btn" (click)="cartpage($event)">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="9" cy="21" r="1"></circle>
@@ -116,9 +116,15 @@
                                                 <span class="price-original">{{ product.originalPrice }}</span>
                                             </div>
 
-                                            <select class="weight-selector" [(ngModel)]="product.selectedWeight">
+                                            <!-- <select class="weight-selector" [(ngModel)]="product.selectedWeight">
                                                 <option *ngFor="let weight of product.weights" [value]="weight">
                                                     {{ weight }}
+                                                </option>
+                                            </select> -->
+                                            <select class="weight-selector" [(ngModel)]="product.selectedWeight"
+                                                (change)="onWeightChange(product)">
+                                                <option *ngFor="let weight of product.weights" [ngValue]="weight">
+                                                    {{ weight.weightNumber }} {{ weight.weightUnit }}
                                                 </option>
                                             </select>
                                         </div>
@@ -168,6 +174,7 @@
                         [class.active]="selectedImage === image" (click)="selectedImage = image">
 
                         <img [src]="image" [alt]="'Product view ' + (i + 1)" class="thumbnail-image">
+                         <!-- <img [src]="image" [alt]="'Product view ' + (i + 1)"  class="offer-product-image" /> -->
                     </div>
 
                 </div>
@@ -183,23 +190,19 @@
                 </div>
 
                 <!-- Weight Selector -->
-
-                <!-- <select class="weight-selector" [(ngModel)]="selectedWeight" (change)="onWeightChange()">
-                    <option *ngFor="let w of selectedProduct.weights"
-                        [class.active]="w === selectedProduct.selectedWeight"
-                        (click)="selectedProduct.selectedWeight = w" [value]="weight">
-                        {{ w }}
-                    </option>
-                </select> -->
-                <select class="weight-selector" [(ngModel)]="selectedProduct.selectedWeight">
+                <!-- <select class="weight-selector" [(ngModel)]="selectedProduct.selectedWeight">
 
                     <option *ngFor="let w of selectedProduct.weights" [value]="w"
                         (click)="selectedProduct.selectedWeight = w">
                         {{ w }}
                     </option>
 
+                </select> -->
+                <select class="weight-selector" [(ngModel)]="selectedProduct.selectedWeight" (change)="onWeightChange(selectedProduct)">
+                    <option *ngFor="let weight of selectedProduct.weights" [ngValue]="weight">
+                        {{ weight.weightNumber }} {{ weight.weightUnit }}
+                    </option>
                 </select>
-
 
 
                 <!-- Add to Cart Button -->
@@ -219,8 +222,8 @@
                 </div>
 
                 <!-- Special Offer Section -->
-                <div class="offer-section"
-                    *ngIf="selectedProduct.selectedWeight === '450 g' || selectedProduct.selectedWeight === '500 g'">
+                <div class="offer-section">
+                    <!-- *ngIf="selectedProduct.selectedWeight === '450 g' || selectedProduct.selectedWeight === '500 g'" -->
                     <div class="offer-content">
                         <p class="offer-text">
                             {{ offerText }}
@@ -377,8 +380,9 @@
             </h2>
 
             <div class="newsletter-form">
-                <input type="email" placeholder="youremail@gmail.com" class="newsletter-input" />
-                <button class="newsletter-btn">Subscribe</button>
+                <input type="email" placeholder="youremail@gmail.com" class="newsletter-input" 
+                [(ngModel)]="newsletterEmail"/>
+                <button class="newsletter-btn" (click)="sendEmail()">Subscribe</button>
             </div>
         </div>
     </section>

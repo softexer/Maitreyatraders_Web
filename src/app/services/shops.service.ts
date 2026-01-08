@@ -13,7 +13,14 @@ interface CartItems {
   price?: string;
   size?: string;
   cartImage?: string;
-  cartTitle?: string;
+  // cartTitle?: string;
+  cartTitle?: {
+    weightNumber: number;
+    weightUnit: string;
+    productPrice: number;
+    disCountProductprice: number;
+  };
+
   packetSize?: string;
   categoryName?: string;
   subCategoryName?: string;
@@ -30,7 +37,7 @@ export class ShopsService {
   public cartTotalCount = this.cartCountItems.asObservable();
   public addcartItems: any[] = [];
   public allCategoriesList: Array<any> = [];
-  public baseUrl: string = "http://192.168.1.16:3000";
+  public baseUrl: string = "http://18.205.217.76:3000";
   private cartItems: CartItems[] = [];
   public cartLoginItems: CartItems[] = [];
   private cartSubject = new BehaviorSubject<CartItems[]>([]);
@@ -70,129 +77,128 @@ export class ShopsService {
 
     this.cartCountItems.next(totalCount);
   }
-addToCart(product: any) {
-  const stored = localStorage.getItem('cartItems');
-  this.cartItems = stored ? JSON.parse(stored) : [];
+  addToCart(product: any) {
+    console.log(product)
+    const stored = localStorage.getItem('cartItems');
+    this.cartItems = stored ? JSON.parse(stored) : [];
 
-  // 🔑 UNIQUE MATCH (IMPORTANT)
-  const existing = this.cartItems.find(i =>
-    i.productID === product.productID &&
-    i.cartTitle === product.selectedWeight
-  );
+    // 🔑 UNIQUE MATCH (IMPORTANT)
+    // const existing = this.cartItems.find(i =>
+    //   i.productID === product.productID &&
+    //   i.cartTitle === product.selectedWeight
+    // );
+    const existing = this.cartItems.find(i =>
+      i.productID === product.productID &&
+      i.cartTitle?.weightNumber === product.selectedWeight.weightNumber &&
+      i.cartTitle?.weightUnit === product.selectedWeight.weightUnit
+    );
+    if (existing) {
+      existing.locqunatity += 1;
+    } else {
+      this.cartItems.push({
+        // ⚠️ itemID is NOT used for matching anymore
+        // itemID: product.productID,              // optional, keep if backend needs
+        // productID: product.productID,            // ✅ MUST MATCH PRODUCT
+        // categoryID: product.categoryId,
+        // subcatID: product.subcatId,
+        // categoryName: product.name,
+        // price: product.originalPrice,
+        // cartImage: product.image,
+        // cartTitle: product.selectedWeight,       // ✅ weight
+        // qunatity: 1,
+        // locqunatity: 1,
+        // deliveryDate: Date.now() + 7 * 24 * 60 * 60 * 1000
+        itemID: product.productID,
+        productID: product.productID,
+        categoryID: product.categoryId,
+        subcatID: product.subcatId,
+        categoryName: product.name,
+        // price: product.selectedWeight.productPrice,
 
-  if (existing) {
-    existing.locqunatity += 1;
-  } else {
-    this.cartItems.push({
-      // ⚠️ itemID is NOT used for matching anymore
-      itemID: product.productID,              // optional, keep if backend needs
-      productID: product.productID,            // ✅ MUST MATCH PRODUCT
-      categoryID: product.categoryId,
-      subcatID: product.subcatId,
-      categoryName: product.name,
-      price: product.originalPrice,
-      cartImage: product.image,
-      cartTitle: product.selectedWeight,       // ✅ weight
-      qunatity: 1,
-      locqunatity: 1,
-      deliveryDate: Date.now() + 7 * 24 * 60 * 60 * 1000
-    });
+        // price:
+        //   product.selectedWeight.disCountProductprice > 0
+        //     ? product.selectedWeight.productPrice -
+        //     product.selectedWeight.disCountProductprice
+        //     : product.selectedWeight.productPrice,
+
+        price:product.price,
+
+
+        cartImage: product.image,
+        cartTitle: product.selectedWeight, // keep full object
+        qunatity: 1,
+        locqunatity: 1,
+        deliveryDate: Date.now() + 7 * 24 * 60 * 60 * 1000
+      });
+    }
+
+    // ✅ SINGLE SOURCE UPDATE
+    localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+    this.cartSubject.next(this.cartItems);
+
+    const total = this.cartItems.reduce((s, i) => s + i.locqunatity, 0);
+    this.cartCountItems.next(total);
   }
 
-  // ✅ SINGLE SOURCE UPDATE
-  localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
-  this.cartSubject.next(this.cartItems);
+  updateItem(data: {
+    productID: string;
+    cartTitle: {
+      weightNumber: number;
+      weightUnit: string;
+    };
+    locqunatity: number;
+  }) {
+    const stored = localStorage.getItem('cartItems');
+    this.cartItems = stored ? JSON.parse(stored) : [];
 
-  const total = this.cartItems.reduce((s, i) => s + i.locqunatity, 0);
-  this.cartCountItems.next(total);
-}
+    // const item = this.cartItems.find(i =>
+    //   i.productID === data.productID &&
+    //   i.cartTitle === data.cartTitle
+    // );
+
+    // if (item) {
+    //   item.locqunatity = data.locqunatity;
+    // }
+    const item = this.cartItems.find(i =>
+      i.productID === data.productID &&
+      i.cartTitle?.weightNumber === data.cartTitle.weightNumber &&
+      i.cartTitle?.weightUnit === data.cartTitle.weightUnit
+    );
+
+    if (item) {
+      item.locqunatity = data.locqunatity;
+    }
 
 
-  // addToCart(product: any) {
-  //   const stored = localStorage.getItem('cartItems');
-  //   this.cartItems = stored ? JSON.parse(stored) : [];
+    localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+    this.cartSubject.next(this.cartItems);
 
-  //   const itemId = product.itemID || product.bookstoreID || product.id;
 
-  //   const existing = this.cartItems.find(i => i.itemID === itemId);
-
-  //   if (existing) {
-  //     existing.locqunatity += 1;
-  //   } else {
-  //     this.cartItems.push({
-  //       itemID: itemId,        
-  //       categoryID: product.categoryId,
-  //       subcatID: product.subcatId,
-  //       productID: product.productID,
-  //       qunatity: 1,
-  //       locqunatity: 1,
-  //       categoryName: product.name,
-  //       price: product.price,
-  //       cartImage: product.image,
-  //       // cartTitle: product.type,
-  //         cartTitle: product.selectedWeight, 
-  //       deliveryDate: Date.now() + 7 * 24 * 60 * 60 * 1000
-  //     });
-  //   }
-
-  //   // ✅ SINGLE SOURCE UPDATE
-  //   localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
-  //   this.cartSubject.next(this.cartItems);
-
-  //   const total = this.cartItems.reduce((s, i) => s + i.locqunatity, 0);
-  //   this.cartCountItems.next(total);
-  // }
-updateItem(data: {
-  productID: string;
-  cartTitle: string;
-  locqunatity: number;
-}) {
-  const stored = localStorage.getItem('cartItems');
-  this.cartItems = stored ? JSON.parse(stored) : [];
-
-  const item = this.cartItems.find(i =>
-    i.productID === data.productID &&
-    i.cartTitle === data.cartTitle
-  );
-
-  if (item) {
-    item.locqunatity = data.locqunatity;
   }
 
-  localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
-  this.cartSubject.next(this.cartItems);
-}
+  // removeFromCart(productID: string, cartTitle: string) {
+  removeFromCart(
+    productID: string,
+    cartTitle: { weightNumber: number; weightUnit: string }
+  ) {
 
-  // updateItem(updatedItem: any) {
-  //   const index = this.cartItems.findIndex(
-  //     item => item.itemID === updatedItem.itemID
-  //   );
+    const stored = localStorage.getItem('cartItems');
+    this.cartItems = stored ? JSON.parse(stored) : [];
 
-  //   if (index !== -1) {
-  //     this.cartItems[index] = {
-  //       ...this.cartItems[index],   // ✅ keep image & all data
-  //       ...updatedItem              // ✅ update only changed fields
-  //     };
+    // this.cartItems = this.cartItems.filter(i =>
+    //   !(i.productID === productID && i.cartTitle === cartTitle)
+    // );
+    this.cartItems = this.cartItems.filter(i =>
+      !(
+        i.productID === productID &&
+        i.cartTitle?.weightNumber === cartTitle.weightNumber &&
+        i.cartTitle?.weightUnit === cartTitle.weightUnit
+      )
+    );
 
-  //     this.updateLocalStorage();
-  //   }
-  // }
-removeFromCart(productID: string, cartTitle: string) {
-  const stored = localStorage.getItem('cartItems');
-  this.cartItems = stored ? JSON.parse(stored) : [];
-
-  this.cartItems = this.cartItems.filter(i =>
-    !(i.productID === productID && i.cartTitle === cartTitle)
-  );
-
-  localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
-  this.cartSubject.next(this.cartItems);
-}
-
-  // removeFromCart(productId: number) {
-  //   this.cartItems = this.cartItems.filter(p => p.itemID !== productId);
-  //   this.updateLocalStorage();
-  // }
+    localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+    this.cartSubject.next(this.cartItems);
+  }
 
   clearCart() {
     this.cartItems = [];
@@ -208,73 +214,5 @@ removeFromCart(productID: string, cartTitle: string) {
     this.cartItems = stored ? JSON.parse(stored) : [];
     return this.cartItems;
   }
-
-
-
-  //   addToCartincrqty(item: any) {
-  //   const existingItem = this.addcartItems.find(cartItem => cartItem.ShopBookID === item.ShopBookID);
-  //   if (existingItem) {
-  //     for (var i in this.addcartItems) {
-  //       if (this.addcartItems[i].ShopBookID == existingItem.ShopBookID) {
-  //         this.addcartItems[i].Qty++;
-  //         this.saveCartItems();
-  //         this.cartCountItems.next(this.cartCountItems.value + 1);
-  //         break; //Stop this loop, we found it!
-  //       }
-  //     }
-  //   } else {
-  //     item.Qty = 1;
-  //     this.addcartItems.push(item);
-  //     this.cartCountItems.next(this.cartCountItems.value + 1);
-  //     this.saveCartItems();
-  //   }
-  // }
-
-  //   addToCartdecrqty(item: any) {
-  //   const index = this.addcartItems.findIndex(cartItem => cartItem.ShopBookID === item.ShopBookID);
-  //   if (index !== -1) {
-  //     const cartItem = this.addcartItems[index];
-  //     if (cartItem.Qty > 1) {
-  //       for (var i in this.addcartItems) {
-  //         if (this.addcartItems[i].ShopBookID == item.ShopBookID) {
-  //           this.addcartItems[i].Qty--;
-  //           this.saveCartItems();
-  //           this.cartCountItems.next(this.cartCountItems.value - 1);
-  //           break; //Stop this loop, we found it!
-  //         }
-  //       }
-  //       // cartItem.quantity--;
-  //     } else {
-  //       this.addcartItems.splice(index, 1);
-  //       this.saveCartItems();
-  //       this.cartCountItems.next(this.cartCountItems.value - 1);
-  //     }
-  //   }
-  // }
-
-  //   removeCartItem(item: any) {
-  //   const index = this.addcartItems.findIndex(cartItem => cartItem.ShopBookID === item.ShopBookID);
-  //   if (index !== -1) {
-  //     this.addcartItems.splice(index, 1);
-  //     this.cartCountItems.next(this.cartCountItems.value - Number(item.Qty));
-  //     this.saveCartItems();
-  //   }
-  // }
-
-  //   private loadCartItems(): void {
-  //   const cartItems = localStorage.getItem('cartItems');
-  //   if (cartItems) {
-  //     this.addcartItems = JSON.parse(cartItems);
-  //     let totqty = 0;
-  //     this.addcartItems.filter(items => {
-  //       totqty += Number(items.Qty);
-  //     })
-  //     this.cartCountItems.next(this.cartCountItems.value + totqty);
-  //   }
-  // }
-
-  //   private saveCartItems(): void {
-  //   localStorage.setItem('cartItems', JSON.stringify(this.addcartItems));
-  // }
 }
 
