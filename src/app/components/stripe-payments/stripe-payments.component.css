@@ -44,3 +44,10 @@ button:disabled {
   border-radius: 50%;
   padding: 10px;
 }
+.stripe-card-wrapper {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  background-color: #fff;
+  padding: 10px;
+  min-height: 70px; /* ⚡ this is critical */
+}

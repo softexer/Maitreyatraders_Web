@@ -15,25 +15,18 @@
             <div class="text-center">
                 <label>Munvar</label>
             </div>
-            <div style="margin: 3px;">
-                <ngx-stripe-card [options]="cardOptions" (change)="onstripeChange($event)"
-                    [elementsOptions]="elementsOptions">
+            <div class="stripe-card-wrapper">
+                <ngx-stripe-card [options]="cardOptions" [elementsOptions]="elementsOptions"
+                    (change)="onstripeChange($event)">
                 </ngx-stripe-card>
             </div>
             <div class="text-center m-3">
                 <span>
-                    <!-- <button type="submit" style="text-decoration: underline"
+                    <button type="submit" style="text-decoration: underline"
                         [ngClass]="stripeCardValid ? 'btn-submit' : 'btn-submit1'" [disabled]="!stripeCardValid">
                         Pay Now ( ${{budjet}} )
-                    </button> -->
+                    </button>
                 </span>
-                <button type="submit" style="text-decoration: underline" [ngClass]="{
-    'btn-submit': stripeCardValid,
-    'btn-submit1': !stripeCardValid
-  }" [disabled]="!stripeCardValid">
-                    Pay Now ( ${{ budjet }} )
-                </button>
-
             </div>
         </form>
     </div>

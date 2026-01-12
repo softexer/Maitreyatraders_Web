@@ -68,7 +68,7 @@
         </div>
       </div>
 
-      <button class="checkout-btn" (click)="checkout()">
+      <button class="checkout-btn" (click)="checkout()" *ngIf="cartItems.length>0">
         <img src="../../../assets/chkout.png" alt="Arrow" />
         Checkout!
       </button>

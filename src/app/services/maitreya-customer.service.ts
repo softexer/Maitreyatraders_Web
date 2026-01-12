@@ -64,6 +64,12 @@ export class MaitreyaCustomerService {
     );
   }
 
+  //search
+  SearchinHdr(data: any): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/api/admin/productsearch?searchText=${data.searchText}`
+    );
+  }
   createPaymentIntentInfo(obj: any): Observable<any> {
     return this.http.post(this.baseUrl + "/api/payment/stripepaymentinit", obj);
   }

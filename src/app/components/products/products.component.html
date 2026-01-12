@@ -1,6 +1,6 @@
 <div class="website-container">
     <!-- Top Info Bar -->
-    <div class="top-bar">
+  <div class="top-bar d-none d-lg-block">
         <div class="top-bar-content">
             <span>Minimum order £35</span>
             <span class="separator">|</span>
@@ -36,7 +36,8 @@
                     </a>
                 </div>
 
-                <div style="position: absolute; color : red;top:100%; left:50%; border: 1px solid #333;
+                <!-- <div style="position: absolute; color : red;top:100%; left:50%; border: 1px solid #333; -->
+                 <div style="position: absolute; color : red;top:70%; left:50%; border: 1px solid #333; z-index: 9999;
                     border-radius: 8px; background-color: #1a1a1a;  border: 1px solid #333;  border-radius: 8px; min-width: 250px;"
                     *ngIf="showProductsDropdown">
                     <a *ngFor="let category of productCategories" class="dropdown-item"
@@ -50,25 +51,61 @@
                     (click)="setActive('recipes')">Recipes</a>
                 <a href="#" class="nav-item" [class.active]="activeSection === 'blog'"
                     (click)="setActive('blog')">Blog</a>
-                <a href="#" class="nav-item" [class.active]="activeSection === 'contact'"
-                    (click)="setActive('contact')">Contact Us</a>
+                <!-- <a href="#" class="nav-item" [class.active]="activeSection === 'contact'"
+                    (click)="setActive('contact')">Contact Us</a> -->
+
+                     <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="scrollToContact()">
+                    Contact Us
+                </a>
             </nav>
 
             <!-- Header Actions -->
             <div class="header-actions">
-                <!-- <button class="icon-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                </button> -->
+                <div class="search-wrapper" (click)="$event.stopPropagation()">
+                    <img src="../../../assets/Icon-3.png" class="icon search-trigger" [class.hide]="showSearch"
+                        (click)="toggleSearch(); $event.stopPropagation()" />
+                    <div class="search-inline" [class.show]="showSearch" (click)="$event.stopPropagation()">
+                        <img src="../../../assets/Icon-3.png" class="icon small" />
+                        <input type="text" [(ngModel)]="searchText" placeholder="Search products"
+                            (keydown.enter)="GotoSearch(); $event.preventDefault(); $event.stopPropagation()"
+                            (click)="$event.stopPropagation()" />
+
+
+                        <img src="../../../assets/cancel.png" class="icon small close-icon"
+                            (click)="closeSearch(); $event.stopPropagation()" width="10" />
+                    </div>
+                    <div class="search-dropdown" *ngIf="displaylist">
+                        <div *ngIf="AllSearchItems.length > 0">
+                            <div class="panel-header">
+                                <span>Products</span>
+                                <div></div>
+                            </div>
+                            <div class="search-results" *ngFor="let n of AllSearchItems">
+                                <div class="image-wrap">
+                                    <img *ngIf="n.productImagesList?.length" [src]="baseUrl + n.productImagesList[0]"
+                                        alt="product" (click)="ProductView(n)" />
+                                </div>
+                                <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
+                            </div>
+                            <div class="see-all">
+                                See all products
+                            </div>
+                        </div>
+                        <div *ngIf="AllSearchItems.length === 0">
+                            <div class="search-results">
+                                <div class="title">No results</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
                 <button class="icon-btn" (click)="cartpage($event)">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="9" cy="21" r="1"></circle>
                         <circle cx="20" cy="21" r="1"></circle>
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                     </svg>
-                    <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+                    <span class="cart-badge" *ngIf="cartCount > 0" (click)="cartpage($event)">{{ cartCount }}</span>
                 </button>
             </div>
         </div>
@@ -107,7 +144,10 @@
                                             (click)="ViewToProductDetails(product)">
                                     </div>
                                     <div class="product-details">
-                                        <h3 class="product-title">{{ product.name }}</h3>
+                                        <h3 class="product-title">
+                                            {{ product.name.length > 20 ? (product.name | slice:0:20) + '...' :
+                                            product.name }}
+                                        </h3>
                                         <p class="product-subtitle">{{ product.subtitle }}</p>
 
                                         <div class="product-pricing">
@@ -130,8 +170,6 @@
                                         </div>
 
 
-                                        <!-- <button class="add-to-cart-btn" (click)="addToCart(product)">Add to
-                                            Cart</button> -->
                                         <button *ngIf="!isInCart(product)" class="add-to-cart-btn"
                                             (click)="addToCart(product)">
                                             Add to Cart
@@ -156,7 +194,17 @@
 
 
     <section class="pc-section" *ngIf="IsProductView">
+        <div class="row align-items-center">
+            <div class="col-12 text-start">
+                <button class="back" (click)="closeDetails()" style="padding-left: 50px;">
+                    <img src="../../../assets/bkbtn.png" alt="Back" width="55">
+                </button>
+            </div>
+        </div>
+
+
         <div class="product-detail-container">
+
             <!-- Left Side - Image Gallery -->
             <div class="image-gallery">
                 <!-- Main Product Image -->
@@ -166,18 +214,14 @@
 
                 <!-- Thumbnail Images -->
                 <div class="thumbnail-container">
-                    <!-- <div *ngFor="let img of selectedProduct.productImagesList; let i = index" class="thumbnail-wrapper"
-                        [class.active]="selectedImage === image" (click)="selectImage(image)">
-                        <img [src]="image" [alt]="'Product view ' + (i + 1)" class="thumbnail-image">
-                    </div> -->
-                    <div *ngFor="let image of selectedProduct.productImagesList; let i = index"
-                        [class.active]="selectedImage === image" (click)="selectedImage = image">
-
-                        <img [src]="image" [alt]="'Product view ' + (i + 1)" class="thumbnail-image">
-                         <!-- <img [src]="image" [alt]="'Product view ' + (i + 1)"  class="offer-product-image" /> -->
+                    <div class="thumbnail-wrapper"
+                        *ngFor="let image of selectedProduct.productImagesList; let i = index"
+                        [class.blurred]="i === selectedIndex" (click)="selectImage(image, i)">
+                        <img [src]="image" [alt]="'Product view ' + (i + 1)" class="thumbnail-image" />
                     </div>
-
                 </div>
+
+
             </div>
 
             <!-- Right Side - Product Information -->
@@ -190,15 +234,8 @@
                 </div>
 
                 <!-- Weight Selector -->
-                <!-- <select class="weight-selector" [(ngModel)]="selectedProduct.selectedWeight">
-
-                    <option *ngFor="let w of selectedProduct.weights" [value]="w"
-                        (click)="selectedProduct.selectedWeight = w">
-                        {{ w }}
-                    </option>
-
-                </select> -->
-                <select class="weight-selector" [(ngModel)]="selectedProduct.selectedWeight" (change)="onWeightChange(selectedProduct)">
+                <select class="weight-selector" [(ngModel)]="selectedProduct.selectedWeight"
+                    (change)="onWeightChange(selectedProduct)">
                     <option *ngFor="let weight of selectedProduct.weights" [ngValue]="weight">
                         {{ weight.weightNumber }} {{ weight.weightUnit }}
                     </option>
@@ -210,10 +247,9 @@
 
 
                 <!-- Product Highlight Section -->
-                <div class="product-highlight">
+                <div class="product-highlight" *ngIf="selectedProduct?.highlights?.length">
                     <h2 class="highlight-title">Product Highlight</h2>
                     <ul class="highlight-list">
-                        <!-- <li *ngFor="let highlight of productHighlights">{{ highlight }}</li> -->
                         <li *ngFor="let highlight of selectedProduct.highlights">
                             {{ highlight }}
                         </li>
@@ -237,20 +273,6 @@
                     </div>
                 </div>
 
-
-                <!-- <div class="offer-section" *ngIf="selectedWeight === '450 g' || selectedWeight === '500 g'">
-                    <div class="offer-content">
-                        <p class="offer-text">
-                            {{ offerText }}
-                        </p>
-                        <div class="offer-bottom-row">
-                            <img [src]="offerProductImage" alt="Offer Product" class="offer-product-image" />
-                            <button class="navigate-btn" (click)="navigateToProducts()">
-                                <img src="../../../assets/plusimg.png" alt="Add" class="plus-img" />
-                            </button>
-                        </div>
-                    </div>
-                </div> -->
 
 
                 <!-- Brand Logos -->
@@ -277,11 +299,10 @@
     </section>
 
     <!-- About Section -->
-    <section class="about-section" id="about">
+    <!-- <section class="about-section" id="about">
         <div class="section-container">
             <div class="about-content">
                 <div class="about-image-wrapper">
-                    <!-- <div class="about-image-circle"></div> -->
                     <img src="../../../assets/about us.png" alt="Plant Based Products" class="about-product-image">
                 </div>
 
@@ -297,7 +318,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
     <!-- Customer Testimonials Section -->
     <section class="testimonials-section">
@@ -380,15 +401,15 @@
             </h2>
 
             <div class="newsletter-form">
-                <input type="email" placeholder="youremail@gmail.com" class="newsletter-input" 
-                [(ngModel)]="newsletterEmail"/>
+                <input type="email" placeholder="youremail@gmail.com" class="newsletter-input"
+                    [(ngModel)]="newsletterEmail" />
                 <button class="newsletter-btn" (click)="sendEmail()">Subscribe</button>
             </div>
         </div>
     </section>
 
 
-    <footer class="footer">
+    <footer class="footer" id="contact">
         <!-- <div class="container"> -->
 
         <!-- Footer Top -->
@@ -456,8 +477,10 @@
         <div class="footer-bottom d-flex justify-content-between align-items-center">
             <p class="copyright">{{ copyrightText }}</p>
             <div class="footer-links">
-                <a href="/privacy-policy">Privacy Policy</a>
-                <a href="/terms">Terms</a>
+                <!-- <a href="/privacy-policy">Privacy Policy</a>
+                <a href="/terms">Terms</a> -->
+                <p>Privacy Policy</p>
+                <p>Terms</p>
             </div>
             <div></div>
         </div>

@@ -631,6 +631,7 @@
   font-weight: 700;
   color: #000;
   margin: 0;
+  line-height: 19px;
 }
 
 .product-subtitle {
@@ -1531,8 +1532,9 @@
 
 /* Contact Info */
 .contact-info {
-  font-size: 14px;
+ font-size: 13px;
   line-height: 1.8;
+  font-family:'Roboto' ;
 }
 
 .contact-info p {
@@ -1781,8 +1783,29 @@
   gap: 15px;
   justify-content: center;
 }
-
 .thumbnail-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* ONLY selected thumbnail blur */
+.thumbnail-wrapper.blurred .thumbnail-image {
+  filter: blur(3px) brightness(0.7);
+}
+
+/* All others stay clear */
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.3s ease;
+}
+
+/* .thumbnail-wrapper {
   width: 80px;
   height: 80px;
   border-radius: 8px;
@@ -1790,7 +1813,6 @@
   cursor: pointer;
   border: 3px solid transparent;
   transition: all 0.3s ease;
-  /* background-color: #1a1a1a; */
 }
 
 .thumbnail-wrapper:hover {
@@ -1808,14 +1830,11 @@
 }
 
 .thumbnail-image {
-  /* width: 100%;
-  height: 100%;
-  object-fit: cover; */
   width: 60px;
   height: 60px;
   object-fit: cover;
   transition: filter 0.3s ease;
-}
+} */
 
 /* Right Side - Product Information */
 .product-info2 {
@@ -2210,3 +2229,196 @@
   padding-left: 25px;
 }
 
+/* search */
+
+.search-wrapper {
+  position: relative;
+  width: 180px;
+  /* reserve space */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* ICON */
+.icon {
+  width: 18px;
+  cursor: pointer;
+}
+
+.icon.small {
+  width: 14px;
+}
+
+/* .search-inline {
+  display: none;
+  align-items: center;
+  gap: 6px;
+} */
+.search-inline {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95);
+  transition: all 0.2s ease;
+}
+
+.search-inline.show {
+  display: flex;
+}
+
+.search-inline.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.search-inline input {
+  border: none;
+  outline: none;
+  width: 120px;
+  font-size: 13px;
+}
+
+
+.close-icon {
+  opacity: 0.7;
+}
+
+.close-icon:hover {
+  opacity: 1;
+}
+
+/* RESULTS */
+.search-dropdown {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  width: 260px;
+  /* width: 120px; */
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+  z-index: 10000;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* Smooth scrollbar */
+.search-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-dropdown::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+}
+
+.result-item img {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+}
+
+/* RESULTS */
+.search-dropdown {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  width: 260px;
+  /* width: 120px; */
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+  z-index: 10000;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* Smooth scrollbar */
+.search-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-dropdown::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+}
+
+.result-item img {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+}
+
+.search-results {
+  display: flex;
+  align-items: center;
+  /* 🔥 vertical center */
+  gap: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.search-results:hover {
+  background: #f5f5f5;
+}
+
+.image-wrap img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.see-all {
+  text-align: left;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #000;
+  border-top: 1px solid #eee;
+}
+
+.see-all:hover {
+  background: #f5f5f5;
+}
+.back {
+  background: none;
+  border: none;
+  padding: 0;
+  /* Removes extra padding */
+  cursor: pointer;
+}
+
+@media (max-width: 991px) {
+  .top-bar {
+    display: none;
+  }
+}

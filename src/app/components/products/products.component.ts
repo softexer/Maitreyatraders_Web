@@ -1,9 +1,10 @@
-import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { MaitreyaCustomerService } from 'src/app/services/maitreya-customer.service';
 import { ShopsService } from 'src/app/services/shops.service';
-
+import emailjs from '@emailjs/browser';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface CarouselSlide {
   title: string
@@ -19,30 +20,12 @@ interface CarouselSlide {
   price: string
 }
 
-// interface Product {
-//   id: number
-//   productID: string
-//   name: string
-//   subtitle?: string
-//   image: string
-//   productImagesList?: string[]
-//   originalPrice: string
-//   price: number
-//   weights: string[]
-//   selectedWeight: string
-//   discount?: number
-//   type: string
-//   categoryId: number
-//   subcatId: number
-//   description?: string[]
-//   highlights?: string[]
-// }
-
 interface ProductWeight {
   productPrice: number;
   disCountProductprice: number;
   weightNumber: number;
   weightUnit: string;
+  weightKey?: string;
 }
 
 interface Product {
@@ -198,6 +181,14 @@ export class ProductsComponent {
 
   @Output() openCart = new EventEmitter<MouseEvent>();
 
+  ISViewPage: boolean = false;
+  @Input() selectedType: Array<{ type: string; operation: string }> = [];
+  @Output() closeEvent = new EventEmitter();
+  dataobj: any;
+
+selectedIndex = 0;
+
+
   cartpage(event: MouseEvent) {
     event.stopPropagation();
     if (this.cartCount > 0) {
@@ -205,8 +196,11 @@ export class ProductsComponent {
     }
   }
   setActive(section: string): void {
-    this.activeSection = section;
+    // this.IsProductView = false;  
+     this.closeEvent.emit(false);
     this.showProductsDropdown = false;
+    this.activeSection = section;
+
   }
 
   ngOnInit() {
@@ -222,6 +216,17 @@ export class ProductsComponent {
     });
 
     this.subscribeCart();
+
+    if (this.selectedType && this.selectedType.length > 0) {
+      this.dataobj = this.selectedType[0]
+      if (this.selectedType[0].operation === 'ViewFrmHome') {
+        this.dataobj = this.selectedType[0]
+        console.log(this.dataobj)
+        this.IsProductView = true;
+           window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.ViewToProductDetails(this.dataobj.sendobj)
+      }
+    }
   }
 
   ngOnDestroy() {
@@ -254,99 +259,53 @@ export class ProductsComponent {
     this.startAutoPlay()
   }
 
-  addToCart(product: any) {
-    console.log(product)
-    this.shopService.addToCart(product);
+  addToCart(product: Product) {
+    const w = product.selectedWeight;
+    if (!w) return;
+
+    this.shopService.addToCart({
+      ...product,
+      weightKey: w.weightKey,
+      weightNumber: w.weightNumber,
+      weightUnit: w.weightUnit,
+      price: product.price
+    });
   }
-ViewToProductDetails(product: Product) {
-  console.log(product)
-  this.IsProductView = true;
+  ViewToProductDetails(product: Product) {
+    console.log(product)
+    this.IsProductView = true;
 
-  const firstWeight = product.weights?.[0];
+    const firstWeight = product.weights?.[0];
 
-  this.selectedProduct = {
-    ...product,
+    this.selectedProduct = {
+      ...product,
 
-    weights: product.weights || [],
-    selectedWeight: firstWeight,
+      weights: product.weights || [],
+      selectedWeight: firstWeight,
 
-    originalPrice: firstWeight?.productPrice || 0,
-    price: firstWeight
-      ? firstWeight.productPrice - (firstWeight.disCountProductprice || 0)
-      : 0,
+      originalPrice: firstWeight?.productPrice || 0,
+      price: firstWeight
+        ? firstWeight.productPrice - (firstWeight.disCountProductprice || 0)
+        : 0,
 
-    discount: firstWeight?.disCountProductprice
-      ? Math.round(
+      discount: firstWeight?.disCountProductprice
+        ? Math.round(
           (firstWeight.disCountProductprice / firstWeight.productPrice) * 100
         )
-      : 0,
+        : 0,
 
-    highlights: typeof product.highlights === 'string'
-      ? (product.highlights as string).split('.').filter((h:any) => h.trim())
-      : product.highlights || [],
+      highlights: typeof product.highlights === 'string'
+        ? (product.highlights as string).split('.').filter((h: any) => h.trim())
+        : product.highlights || [],
 
-  description: typeof product.description === 'string'
-    ? (product.description as string).split('.').filter((h:any) => h.trim())
-    : product.description || []
-  };
+      description: typeof product.description === 'string'
+        ? (product.description as string).split('.').filter((h: any) => h.trim())
+        : product.description || []
+    };
 
-  this.selectedImage =
-    this.selectedProduct.productImagesList?.[0] || 'assets/no-image.png';
-}
-
-
-  // ViewToProductDetails(product: any) {
-  //   console.log("[v0] Product selected:", product);
-
-  //   this.IsProductView = true;
-
-  //   this.selectedProduct = {
-  //     id: product.id,
-  //     type: product.type,
-  //     name: product.name,
-  //     subtitle: product.subtitle,
-  //     image: product.image,
-  //     productImagesList: product.productImagesList?.length
-  //       ? product.productImagesList.map((img: string) => img)
-  //       : product.image
-  //         ? [product.image]
-  //         : ['assets/no-image.png'],
-
-  //     discount: product.discount,
-  //     // originalPrice: Number(product.originalPrice),
-  //     // price: Number(product.price),
-  //     // weights: product.weights || [],
-  //     // selectedWeight: product.selectedWeight || product.weights?.[0],
-
-
-  //      weights: product.weightList || [],
-  //             selectedWeight: product.weightList?.[0],
-  //             originalPrice: product.weightList?.[0]?.productPrice || product.productPrice,
-
-  //              price:
-  //               product.weightList?.[0]
-  //                 ? (product.weightList[0].productPrice -
-  //                   (product.weightList[0].disCountProductprice || 0))
-  //                 : product.productPrice || 0,
-
-
-  //     categoryId: product.categoryId,
-  //     highlights: product.highlights ?? [
-  //       'High-quality premium product',
-  //       'Fresh and carefully selected',
-  //       'Perfect for daily use'
-  //     ],
-  //     description: product.description ?? [
-  //       'This product is crafted with care using premium ingredients.'
-  //     ]
-  //   };
-
-  //   this.selectedImage = this.selectedProduct.productImagesList?.[0] || 'assets/no-image.png';
-
-  //   this.IsProductView = true;
-
-  // }
-
+    this.selectedImage =
+      this.selectedProduct.productImagesList?.[0] || 'assets/no-image.png';
+  }
 
   scrollBestSellersLeft() {
     if (this.bestSellersScroll) {
@@ -436,7 +395,7 @@ ViewToProductDetails(product: Product) {
   logoPath = '../../../assets/logo.png';
 
   // Company description
-  companyDescription = 'Lorem ipsum dolor sit amet consectetur. Aenean malesuada tincidunt cursetur phasellus.';
+  companyDescription = 'Elevate your meals with our plant-based products.';
 
   // Quick Links
   quickLinks = [
@@ -450,9 +409,9 @@ ViewToProductDetails(product: Product) {
 
   // Contact Information
   contactInfo = {
-    khNo: '763, Sirorspur, Badli, Delhi,',
-    address: 'India - 110042',
-    phone: '+91-0000000000',
+    khNo: '71-75 Shelton Street, Covent Garden, London,,',
+    address: 'United Kingdom, WC2H 9JQ',
+    phone: '+44 7982376506',
     email: 'maitreyatraderslimited@gmail.com'
   };
 
@@ -495,9 +454,11 @@ ViewToProductDetails(product: Product) {
     { src: "../../../assets/secu_brd.png", alt: "Secure Payment" },
   ]
   // Select image from thumbnails
-  selectImage(image: string): void {
+  selectImage(image: string, index: number): void {
     this.selectedImage = image
     console.log("[v0] Selected image:", image)
+    this.selectedImage = image;
+  this.selectedIndex = index;
   }
 
 
@@ -513,61 +474,121 @@ ViewToProductDetails(product: Product) {
     this.router.navigate(["/products"])
   }
   cartItems: any[] = [];
-  isInCart(product: any): boolean {
-    // console.log('PRODUCT', product.productID, product.selectedWeight);
-    // console.log('CART', this.cartItems);
+  // isInCart(product: any): boolean {
+  //   // console.log('PRODUCT', product.productID, product.selectedWeight);
+  //   // console.log('CART', this.cartItems);
 
-    return this.cartItems.some(item =>
-      item.productID === product.productID &&
-      item.weight === product.selectedWeight
-    );
-  }
+  //   return this.cartItems.some(item =>
+  //     item.productID === product.productID &&
+  //     item.weight === product.selectedWeight
+  //   );
+  // }
 
 
+  // getCartItem(product: Product) {
+  //   return this.cartItems.find(item =>
+  //     item.productID === product.productID &&
+  //     item.weight === product.selectedWeight
+  //   );
+  // }
   getCartItem(product: Product) {
+    if (!product.selectedWeight) return null;
+
     return this.cartItems.find(item =>
       item.productID === product.productID &&
-      item.weight === product.selectedWeight
+      item.cartTitle?.weightNumber === product.selectedWeight.weightNumber &&
+      item.cartTitle?.weightUnit === product.selectedWeight.weightUnit
     );
   }
+  isInCart(product: Product): boolean {
+    return !!this.getCartItem(product);
+  }
+
   incrementQuantity(item: any) {
     this.shopService.updateItem({
       productID: item.productID,
-      cartTitle: item.weight,          // ✅ REQUIRED
+      cartTitle: item.cartTitle,   // ✅ CORRECT
       locqunatity: item.locqunatity + 1
     });
   }
-
   decrementQuantity(item: any) {
     if (item.locqunatity > 1) {
       this.shopService.updateItem({
         productID: item.productID,
-        cartTitle: item.weight,        // ✅ REQUIRED
+        cartTitle: item.cartTitle,  // ✅ CORRECT
         locqunatity: item.locqunatity - 1
       });
     } else {
-      this.shopService.removeFromCart(item.productID, item.weight);
+      this.shopService.removeFromCart(
+        item.productID,
+        item.cartTitle              // ✅ CORRECT
+      );
     }
   }
-  private subscribeCart() {
-    this.shopService.getCart().subscribe(cart => {
-      // this.serverCartItems = cart;
+  // incrementQuantity(item: any) {
+  //   this.shopService.updateItem({
+  //     productID: item.productID,
+  //     cartTitle: item.weight,          // ✅ REQUIRED
+  //     locqunatity: item.locqunatity + 1
+  //   });
+  // }
 
+  // decrementQuantity(item: any) {
+  //   if (item.locqunatity > 1) {
+  //     this.shopService.updateItem({
+  //       productID: item.productID,
+  //       cartTitle: item.weight,        // ✅ REQUIRED
+  //       locqunatity: item.locqunatity - 1
+  //     });
+  //   } else {
+  //     this.shopService.removeFromCart(item.productID, item.weight);
+  //   }
+  // }
+  private subscribeCart() {
+    // this.shopService.getCart().subscribe(cart => {
+    //   // this.serverCartItems = cart;
+
+    //   this.cartItems = cart.map((item: any) => ({
+    //     id: item.itemID,
+    //     name: item.categoryName,
+    //     weight: item.cartTitle || '',
+    //     originalPrice: Number(item.price),
+    //     salePrice: Number(item.price),
+    //     quantity: item.locqunatity,
+    //     image: item.cartImage,
+    //     categoryId: item.categoryID,
+    //     subcatId: item.subcatID,
+    //     productID: item.productID,
+    //     locqunatity: item.locqunatity,
+    //   }));
+    // });
+    this.shopService.getCart().subscribe(cart => {
       this.cartItems = cart.map((item: any) => ({
         id: item.itemID,
+        productID: item.productID,
         name: item.categoryName,
-        weight: item.cartTitle || '',
-        originalPrice: Number(item.price),
-        salePrice: Number(item.price),
+
+        cartTitle: item.cartTitle,   // 👈 REQUIRED
+
+        weightLabel: `${item.cartTitle.weightNumber} ${item.cartTitle.weightUnit}`,
+
+        originalPrice: item.cartTitle.productPrice,
+        // salePrice:
+        //   item.cartTitle.disCountProductprice > 0
+        //     ? item.cartTitle.disCountProductprice
+        //     : item.cartTitle.productPrice,
+
+        salePrice: item.price,
+
         quantity: item.locqunatity,
+        locqunatity: item.locqunatity,
+
         image: item.cartImage,
         categoryId: item.categoryID,
         subcatId: item.subcatID,
-        productID: item.productID,
-        locqunatity: item.locqunatity,
       }));
-    });
 
+    });
   }
   GetAllCategories() {
     this.CustomerService.showLoader.next(true);
@@ -623,22 +644,40 @@ ViewToProductDetails(product: Product) {
     );
   }
 
+  storedSubCatId: string | null = '';
   selectMainCategory(categoryId: string) {
     this.selectedMainCategoryId = categoryId;
+    this.storedSubCatId = localStorage.getItem('SerhSubCat') || null;
+
     const category = this.productCategories.find(c => c.id === categoryId);
     this.Subcategories = category?.subCategories || [];
-    if (this.Subcategories.length) {
-      this.selectSubCategory(this.Subcategories[0].id);
-    } else {
+
+    if (!this.Subcategories.length) {
       this.newLaunchedProducts = [];
+      return;
     }
-  }
-  selectSubCategory(subCategoryId: string) {
-    this.selectedSubCategoryId = subCategoryId;
-    this.newLaunchedProducts = [];
-    this.GetSubCategoryProducts(this.selectedSubCategoryId);
+
+    // 🔑 Prefer stored sub-category if it exists in this category
+    const matchedSubCat = this.storedSubCatId
+      ? this.Subcategories.find(sc => sc.id === this.storedSubCatId)
+      : null;
+
+    const subCatToSelect = matchedSubCat
+      ? matchedSubCat.id
+      : this.Subcategories[0].id;
+
+    this.selectSubCategory(subCatToSelect);
   }
 
+  selectSubCategory(subCategoryId: string) {
+    this.selectedSubCategoryId = subCategoryId;
+
+    // persist selection (optional but recommended)
+    localStorage.setItem('SerhSubCat', subCategoryId);
+
+    this.newLaunchedProducts = [];
+    this.GetSubCategoryProducts(subCategoryId);
+  }
 
   GetSubCategoryProducts(subCategoryId: string) {
     let payload = {
@@ -651,6 +690,8 @@ ViewToProductDetails(product: Product) {
       (res: any) => {
         console.log(res)
         if (res.response === 3 && res.ProductDetails?.length) {
+          localStorage.removeItem('SerhSubCat');
+
 
           const mappedProducts: Product[] = res.ProductDetails.map(
             (item: any, index: number) => ({
@@ -680,7 +721,7 @@ ViewToProductDetails(product: Product) {
               subcatId: item.subCategoryID,
               productID: item.productID,
 
-               weights: item.weightList || [],
+              weights: item.weightList || [],
               selectedWeight: item.weightList?.[0],
               originalPrice: item.weightList?.[0]?.productPrice || item.productPrice,
               // price:
@@ -688,14 +729,18 @@ ViewToProductDetails(product: Product) {
               //     ? item.weightList[0].disCountProductprice
               //     : item.weightList?.[0]?.productPrice || item.productPrice,
 
-               price:
+              price:
                 item.weightList?.[0]
                   ? (item.weightList[0].productPrice -
                     (item.weightList[0].disCountProductprice || 0))
                   : item.productPrice || 0,
 
-                  highlights: item.productHighlight,
-                  description : item.productDescription
+              discount: item.weightList?.[0]?.disCountProductprice || item.disCountProductprice
+                ? Math.round((item.weightList?.[0]?.disCountProductprice / item.weightList?.[0]?.productPrice) * 100)
+                : 0,
+
+              highlights: item.productHighlight,
+              description: item.productDescription
             })
           );
 
@@ -716,43 +761,43 @@ ViewToProductDetails(product: Product) {
       }
     );
   }
-onWeightChange(product: {
-  selectedWeight: {
-    productPrice: number;
-    disCountProductprice?: number;
-  };
-  originalPrice: number;
-  price: number;
-  discount?: number;
-}) {
-  const w = product.selectedWeight;
-  if (!w) return;
+  onWeightChange(product: {
+    selectedWeight: {
+      productPrice: number;
+      disCountProductprice?: number;
+    };
+    originalPrice: number;
+    price: number;
+    discount?: number;
+  }) {
+    const w = product.selectedWeight;
+    if (!w) return;
 
-  product.originalPrice = w.productPrice;
-  product.price = w.productPrice - (w.disCountProductprice || 0);
+    product.originalPrice = w.productPrice;
+    product.price = w.productPrice - (w.disCountProductprice || 0);
 
-  product.discount = w.disCountProductprice
-    ? Math.round((w.disCountProductprice / w.productPrice) * 100)
-    : 0;
-}
+    product.discount = w.disCountProductprice
+      ? Math.round((w.disCountProductprice / w.productPrice) * 100)
+      : 0;
+  }
 
-   onWeightChange2(product: Product) {
-  const w = product.selectedWeight;
+  onWeightChange2(product: Product) {
+    const w = product.selectedWeight;
 
-  if (!w) return;
+    if (!w) return;
 
-  // Original price always = productPrice
-  product.originalPrice = w.productPrice || 0;
+    // Original price always = productPrice
+    product.originalPrice = w.productPrice || 0;
 
-  // Final price = productPrice - disCountProductprice
-  product.price =
-    w.productPrice - (w.disCountProductprice || 0);
+    // Final price = productPrice - disCountProductprice
+    product.price =
+      w.productPrice - (w.disCountProductprice || 0);
 
-  // Optional: update discount field for badge
-  product.discount = w.disCountProductprice
-    ? Math.round((w.disCountProductprice / w.productPrice) * 100)
-    : 0;
-}
+    // Optional: update discount field for badge
+    product.discount = w.disCountProductprice
+      ? Math.round((w.disCountProductprice / w.productPrice) * 100)
+      : 0;
+  }
   //  onWeightChange(product: Product) {
   //   const w = product.selectedWeight;
 
@@ -809,19 +854,135 @@ onWeightChange(product: {
     this.activeSection = section
     this.router.navigate(["/products"])
   }
-newsletterEmail: string = '';
+  newsletterEmail: string = '';
 
-sendEmail() {
-  if (!this.newsletterEmail) {
-    this.openSnackBar('Please enter email', '');
-    return;
+  sendEmail2() {
+    if (!this.newsletterEmail) {
+      this.openSnackBar('Please enter email', '');
+      return;
+    }
+
+    this.openSnackBar('Send to email in progress', '');
+
+    // 👉 call API / EmailJS here
+
+    // ✅ clear input after snackbar
+    this.newsletterEmail = '';
+  }
+  isSubmitting = false;
+  isSubmitted = false;
+  submittedText: string = "";
+  async sendEmail() {
+    if (this.isSubmitting) return;
+
+    this.isSubmitting = true;
+    const apipayload = {
+      title: "Maitreya Traders Customer contact us page ",
+      name: "Maitreya Traders",
+      email: this.newsletterEmail,
+    };
+    console.log(apipayload)
+    // "service_xd7q9u7","template_slg27hy"  template_slg27hy
+    let response = await emailjs.send("service_xd7q9u7", "template_slg27hy", apipayload, { publicKey: 'FXF6rxTuZE6ZIsRz2' });
+    console.log(response)
+    if (response.status == 200) {
+      // this.submittedText = 'Your Details Submitted! We will update your email.';
+
+      this.openSnackBar('Your Details Submitted! We will update your email.', '');
+
+      setTimeout(() => {
+        this.isSubmitting = false;
+        this.isSubmitted = true;
+        this.resetForm();
+
+        setTimeout(() => {
+          this.isSubmitted = false;
+        }, 5000);
+      }, 2000);
+
+
+    } else {
+      // this.submittedText = 'Your Details Not Submitted!';
+      this.openSnackBar('Your Details Not Submitted!', '');
+    }
+  }
+  resetForm() {
+    this.newsletterEmail = ''
   }
 
-  this.openSnackBar('Send to email in progress', '');
+  //search
 
-  // 👉 call API / EmailJS here
+  showSearch: boolean = false;
+  searchText: string = ''
 
-  // ✅ clear input after snackbar
-  this.newsletterEmail = '';
-}
+  toggleSearch() {
+    this.showSearch = true;
+  }
+  AllSearchItems: Array<any> = [];
+  displaylist: boolean = false;
+  GotoSearch() {
+    if (!this.searchText || !this.searchText.trim()) {
+      // this.displaylist = false;
+      return;
+    }
+    const payload = {
+      searchText: this.searchText
+    };
+    this.displaylist = true;
+    this.CustomerService.showLoader.next(true);
+    this.CustomerService.SearchinHdr(payload).subscribe(
+      (res: any) => {
+        console.log(res)
+        if (res.response === 3) {
+          this.AllSearchItems = res.SearchProducts || [];
+        } else {
+          this.AllSearchItems = [];
+          console.error("Unexpected response:", res.message);
+        }
+        this.CustomerService.showLoader.next(false);
+      },
+      (err: HttpErrorResponse) => {
+        console.error("Error fetching:", err);
+        this.openSnackBar(err.message, "");
+        this.CustomerService.showLoader.next(false);
+      }
+    );
+  }
+
+  ProductView(pd: any) {
+    console.log(pd);
+    localStorage.setItem("CategoryID", pd.categoryID.toString());
+    localStorage.setItem("SerhSubCat", pd.subCategoryID.toString());
+    this.GetAllCategories();
+    this.closeSearch();
+  }
+  gotoAllProducts() {
+    // this.router.navigate(["/products"])
+  }
+
+  closeSearch() {
+    this.showSearch = false;
+    this.searchText = "";
+    this.displaylist = false;
+  }
+
+  closeDetails() {
+    this.closeEvent.emit(false);
+  }
+
+   scrollToContact() {
+    this.activeSection = 'contact';
+
+    const footer = document.getElementById('contact');
+    if (!footer) return;
+
+    const headerOffset = 80; // height of fixed header
+    const elementPosition = footer.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
 }

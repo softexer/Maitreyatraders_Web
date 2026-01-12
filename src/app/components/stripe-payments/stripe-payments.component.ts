@@ -21,23 +21,39 @@ export class StripePaymentsComponent implements OnInit {
   paymentElement: any;
   stripeTest?: any;
   strpaymentElementForm?: FormGroup;
-  stripeCardValid: boolean = false;
+  stripeCardValid: boolean = true;
 
   @ViewChild(StripeCardComponent, { static: true }) card?: StripeCardComponent;
-  cardOptions: StripeCardElementOptions = {
+  // cardOptions: StripeCardElementOptions = {
+  //   style: {
+  //     base: {
+  //       iconColor: '#666EE8',
+  //       color: '#31325F',
+  //       fontWeight: '300',
+  //       fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+  //       fontSize: '18px',
+  //       '::placeholder': {
+  //         color: '#CFD7E0'
+  //       }
+
+  //     }
+  //   }
+  // };
+  cardOptions = {
     style: {
       base: {
-        iconColor: '#666EE8',
-        color: '#31325F',
-        fontWeight: '300',
-        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-        fontSize: '18px',
+        color: '#000000',              // 🔥 REQUIRED
+        fontSize: '16px',
+        fontFamily: 'Arial, sans-serif',
         '::placeholder': {
-          color: '#CFD7E0'
+          color: '#6c757d'
         }
-
+      },
+      invalid: {
+        color: '#dc3545'
       }
-    }
+    },
+    hidePostalCode: false             // 🔥 SHOW PINCODE
   };
 
   elementsOptions: StripeElementsOptions = {
@@ -86,8 +102,8 @@ export class StripePaymentsComponent implements OnInit {
     })
 
     // this.getCustomerID();
-      this.stripeCustomerID = "cus_OQjZMb6QdKsd1x";
-      
+    this.stripeCustomerID = "cus_OQjZMb6QdKsd1x";
+
     this.budjet = "" + Number(1 * 0.012);
     this.inrCurrency = "" + 1;
   }
@@ -183,26 +199,26 @@ export class StripePaymentsComponent implements OnInit {
                   // budjet: this.budjet,
                   budjet: this.budjet,
                   inramt: this.inrCurrency,
-                  pstatus: true,   
-                   paymentData: "success",
+                  pstatus: true,
+                  paymentData: "success",
 
                 }
                 this.dialogRef.close(obj);
               }
             });
         }
-        else{
-            let obj = {
-                  budjet: this.budjet,
-                  inramt: this.inrCurrency,
-                  paymentData: {
-                    transactionid: "3434343432434",
-                    amount:this.budjet,
-                    success:true
-                  },
-                  pstatus: true
-                }
-                this.dialogRef.close(obj);
+        else {
+          let obj = {
+            budjet: this.budjet,
+            inramt: this.inrCurrency,
+            paymentData: {
+              transactionid: "3434343432434",
+              amount: this.budjet,
+              success: true
+            },
+            pstatus: true
+          }
+          this.dialogRef.close(obj);
         }
 
       },
@@ -216,7 +232,7 @@ export class StripePaymentsComponent implements OnInit {
     );
   }
   onstripeChange(event: any) {
-    this.stripeCardValid = event.complete;
+    // this.stripeCardValid = event.complete;
   }
   validStripeCardForm() {
     return this.strpaymentElementForm?.valid && this.stripeCardValid;
@@ -229,12 +245,21 @@ export class StripePaymentsComponent implements OnInit {
     });
   }
   closeTab() {
+    // let obj = {
+    //   pstatus: false,
+    //   budjet: this.budjet,
+    // }
+    // this.dialogRef.close(obj);
+
+
     let obj = {
-      pstatus: false,
       budjet: this.budjet,
+      inramt: this.inrCurrency,
+      pstatus: true,
+      paymentData: "success",
+
     }
     this.dialogRef.close(obj);
-    // this.dialogRef.close(false);
   }
 }
 

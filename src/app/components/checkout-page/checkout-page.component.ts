@@ -525,38 +525,7 @@ export class CheckoutPageComponent {
       this.openSnackBar('Your cart is empty', '');
       return;
     }
-    let apiPayload = {
-      // userID: this.user.userID,
-      // conferenceID: this.pid,
-      // Currency: "" + cifrmpayload.currency,
-      // date: cifrmpayload.orderDate,
-      // Amount: amts == 0 && !this.isAbroadPay ? "" + cifrmpayload.amount : "" + amts,
-      // TotalAmount: totamt == 0 && !this.isAbroadPay ? "" + cifrmpayload.total : "" + totamt,
-      // usdAmount: usdamts == 0 && this.isAbroadPay ? "" + cifrmpayload.amount : "" + usdamts,
-      // usdTotalAmount: usdtotamt == 0 && this.isAbroadPay ? "" + cifrmpayload.total : "" + usdtotamt,
-      // VAT: "" + cifrmpayload.vat,
-      // VATRegistrationNo: cifrmpayload.vatRegisterNo,
-      // PurchaseOrderNo: cifrmpayload.purchaseOrderNo,
-      // PaymentType: this.selectedOption,
-      // PaymentData: ptmtdata,
-      // AddDelegatelist: deligateData,
-      // YourAccountDetails: {
-      //   userID: addrpayload.userID,
-      //   Title: addrpayload.Title,
-      //   FirstName: addrpayload.FirstName,
-      //   LastName: addrpayload.LastName,
-      //   JobTitle: addrpayload.JobTitle,
-      //   Gender: addrpayload.Gender,
-      //   VATRegistration: addrpayload.VATRegistration,
-      // },
-      // AddressDetails: {
-      //   Institute_Company: addrpayload.Institute_Company,
-      //   Address: addrpayload.Address,
-      //   City: addrpayload.City,
-      //   PostalCode: addrpayload.PostalCode,
-      //   Country: addrpayload.Country,
-      // }
-    }
+
     let dailogRef = this.dialog.open(StripePaymentsComponent, {
       panelClass: "col-md-4",
       hasBackdrop: true,
@@ -569,6 +538,7 @@ export class CheckoutPageComponent {
       }
     });
     dailogRef.afterClosed().subscribe((res) => {
+      console.log(res)
       if (res) {
         // if (res.pstatus) {
         //   this.processPayment1(form, res.paymentData);
@@ -584,9 +554,9 @@ export class CheckoutPageComponent {
         //   });
         //   this.CustomerService.showLoader.next(false);
         // }
-        this.processPayment1(form, res.paymentData);
+        // this.processPayment1(form, res.paymentData);
       }
-
+      this.processPayment1(form, res);
     });
   }
   stripePaymentComplete(paymentStatusObj: any) {
@@ -682,7 +652,8 @@ export class CheckoutPageComponent {
       quantity: item.quantity,
 
       // ✅ PRICE LOCKED TO WEIGHT
-      price: item.cartTitle.productPrice,
+      // price: item.cartTitle.productPrice,
+      price: Math.round(item.cartTitle.productPrice * 100) ,
       // discountPrice: item.cartTitle.disCountProductprice,
       weight: item.cartTitle.weightNumber + " " + item.cartTitle.weightUnit,
       // ✅ FULL WEIGHT OBJECT
@@ -703,9 +674,9 @@ export class CheckoutPageComponent {
       coupanCode: this.promoCode || "",
       // coupanAmount: this.discountAmount || 0,
       coupanAmount: 0 || 0,
-      subTotal: this.subtotal,
-      deliveryFee: this.deliveryFee,
-      totalToPay: this.totalToPay,
+      subTotal: Math.round(this.subtotal * 100),
+      deliveryFee: Math.round(this.deliveryFee * 100),
+      totalToPay: Math.round(this.totalToPay * 100),
       paymentType: "Razorpay",
       Products: products,
       paymentData: paymentData // filled after Razorpay success
