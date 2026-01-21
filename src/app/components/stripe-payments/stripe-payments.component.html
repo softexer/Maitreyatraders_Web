@@ -13,7 +13,7 @@
     <div>
         <form novalidate (ngSubmit)="createToken()" [formGroup]="stripeTest">
             <div class="text-center">
-                <label>Munvar</label>
+                <label>{{name}}</label>
             </div>
             <div class="stripe-card-wrapper">
                 <ngx-stripe-card [options]="cardOptions" [elementsOptions]="elementsOptions"

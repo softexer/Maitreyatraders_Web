@@ -6,7 +6,7 @@ import { Observable, BehaviorSubject, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class MaitreyaCustomerService {
-  public baseUrl: string = "http://18.205.217.76:3000";
+  public baseUrl: string = "https://live.maitreyatraderslimited.co.uk";
   public userID: string = "";
   public checkIsLoggedIn = new BehaviorSubject(false);
   public Signout = new BehaviorSubject(false);

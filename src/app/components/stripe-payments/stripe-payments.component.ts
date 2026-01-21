@@ -68,6 +68,8 @@ export class StripePaymentsComponent implements OnInit {
   sgCurrency: string = "0";
   ukCurrency: string = "0";
   ausCurrency: string = "0";
+
+  name: string = "Munvar";
   constructor(
     private fb: FormBuilder,
     private stripeService: StripeService,
@@ -78,13 +80,7 @@ export class StripePaymentsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // let usr = localStorage.getItem("acuser");
-    // if (usr) {
-    //   this.user = JSON.parse(usr);
-    // } else {
-    //   this.dialogRef.close(false);
-    // }
-    // this.user.userID = "7989354047"
+    console.log(this.data)
     this.stripeTest = this.fb.group({
       name: ['', [Validators.required]]
     });
@@ -97,16 +93,19 @@ export class StripePaymentsComponent implements OnInit {
       amount: [1, [Validators.required, Validators.pattern(/d+/)]]
     });
     this.stripeTest.patchValue({
-      // name: this.user.FirstName
-      name: "Munvar"
+      name: this.data.name
+      // name: "Munvar"
     })
-
-    // this.getCustomerID();
-    this.stripeCustomerID = "cus_OQjZMb6QdKsd1x";
+   this.name= this.data.name;
+    this.getCustomerID();
+    // this.stripeCustomerID = "cus_OQjZMb6QdKsd1x";
 
     this.budjet = "" + Number(1 * 0.012);
     this.inrCurrency = "" + 1;
   }
+
+
+
   getCustomerID() {
     let obj = {
       "UserEmail": "syed.sultana85@gmail.com",
@@ -140,21 +139,22 @@ export class StripePaymentsComponent implements OnInit {
       // currencyCode: "USD",
       // paymentMethod: ["card"]
 
-      customerID: this.stripeCustomerID,
+      customerID: this.data.email,
+      //  customerID:this.stripeCustomerID,
       description: "testing",
-      amount: "1",
+      amount: "1000",
       shipping: {
+        "name": this.data.name,
         address: {
-          "name": "Munvar",
-          "line1": "test",
+          "line1": this.data.address,
           "postal_code": "515001",
           "city": "ATP",
           "state": "Andra Pradesh",
           "country": "India"
         }
       },
-      currencyCode: "INR",
-      paymentMethod: ["Card"]
+      currencyCode: "gbp",
+      paymentMethod: ["card"]
 
     }
     this.loginService.showLoader.next(true);
@@ -162,14 +162,13 @@ export class StripePaymentsComponent implements OnInit {
     this.loginService.createPaymentIntentInfo(obj).subscribe(
       (posRes) => {
         console.log(posRes);
-        if (posRes.res === 3) {
+        if (posRes.response === 3) {
           const clientSecret = posRes.paymentInitObject.client_secret; // Replace with the actual client secret
-          this.stripeService.confirmCardPayment(clientSecret, {
-            payment_method: {
+          this.stripeService
+            .confirmCardPayment(clientSecret, {
+              payment_method: {
               card: cardelemt,
               billing_details: {
-                // name: this.user.FirstName,
-                // email: this.user.emailID,
                 name: "Munvar Sultana",
                 email: "syed.sultana85@gmail.com",
                 address: {
@@ -182,44 +181,83 @@ export class StripePaymentsComponent implements OnInit {
                 }
               },
             }
-          })
-            .subscribe((confirmationResult) => {
-              console.log(confirmationResult);
-              if (confirmationResult.paymentIntent) {
-                let obj = {
-                  budjet: this.budjet,
-                  inramt: this.inrCurrency,
-                  paymentData: confirmationResult.paymentIntent,
-                  pstatus: true
-                }
-                this.dialogRef.close(obj);
-              } else if (confirmationResult.error) {
-                let obj = {
-                  // pstatus: false,
-                  // budjet: this.budjet,
-                  budjet: this.budjet,
-                  inramt: this.inrCurrency,
-                  pstatus: true,
-                  paymentData: "success",
+            })
+            .subscribe(result => {
+              console.log('Stripe Result:', result);
 
-                }
+              // ❌ Stripe error
+              if (result.error) {
+                console.error(result.error.message);
+                this.loginService.showLoader.next(false);
+                return;
+              }
+
+              const paymentIntent = result.paymentIntent;
+
+              // 🔐 3D Secure required
+              if (paymentIntent?.status === 'requires_action') {
+                console.log('3DS authentication required');
+                // Stripe automatically handles redirect / popup
+                return;
+              }
+
+              // ✅ Payment successful
+              if (paymentIntent?.status === 'succeeded') {
+                const obj = {
+                  budjet: this.budjet,
+                  inramt: this.inrCurrency,
+                  paymentData: paymentIntent,
+                  pstatus: true
+                };
+
+                this.loginService.showLoader.next(false);
                 this.dialogRef.close(obj);
               }
             });
+
+
+
+
+
+
+
+
+
+
+
+          // this.stripeService.confirmCardPayment(clientSecret, {
+          //   payment_method: {
+          //     card: cardelemt,
+          //     billing_details: {
+          //       name: "Munvar Sultana",
+          //       email: "syed.sultana85@gmail.com",
+          //       address: {
+          //         line1: '354 Oyster Point Blvd',
+          //         line2: '',
+          //         city: 'South San Francisco',
+          //         state: 'CA',
+          //         postal_code: '94080',
+          //         country: 'US',
+          //       }
+          //     },
+          //   }
+          // })
+          //   .subscribe((confirmationResult) => {
+          //     console.log(confirmationResult);
+          //     if (confirmationResult.paymentIntent) {
+          //       let obj = {
+          //         budjet: this.budjet,
+          //         inramt: this.inrCurrency,
+          //         paymentData: confirmationResult.paymentIntent,
+          //         pstatus: true
+          //       }
+          //       this.dialogRef.close(obj);
+          //     } else if (confirmationResult.error) {
+
+          //     }
+          //   });
         }
-        else {
-          let obj = {
-            budjet: this.budjet,
-            inramt: this.inrCurrency,
-            paymentData: {
-              transactionid: "3434343432434",
-              amount: this.budjet,
-              success: true
-            },
-            pstatus: true
-          }
-          this.dialogRef.close(obj);
-        }
+
 
       },
       (err: HttpErrorResponse) => {

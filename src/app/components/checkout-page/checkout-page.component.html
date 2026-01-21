@@ -1,12 +1,12 @@
 <div class="website-container">
     <!-- Top Info Bar -->
-    <div class="top-bar">
+    <div class="top-bar d-none d-lg-block">
         <div class="top-bar-content">
             <span>Minimum order £35</span>
             <span class="separator">|</span>
-            <span>Free Delivery for order over £80.</span>
+            <span>Free Delivery for order over £80</span>
             <span class="separator">|</span>
-            <span>£2.99 surcharge for frozen products packing.</span>
+            <span>£2.99 surcharge for frozen products packing</span>
         </div>
     </div>
 
@@ -14,21 +14,23 @@
     <header class="header">
         <div class="header-content">
             <!-- Logo -->
-            <div class="logo">
-                <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image" width="250">
+            <div class="logo d-md-block d-none">
+                <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image">
             </div>
 
             <!-- Navigation -->
             <nav class="nav">
+                <a class="d-block d-md-none">
+                    <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" width="70px">
+                </a>
                 <a href="#" class="nav-item" [class.active]="activeSection === 'home'"
                     (click)="setActive('home')">Home</a>
 
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
-                    (click)="setActive('about'); scrollToSection('about')">
+                    (click)="navigatetoabout()">
+                    <!-- (click)="setActive('about'); scrollToSection('about')" -->
                     About
                 </a>
-
-                <!-- (mouseenter)="showDropdown()" (mouseleave)="hideDropdown()" -->
                 <div class="nav-item-wrapper">
                     <a href="#" class="nav-item" [class.active]="activeSection === 'products'"
                         (click)="toggleProductsDropdown($event)">
@@ -36,40 +38,76 @@
                     </a>
                 </div>
 
-                <div style="position: absolute; color : red;top:100%; left:50%; border: 1px solid #333;
-                    border-radius: 8px; background-color: #1a1a1a;  border: 1px solid #333;  border-radius: 8px; min-width: 250px;"
+                <div style="position: absolute; color : red;top:70%; left:50%; border: 1px solid #333; z-index: 9999;
+                    border-radius: 8px; background-color: #1a1a1a;  border: 1px solid #333;  border-radius: 8px;  min-width: 250px;"
                     *ngIf="showProductsDropdown">
                     <a *ngFor="let category of productCategories" class="dropdown-item"
-                        (click)="navigateToCategory(category); scrollToSection('products')"
-                        [class.active]="selectedCategoryId === category.id" (click)="selectCategory(category.id)">
+                        (click)="navigateToCategory(category)">
                         {{ category.name }}
                     </a>
-
                 </div>
-                <a href="#" class="nav-item" [class.active]="activeSection === 'recipes'"
+
+                <!-- <a href="#" class="nav-item" [class.active]="activeSection === 'recipes'"
                     (click)="setActive('recipes')">Recipes</a>
                 <a href="#" class="nav-item" [class.active]="activeSection === 'blog'"
-                    (click)="setActive('blog')">Blog</a>
-                <a href="#" class="nav-item" [class.active]="activeSection === 'contact'"
-                    (click)="setActive('contact')">Contact Us</a>
+                    (click)="setActive('blog')">Blog</a> -->
+
+                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="scrollToContact()">
+                    Contact Us
+                </a>
+
+
             </nav>
 
             <!-- Header Actions -->
             <div class="header-actions">
-                <button class="icon-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                </button>
+                <div class="search-wrapper" (click)="$event.stopPropagation()">
+                    <img src="../../../assets/Icon-3.png" class="icon search-trigger" [class.hide]="showSearch"
+                        (click)="toggleSearch(); $event.stopPropagation()" />
+                    <div class="search-inline" [class.show]="showSearch" (click)="$event.stopPropagation()">
+                        <img src="../../../assets/Icon-3.png" class="icon small" />
+                        <input type="text" [(ngModel)]="searchText" placeholder="Search products"
+                            (keydown.enter)="GotoSearch(); $event.preventDefault(); $event.stopPropagation()"
+                            (click)="$event.stopPropagation()" />
+
+
+                        <img src="../../../assets/cancel.png" class="icon small close-icon"
+                            (click)="closeSearch(); $event.stopPropagation()" width="10" />
+                    </div>
+                    <div class="search-dropdown" *ngIf="displaylist">
+                        <div *ngIf="AllSearchItems.length > 0">
+                            <div class="panel-header">
+                                <span>Products</span>
+                                <div></div>
+                            </div>
+                            <div class="search-results" *ngFor="let n of AllSearchItems">
+                                <div class="image-wrap">
+                                    <img *ngIf="n.productImagesList?.length" [src]="baseUrl + n.productImagesList[0]"
+                                        alt="product" (click)="ProductView(n)" />
+                                </div>
+                                <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
+                            </div>
+                            <div class="see-all">
+                                See all products
+                            </div>
+                        </div>
+                        <div *ngIf="AllSearchItems.length === 0">
+                            <div class="search-results">
+                                <div class="title">No results</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
                 <button class="icon-btn" (click)="cartpage($event)">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="9" cy="21" r="1"></circle>
                         <circle cx="20" cy="21" r="1"></circle>
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                     </svg>
-                    <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+                    <span class="cart-badge" *ngIf="cartCount > 0" (click)="cartpage($event)">{{ cartCount }}</span>
                 </button>
+
             </div>
         </div>
     </header>
@@ -77,19 +115,36 @@
     <form #checkoutForm="ngForm" (ngSubmit)="processPayment(checkoutForm)">
 
         <div class="checkout-container">
-            <!-- Left Side - Contact & Delivery Details class="left-section -->
             <div class="col-md-5">
                 <section class="form-section">
                     <h2>Contact</h2>
 
-                    <label class="form-label">Email or Mobile Number</label>
-                    <input type="text" name="contact" required [(ngModel)]="contactInfo_cart.emailOrMobile"
+                    <label class="form-label">Email ID &nbsp;&nbsp; </label>
+                    <!-- <input type="text" name="contact" required [(ngModel)]="contactInfo_cart.emailOrMobile"
                         #contact="ngModel" class="form-input" maxlength="70"
                         [class.invalid]="contact.invalid && (contact.touched || checkoutForm.submitted)" />
 
                     <div class="error" *ngIf="contact.invalid && (contact.touched || checkoutForm.submitted)">
-                        Email or Mobile number is required
+                      <small class="text-danger" *ngIf="contactInfo_cart.emailOrMobile('email')?.errors?.['email']">
+                            {{ 'Invalid email format.' | translate }}
+                        </small>
+                    </div> -->
+                    <input type="email" name="contact" required email [(ngModel)]="contactInfo_cart.emailOrMobile"
+                        #contact="ngModel" class="form-input" maxlength="70"
+                        [class.invalid]="contact.invalid && (contact.touched || checkoutForm.submitted)" />
+
+                    <div class="error" *ngIf="contact.invalid && (contact.touched || checkoutForm.submitted)">
+                        <small class="text-danger" *ngIf="contact.errors?.['required']">
+                            Email is required
+                        </small>
+
+                        <small class="text-danger" *ngIf="contact.errors?.['email']">
+                            Invalid email format.
+                        </small>
                     </div>
+
+
+
 
 
                     <label class="checkbox-label">
@@ -108,10 +163,10 @@
                         [class.invalid]="deliveryCountry.invalid && (deliveryCountry.touched || checkoutForm.submitted)">
 
                         <option value="" disabled>Country / Region</option>
-                        <option value="US" style="color:black">United States</option>
                         <option value="UK" style="color:black">United Kingdom</option>
+                        <!-- <option value="US" style="color:black">United States</option>                       
                         <option value="CA" style="color:black">Canada</option>
-                        <option value="IN" style="color:black">India</option>
+                        <option value="IN" style="color:black">India</option> -->
                     </select>
 
                     <div class="error"
@@ -192,31 +247,72 @@
                             </div>
                         </div>
 
-                        <div class="form-field">
-                            <label class="form-label">Pincode</label>
+                        <!-- <div class="form-field">
+                            <label class="form-label">Postcode</label>
                             <input type="text" name="deliveryPincode" required [(ngModel)]="deliveryInfo.pinCode"
                                 #deliveryPincode="ngModel" class="form-input" maxlength="10"
                                 [class.invalid]="deliveryPincode.invalid && (deliveryPincode.touched || checkoutForm.submitted)" />
 
                             <div class="error"
                                 *ngIf="deliveryPincode.invalid && (deliveryPincode.touched || checkoutForm.submitted)">
-                                Pincode is required
+                                Postcode is required
+                            </div>
+                        </div> -->
+
+                        <div class="form-field position-relative">
+                            <!-- <label class="form-label">Postcode</label> -->
+
+                            <!-- <input type="text" name="deliveryPincode" required [(ngModel)]="deliveryInfo.pinCode"
+                                #deliveryPincode="ngModel" class="form-input" maxlength="10"
+                                (ngModelChange)="onPostcodeInput($event)" autocomplete="off" />
+
+                            <ul class="postcode-dropdown" *ngIf="showpostalDropdown">
+                                <li *ngFor="let pc of postcodes" (click)="selectPostcode(pc)">
+                                    {{ pc }}
+                                </li>
+                            </ul> -->
+                            <div class="form-field postcode-container">
+                                <label class="form-label">Postcode</label>
+                                <input type="text" name="deliveryPincode" required [(ngModel)]="deliveryInfo.pinCode"
+                                    #deliveryPincode="ngModel" class="form-input" maxlength="10"
+                                    (ngModelChange)="onPostcodeInput($event)" autocomplete="off" />
+
+                                <ul *ngIf="showpostalDropdown" class="postcode-dropdown">
+                                    <li *ngFor="let pc of postcodes" (click)="selectPostcode(pc)">
+                                        {{pc }}
+                                    </li>
+                                </ul>
+                            </div>
+
+
+                            <div class="error"
+                                *ngIf="deliveryPincode.invalid && (deliveryPincode.touched || checkoutForm.submitted)">
+                                Postcode is required
                             </div>
                         </div>
+
                     </div>
 
                     <!-- Phone -->
                     <div class="form-field">
                         <label class="form-label">Phone Number</label>
-                        <input type="text" name="deliveryPhone" required pattern="^[0-9]{10}$" maxlength="15"
-                            [(ngModel)]="deliveryInfo.phoneNumber" #deliveryPhone="ngModel" class="form-input"
+
+                        <input type="text" name="deliveryPhone" required pattern="^[0-9]{11}$" maxlength="11"
+                            inputmode="numeric" [(ngModel)]="deliveryInfo.phoneNumber" #deliveryPhone="ngModel"
+                            class="form-input" (keypress)="numericOnly($event)"
                             [class.invalid]="deliveryPhone.invalid && (deliveryPhone.touched || checkoutForm.submitted)" />
 
                         <div class="error"
                             *ngIf="deliveryPhone.invalid && (deliveryPhone.touched || checkoutForm.submitted)">
-                            Enter valid 10-digit phone number
+                            <span *ngIf="deliveryPhone.errors?.['required']">
+                                Phone number is required
+                            </span>
+                            <span *ngIf="deliveryPhone.errors?.['pattern']">
+                                Enter a valid 11-digit phone number
+                            </span>
                         </div>
                     </div>
+
                 </section>
 
 
@@ -375,13 +471,18 @@
                         <!-- Phone -->
                         <div class="form-field">
                             <label class="form-label">Phone Number</label>
-                            <input type="text" name="billingPhone" required pattern="^[0-9]{10}$"
+                            <!-- <input type="text" name="billingPhone" required maxlength="11" pattern="^[0-9]{11}$"
                                 [(ngModel)]="billingAddress.phoneNumber" #billingPhone="ngModel" class="form-input"
+                                [class.invalid]="billingPhone.invalid && (billingPhone.touched || checkoutForm.submitted)" /> -->
+                            <input type="tel" name="billingPhone" required maxlength="11" pattern="^[0-9]{1,11}$"
+                                [(ngModel)]="billingAddress.phoneNumber" #billingPhone="ngModel" class="form-input"
+                                (input)="limitPhoneLength()"
                                 [class.invalid]="billingPhone.invalid && (billingPhone.touched || checkoutForm.submitted)" />
+
 
                             <div class="error"
                                 *ngIf="billingPhone.invalid && (billingPhone.touched || checkoutForm.submitted)">
-                                Enter valid 10-digit phone number
+                                Enter valid 11-digit phone number
                             </div>
                         </div>
 
@@ -392,7 +493,7 @@
 
             <!-- Right Side - Cart Summary right-section -->
             <div class="col-md-2"></div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="cart-items">
                     <div *ngFor="let item of cartItems" class="cart-item">
                         <div class="item-image-wrapper">
@@ -422,16 +523,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="promo-section">
+                <!-- <div class="promo-section">
                     <div class="promo-wrapper">
-                        <!-- <input type="text" placeholder="Discount code" [(ngModel)]="promoCode" class="promo-input" /> -->
                         <input type="text" name="promoCode" [(ngModel)]="promoCode" class="promo-input" />
 
                         <button type="button" (click)="applyPromoCode()" class="apply-btn">
                             Apply
                         </button>
                     </div>
-                </div>
+                </div> -->
                 <div class="summary">
                     <div class="summary-row">
                         <span>Sub Total</span>
@@ -439,17 +539,34 @@
                     </div>
                     <div class="summary-row">
                         <span>Delivery Fee</span>
-                        <span>£{{deliveryFee.toFixed(2)}}</span>
+                        <span>
+                            {{ deliveryFee === 0 ? 'Free' : '£' + deliveryFee.toFixed(2) }}
+                        </span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Discount Amount</span>
+                       <span>£{{ discountAmt.toFixed(2) }}</span>
+                    </div>
+                  
+                    <div class="summary-row" *ngIf="frozenCharge > 0">
+                        <span>Frozen Packing Charge</span>
+                        <span>£{{ frozenCharge.toFixed(2) }}</span>
                     </div>
                     <div class="summary-row total">
                         <span>Total to pay</span>
-                        <span>£{{totalToPay.toFixed(2)}}</span>
+                        <!-- <span>£{{totalToPay.toFixed(2)}}</span> -->
+                        <span>£{{ totalToPay.toFixed(2) }}</span>
                     </div>
                 </div>
                 <button type="submit" class="pay-now-btn"
-                    [class.disabled]="checkoutForm.invalid || cartItems.length === 0">
+                    [class.disabled]="checkoutForm.invalid || cartItems.length === 0 || subtotal < MIN_ORDER_AMOUNT">
+                    <!-- [class.disabled]="checkoutForm.invalid || cartItems.length === 0" -->
                     Pay Now
                 </button>
+                <p class="text-danger mt-2" *ngIf="subtotal < MIN_ORDER_AMOUNT">
+                    Minimum order amount is £{{ MIN_ORDER_AMOUNT }}
+                </p>
+
 
 
             </div>
@@ -457,80 +574,5 @@
     </form>
 
 
-    <!-- About Section -->
-    <!-- <section class="about-section" id="about">
-        <div class="section-container">
-            <div class="about-content">
-                <div class="about-image-wrapper">
-                    <img src="../../../assets/about us.png" alt="Plant Based Products" class="about-product-image">
-                </div>
 
-                <div class="about-text">
-                    <h2 class="about-title">About</h2>
-                    <p class="about-description">
-                        At Maitreya Traders, we believe in combining health, taste, and tradition. Our mission is to
-                        make plant-based eating exciting and accessible by offering premium-quality vegan and vegetarian
-                        frozen food sourced from around the world. We are committed to bringing only authentic,
-                        flavourful, and thoughtfully crafted products that align with your lifestyle.
-                    </p>
-                    <button class="read-more-btn">Read More</button>
-                </div>
-            </div>
-        </div>
-    </section> -->
-
-
-    <!-- Footer -->
-    <!-- <footer class="footer">
-        <div class="row">
-            <div class="col-md-4 footer-section logo-section">
-                <div class="logo">
-                    <img [src]="logoPath" alt="Logo" class="logo-icon">
-                </div>
-                <p class="description">{{ companyDescription }}</p>
-            </div>
-
-            <div class="col-md-2  footer-section">
-                <h3 class="section-title2">Quick Links</h3>
-                <ul class="links-list">
-                    <li *ngFor="let link of quickLinks">
-                        <a href="javascript:void(0)" (click)="scrollToSection(link.sectionId)">
-                            {{ link.label }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="col-md-4 footer-section">
-                <h3 class="section-title2">Contact Us</h3>
-                <div class="contact-info">
-                    <p><strong>KH No:</strong> {{ contactInfo.khNo }}<br />
-                        {{ contactInfo.address }}
-                    </p>
-                    <p><strong>Tel:</strong> {{ contactInfo.phone }}</p>
-                    <p><strong>Email:</strong>
-                        <a [href]="'mailto:' + contactInfo.email">{{ contactInfo.email }}</a>
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-md-2  footer-section">
-                <h3 class="section-title2">Follow Us</h3>
-                <div class="social-icons">
-                    <a *ngFor="let social of socialLinks" [href]="social.url" target="_blank">
-                        <img [src]="social.icon" class="social-icon">
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer-bottom d-flex justify-content-between align-items-center">
-            <p class="copyright">{{ copyrightText }}</p>
-            <div class="footer-links">
-                <a href="/privacy-policy">Privacy Policy</a>
-                <a href="/terms">Terms</a>
-            </div>
-            <div></div>
-        </div>
-    </footer> -->
 </div>

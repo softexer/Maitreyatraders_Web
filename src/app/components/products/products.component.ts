@@ -5,6 +5,7 @@ import { MaitreyaCustomerService } from 'src/app/services/maitreya-customer.serv
 import { ShopsService } from 'src/app/services/shops.service';
 import emailjs from '@emailjs/browser';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AfterViewInit, QueryList, ViewChildren } from '@angular/core';
 
 interface CarouselSlide {
   title: string
@@ -19,6 +20,11 @@ interface CarouselSlide {
   productRating: number
   price: string
 }
+interface CartProduct {
+  productID: string;
+  selectedWeight: ProductWeight;
+  price: number;
+}
 
 interface ProductWeight {
   productPrice: number;
@@ -28,7 +34,7 @@ interface ProductWeight {
   weightKey?: string;
 }
 
-interface Product {
+interface Product extends CartProduct {
   id: number;
   productID: string;
   name: string;
@@ -47,7 +53,8 @@ interface Product {
   categoryId: string;
   subcatId: string;
   description?: string[]
-  highlights?: string[]
+  highlights?: string[],
+  isFrozen?: boolean;
 }
 interface Testimonial {
   text: string
@@ -72,25 +79,26 @@ interface SubCategory {
   image?: string;
 }
 
-interface ProductPreview {
+interface ProductPreview extends CartProduct {
   id: number;
+  productID: string;
   type: string;
   name: string;
   subtitle?: string;
-  image?: string;              // main image from API
-  productImagesList?: string[]; // optional multiple images
-
+  image?: string;
+  productImagesList?: string[];
   discount?: number;
   originalPrice: number;
   price: number;
-  // weights: string[];
-  // selectedWeight?: string;
   weights: ProductWeight[];
   selectedWeight: ProductWeight;
   categoryId?: string;
+  subcatId: string;
   description?: string[];
   highlights?: string[];
+  isFrozen?: boolean;
 }
+
 
 @Component({
   selector: 'app-products',
@@ -98,6 +106,9 @@ interface ProductPreview {
   styleUrls: ['./products.component.css']
 })
 export class ProductsComponent {
+  isSubmitting = false;
+  isSubmitted = false;
+  submittedText: string = "";
   currentSlide = 0
   autoPlayInterval: any
   @ViewChild("bestSellersScroll") bestSellersScroll!: ElementRef
@@ -186,7 +197,7 @@ export class ProductsComponent {
   @Output() closeEvent = new EventEmitter();
   dataobj: any;
 
-selectedIndex = 0;
+  selectedIndex = 0;
 
 
   cartpage(event: MouseEvent) {
@@ -197,7 +208,7 @@ selectedIndex = 0;
   }
   setActive(section: string): void {
     // this.IsProductView = false;  
-     this.closeEvent.emit(false);
+    this.closeEvent.emit(false);
     this.showProductsDropdown = false;
     this.activeSection = section;
 
@@ -223,7 +234,7 @@ selectedIndex = 0;
         this.dataobj = this.selectedType[0]
         console.log(this.dataobj)
         this.IsProductView = true;
-           window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         this.ViewToProductDetails(this.dataobj.sendobj)
       }
     }
@@ -271,10 +282,29 @@ selectedIndex = 0;
       price: product.price
     });
   }
+
+  // Add to cart functionality
+  addToCart2(product: any): void {
+    console.log("selprd", product);
+    const w = product.selectedWeight;
+    if (!w) return;
+
+    this.shopService.addToCart({
+      ...product,
+      weightKey: w.weightKey,
+      weightNumber: w.weightNumber,
+      weightUnit: w.weightUnit,
+      price: product.price
+    });
+  }
+  showHighlight = false;
+  showDescription = false;
+
   ViewToProductDetails(product: Product) {
     console.log(product)
     this.IsProductView = true;
-
+    this.showHighlight = false; // reset showHighlight = false;
+    this.showDescription = false;
     const firstWeight = product.weights?.[0];
 
     this.selectedProduct = {
@@ -305,6 +335,11 @@ selectedIndex = 0;
 
     this.selectedImage =
       this.selectedProduct.productImagesList?.[0] || 'assets/no-image.png';
+
+    setTimeout(() => {
+      this.showHighlight = true;
+      this.observeDescription(); // start observing
+    }, 50);
   }
 
   scrollBestSellersLeft() {
@@ -330,7 +365,7 @@ selectedIndex = 0;
 
   testimonials: Testimonial[] = [
     {
-      text: "Lorem ipsum dolor sit amet consectetur. Aenean maurisnam tortor curabitur phasellus. Lorem ipsum dolor sit amet consectetur. Aenean maurisnam tortor curabitur phasellus.",
+      text: "I absolutely love these plant-based delights! Every bite is fresh, flavorful, and satisfying. The variety and quality make it easy to enjoy healthy meals without compromising on taste.",
       name: "Theresa Jordan",
       role: "Food Enthusiast",
       avatar: "../../../assets/testi_1.png",
@@ -395,15 +430,13 @@ selectedIndex = 0;
   logoPath = '../../../assets/logo.png';
 
   // Company description
-  companyDescription = 'Elevate your meals with our plant-based products.';
+  companyDescription = 'At Maitreya Traders, we believe in combining health, taste, and tradition. Our mission is to make plant-based eating exciting and accessible by offering premium-quality vegan and vegetarian products sourced from around the world. ';
 
   // Quick Links
   quickLinks = [
-    { label: 'Home', sectionId: 'home' },
-    { label: 'About', sectionId: 'about' },
-    // { label: 'Products', sectionId: 'products' },
-    { label: 'Recipes', sectionId: 'recipes' },
-    { label: 'Blog', sectionId: 'blog' }
+    { label: 'Home', sectionId: 'home', route: "/home" },
+    { label: 'About', sectionId: 'about', route: '/about-us' },
+    { label: 'Products', sectionId: 'products', route: '/products' },
 
   ];
 
@@ -412,7 +445,7 @@ selectedIndex = 0;
     khNo: '71-75 Shelton Street, Covent Garden, London,,',
     address: 'United Kingdom, WC2H 9JQ',
     phone: '+44 7982376506',
-    email: 'maitreyatraderslimited@gmail.com'
+    email: 'enquiry@maitreyatraderslimited.co.uk'
   };
 
   // Social Media Links (place social icons in assets folder)
@@ -423,7 +456,7 @@ selectedIndex = 0;
   ];
 
   // Copyright text with current year
-  copyrightText = `Maitreya Traders Copyright ${new Date().getFullYear()}. All Rights Reserved.`;
+  copyrightText = `Maitreya Traders Limited Copyright ${new Date().getFullYear()}. All Rights Reserved.`;
 
 
   selectCategory(categoryId: string) {
@@ -458,15 +491,11 @@ selectedIndex = 0;
     this.selectedImage = image
     console.log("[v0] Selected image:", image)
     this.selectedImage = image;
-  this.selectedIndex = index;
+    this.selectedIndex = index;
   }
 
 
-  // Add to cart functionality
-  addToCart2(product: any): void {
-    console.log("selprd", product);
-    this.shopService.addToCart(product);
-  }
+
 
   // Navigate to products page on + button click
   navigateToProducts(): void {
@@ -474,24 +503,9 @@ selectedIndex = 0;
     this.router.navigate(["/products"])
   }
   cartItems: any[] = [];
-  // isInCart(product: any): boolean {
-  //   // console.log('PRODUCT', product.productID, product.selectedWeight);
-  //   // console.log('CART', this.cartItems);
-
-  //   return this.cartItems.some(item =>
-  //     item.productID === product.productID &&
-  //     item.weight === product.selectedWeight
-  //   );
-  // }
-
 
   // getCartItem(product: Product) {
-  //   return this.cartItems.find(item =>
-  //     item.productID === product.productID &&
-  //     item.weight === product.selectedWeight
-  //   );
-  // }
-  getCartItem(product: Product) {
+  getCartItem(product: CartProduct) {
     if (!product.selectedWeight) return null;
 
     return this.cartItems.find(item =>
@@ -500,7 +514,8 @@ selectedIndex = 0;
       item.cartTitle?.weightUnit === product.selectedWeight.weightUnit
     );
   }
-  isInCart(product: Product): boolean {
+  // isInCart(product: Product): boolean {
+  isInCart(product: CartProduct): boolean {
     return !!this.getCartItem(product);
   }
 
@@ -525,43 +540,8 @@ selectedIndex = 0;
       );
     }
   }
-  // incrementQuantity(item: any) {
-  //   this.shopService.updateItem({
-  //     productID: item.productID,
-  //     cartTitle: item.weight,          // ✅ REQUIRED
-  //     locqunatity: item.locqunatity + 1
-  //   });
-  // }
 
-  // decrementQuantity(item: any) {
-  //   if (item.locqunatity > 1) {
-  //     this.shopService.updateItem({
-  //       productID: item.productID,
-  //       cartTitle: item.weight,        // ✅ REQUIRED
-  //       locqunatity: item.locqunatity - 1
-  //     });
-  //   } else {
-  //     this.shopService.removeFromCart(item.productID, item.weight);
-  //   }
-  // }
   private subscribeCart() {
-    // this.shopService.getCart().subscribe(cart => {
-    //   // this.serverCartItems = cart;
-
-    //   this.cartItems = cart.map((item: any) => ({
-    //     id: item.itemID,
-    //     name: item.categoryName,
-    //     weight: item.cartTitle || '',
-    //     originalPrice: Number(item.price),
-    //     salePrice: Number(item.price),
-    //     quantity: item.locqunatity,
-    //     image: item.cartImage,
-    //     categoryId: item.categoryID,
-    //     subcatId: item.subcatID,
-    //     productID: item.productID,
-    //     locqunatity: item.locqunatity,
-    //   }));
-    // });
     this.shopService.getCart().subscribe(cart => {
       this.cartItems = cart.map((item: any) => ({
         id: item.itemID,
@@ -573,11 +553,6 @@ selectedIndex = 0;
         weightLabel: `${item.cartTitle.weightNumber} ${item.cartTitle.weightUnit}`,
 
         originalPrice: item.cartTitle.productPrice,
-        // salePrice:
-        //   item.cartTitle.disCountProductprice > 0
-        //     ? item.cartTitle.disCountProductprice
-        //     : item.cartTitle.productPrice,
-
         salePrice: item.price,
 
         quantity: item.locqunatity,
@@ -586,6 +561,7 @@ selectedIndex = 0;
         image: item.cartImage,
         categoryId: item.categoryID,
         subcatId: item.subcatID,
+        isFrozen: item.isFrozen || false
       }));
 
     });
@@ -740,7 +716,10 @@ selectedIndex = 0;
                 : 0,
 
               highlights: item.productHighlight,
-              description: item.productDescription
+              description: item.productDescription,
+              isFrozen: item.isfrozenProduct || false,
+              isFreeItem: false,
+              promoId: null
             })
           );
 
@@ -869,43 +848,80 @@ selectedIndex = 0;
     // ✅ clear input after snackbar
     this.newsletterEmail = '';
   }
-  isSubmitting = false;
-  isSubmitted = false;
-  submittedText: string = "";
+
+
   async sendEmail() {
     if (this.isSubmitting) return;
 
     this.isSubmitting = true;
+
+    // 🔥 Force UI update
+    await new Promise(resolve => setTimeout(resolve));
+
     const apipayload = {
-      title: "Maitreya Traders Customer contact us page ",
-      name: "Maitreya Traders",
+      title: 'Maitreya Traders Customer contact us page',
+      name: 'Maitreya Traders',
       email: this.newsletterEmail,
     };
-    console.log(apipayload)
-    // "service_xd7q9u7","template_slg27hy"  template_slg27hy
-    let response = await emailjs.send("service_xd7q9u7", "template_slg27hy", apipayload, { publicKey: 'FXF6rxTuZE6ZIsRz2' });
-    console.log(response)
-    if (response.status == 200) {
-      // this.submittedText = 'Your Details Submitted! We will update your email.';
 
-      this.openSnackBar('Your Details Submitted! We will update your email.', '');
+    try {
+      const response = await emailjs.send(
+        'service_4i31vcn',
+        'template_vm2sdr9',
+        apipayload,
+        { publicKey: '0TocvA3hn_6xpQ9SV' }
+      );
 
-      setTimeout(() => {
-        this.isSubmitting = false;
-        this.isSubmitted = true;
+      if (response.status === 200) {
+        this.openSnackBar(
+          'Your Details Submitted! We will update your email.',
+          ''
+        );
         this.resetForm();
-
-        setTimeout(() => {
-          this.isSubmitted = false;
-        }, 5000);
-      }, 2000);
-
-
-    } else {
-      // this.submittedText = 'Your Details Not Submitted!';
+      }
+    } catch (error) {
+      console.error(error);
       this.openSnackBar('Your Details Not Submitted!', '');
+    } finally {
+      this.isSubmitting = false;
     }
   }
+
+  // async sendEmail() {
+  //   if (this.isSubmitting) return;
+
+  //   this.isSubmitting = true;
+  //   const apipayload = {
+  //     title: "Maitreya Traders Customer contact us page ",
+  //     name: "Maitreya Traders",
+  //     email: this.newsletterEmail,
+  //   };
+  //   console.log(apipayload)
+  //   // let response = await emailjs.send("service_xd7q9u7", "template_slg27hy", apipayload, { publicKey: 'FXF6rxTuZE6ZIsRz2' });
+  //  let response = await emailjs.send("service_4i31vcn", "template_vm2sdr9", apipayload, { publicKey: '0TocvA3hn_6xpQ9SV' });
+
+  //   console.log(response)
+  //   if (response.status == 200) {
+  //     // this.submittedText = 'Your Details Submitted! We will update your email.';
+
+  //     this.openSnackBar('Your Details Submitted! We will update your email.', '');
+
+  //     setTimeout(() => {
+  //       this.isSubmitting = false;
+  //       this.isSubmitted = true;
+  //       this.resetForm();
+
+  //       setTimeout(() => {
+  //         this.isSubmitted = false;
+  //       }, 5000);
+  //     }, 2000);
+
+
+  //   } else {
+  //     // this.submittedText = 'Your Details Not Submitted!';
+  //     this.openSnackBar('Your Details Not Submitted!', '');
+  //   }
+  // }
   resetForm() {
     this.newsletterEmail = ''
   }
@@ -967,10 +983,13 @@ selectedIndex = 0;
   }
 
   closeDetails() {
+    console.log("erewrewrew")
     this.closeEvent.emit(false);
+    this.IsProductView = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-   scrollToContact() {
+  scrollToContact() {
     this.activeSection = 'contact';
 
     const footer = document.getElementById('contact');
@@ -985,4 +1004,69 @@ selectedIndex = 0;
       behavior: 'smooth'
     });
   }
+
+
+
+  navigatetoabout() {
+    this.router.navigate(["/about-us"])
+  }
+
+
+
+  @ViewChildren('productCard') cards!: QueryList<ElementRef>;
+  @ViewChildren('animate') elements!: QueryList<ElementRef>;
+  ngAfterViewInit(): void {
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    this.elements?.forEach(el =>
+      observer.observe(el.nativeElement)
+    );
+
+    this.cards?.changes.subscribe(() => {
+      this.cards.forEach(card =>
+        observer.observe(card.nativeElement)
+      );
+    });
+
+    this.cards?.forEach(card =>
+      observer.observe(card.nativeElement)
+    );
+
+  }
+
+  @ViewChild('descriptionSection') descriptionSection!: ElementRef;
+
+
+
+  observeDescription() {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.showDescription = true;
+          observer.disconnect(); // animate only once
+        }
+      });
+    }, { threshold: 0.25 });
+
+    observer.observe(this.descriptionSection.nativeElement);
+  }
+
+  toProduct(preview: ProductPreview): Product {
+    return {
+      ...preview,
+      weights: preview.weights || [],
+      selectedWeight: preview.selectedWeight
+    } as Product;
+  }
+
 }

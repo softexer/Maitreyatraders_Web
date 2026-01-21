@@ -23,11 +23,14 @@
 
 
           <div class="price-section">
-            <span class="original-price">£ {{ item.originalPrice.toFixed(2) }}</span>
-            <span class="sale-price">£ {{ item.salePrice.toFixed(2) }}</span>
+            <span class="original-price">
+              <!-- £ {{ item.originalPrice.toFixed(2) }} -->
+              £ {{ (item.originalPrice + 0.2) | number:'1.2-2' }}
+            </span>
+            <span class="sale-price">£ {{ item.salePrice| number:'1.2-2' }}</span>
           </div>
 
-          <div class="quantity-controls">
+          <div class="quantity-controls" *ngIf="!item.isFreeItem">
             <button (click)="decrementQuantity(item)" [disabled]="item.quantity <= 1">-</button>
             <span>{{ item.locqunatity }}</span>
             <button (click)="incrementQuantity(item)">+</button>
@@ -47,23 +50,48 @@
           <input type="text" placeholder="discount code" [(ngModel)]="discountCode" />
           <button class="apply-btn" (click)="applyDiscount()">Apply</button>
         </div>
-
-        <p class="offer-text" *ngIf="offerApplied">
-          Buy 3 canned products Get 1 Free Soya Chaap
-        </p>
       </div>
+
+      <!-- Special Offer Section -->
+      <div class="offer-section" *ngIf="showOfferSection">
+        <div class="offer-content">
+          <p class="offer-text">
+            {{ offerText }}
+          </p>
+          <div class="offer-bottom-row">
+            <img [src]="offerProductImage" alt="Offer Product" class="offer-product-image" />
+            <button class="navigate-btn" (click)="navigateToProducts()">
+              <img src="../../../assets/plusimg.png" alt="Add" class="plus-img" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      
 
       <div class="pricing-breakdown">
         <div class="price-row">
           <span>Sub Total:</span>
-          <span>£{{ subTotal.toFixed(2) }}</span>
+          <span>£{{ subtotal.toFixed(2) }}</span>
+        </div>
+        <div class="price-row">
+          <span>Discount Amount:</span>
+          <span>£{{ discountAmount.toFixed(2) }}</span>
         </div>
         <div class="price-row">
           <span>Delivery Fee:</span>
-          <span>{{ deliveryFee.toFixed(2) }}</span>
+          <!-- <span>{{ deliveryFee.toFixed(2) }}</span> -->
+          <span>
+            {{ deliveryFee === 0 ? 'Free' : '£' + deliveryFee.toFixed(2) }}
+          </span>
+        </div>
+        <div class="price-row" *ngIf="frozenCharge > 0">
+          <span>Frozen Packing Charge</span>
+          <span>£{{ frozenCharge.toFixed(2) }}</span>
         </div>
         <div class="price-row total">
           <span>Total to pay</span>
+          <!-- <span>£{{ totalAmount.toFixed(2) }}</span> -->
           <span>£{{ totalAmount.toFixed(2) }}</span>
         </div>
       </div>
@@ -75,3 +103,127 @@
     </div>
   </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <div class="cart-overlay" [class.active]="isCartOpen" (click)="closeCart()">
+  <div class="cart-panel" (click)="$event.stopPropagation()">
+    <div class="cart-header">
+      <div>
+        <h2>Shopping Cart</h2>
+        <p class="item-count">{{ getTotalItems() }} Items</p>
+      </div>
+      <button class="close-btn" (click)="closeCart()">
+        <img src="../../../assets/closeimg.png" alt="Close" />
+      </button>
+    </div>
+
+    <div class="cart-items">
+      <div class="cart-item" *ngFor="let item of cartItems">
+        <img [src]="item.image" [alt]="item.name" class="product-image" />
+
+        <div class="item-details">
+          <h3>{{ item.name }}</h3>
+          <p class="item-weight">
+            {{ item.cartTitle.weightNumber }} {{ item.cartTitle.weightUnit }}
+          </p>
+
+
+          <div class="price-section">
+            <span class="original-price">
+              £ {{ (item.originalPrice + 0.2) | number:'1.2-2' }}
+            </span>
+            <span class="sale-price">£ {{ item.salePrice.toFixed(2) }}</span>
+            <div class="item-discount" *ngIf="getItemDiscount(item) > 0">
+              Discount: -£{{ getItemDiscount(item) | number:'1.2-2' }}
+            </div>
+          </div>
+
+          <div class="quantity-controls">
+            <button (click)="decrementQuantity(item)" [disabled]="item.quantity <= 1">-</button>
+            <span>{{ item.locqunatity }}</span>
+            <button (click)="incrementQuantity(item)">+</button>
+          </div>
+        </div>
+
+        <button class="delete-btn" (click)="removeItem(item)">
+          <img src="../../../assets/Remove.png" alt="Delete" />
+        </button>
+      </div>
+    </div>
+
+    <div class="cart-footer">
+      <div class="discount-section">
+        <div class="discount-input-group">
+          <img src="../../../assets/ticket.png" alt="Discount" class="discount-icon" />
+          <input type="text" placeholder="Enter coupon code" [(ngModel)]="discountCode" [disabled]="offerApplied" />
+          <button class="apply-btn" (click)="applyDiscount()" [disabled]="offerApplied">Apply</button>
+          <p class="error" *ngIf="discountError">
+            {{ discountError }}
+          </p>
+        </div>
+      </div>
+
+      <div class="offer-section" *ngIf="isOfferApplicable">
+        <div class="offer-content">
+          <p class="offer-text">
+            {{ offerText }}
+          </p>
+          <div class="offer-bottom-row">
+            <img [src]="offerProductImage" alt="Offer Product" class="offer-product-image" />
+            <button class="navigate-btn" (click)="navigateToProducts()">
+              <img src="../../../assets/plusimg.png" alt="Add" class="plus-img" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pricing-breakdown">
+        <div class="price-row">
+          <span>Sub Total:</span>
+          <span>£{{ subtotal.toFixed(2) }}</span>
+        </div>
+        <div class="price-row">
+          <span>Delivery Fee:</span>
+          <span>
+            {{ deliveryFee === 0 ? 'Free' : '£' + deliveryFee.toFixed(2) }}
+          </span>
+        </div>
+        <div class="price-row" *ngIf="frozenCharge > 0">
+          <span>Frozen Packing Charge</span>
+          <span>£{{ frozenCharge.toFixed(2) }}</span>
+        </div>
+
+
+
+
+
+        <div class="price-row total">
+          <span>Total to pay</span>
+          <span>£{{ totalAmount || 0 | number:'1.2-2' }}</span>
+
+        </div>
+      </div>
+
+      <button class="checkout-btn" (click)="checkout()" *ngIf="cartItems.length>0">
+        <img src="../../../assets/chkout.png" alt="Arrow" />
+        Checkout!
+      </button>
+    </div>
+  </div>
+</div> -->

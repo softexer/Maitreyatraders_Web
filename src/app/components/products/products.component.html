@@ -1,12 +1,12 @@
 <div class="website-container">
     <!-- Top Info Bar -->
-  <div class="top-bar d-none d-lg-block">
+    <div class="top-bar d-none d-lg-block">
         <div class="top-bar-content">
             <span>Minimum order £35</span>
             <span class="separator">|</span>
-            <span>Free Delivery for order over £80.</span>
+            <span>Free Delivery for order over £80</span>
             <span class="separator">|</span>
-            <span>£2.99 surcharge for frozen products packing.</span>
+            <span>£2.99 surcharge for frozen products packing</span>
         </div>
     </div>
 
@@ -14,21 +14,27 @@
     <header class="header">
         <div class="header-content">
             <!-- Logo -->
-            <div class="logo">
+            <!-- <div class="logo">
                 <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image" width="250">
+            </div> -->
+            <div class="logo d-md-block d-none">
+                <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image">
             </div>
 
             <!-- Navigation -->
             <nav class="nav">
+                <a class="d-block d-md-none">
+                    <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" width="70px">
+                </a>
                 <a href="#" class="nav-item" [class.active]="activeSection === 'home'"
                     (click)="setActive('home')">Home</a>
 
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
-                    (click)="setActive('about'); scrollToSection('about')">
+                    (click)="navigatetoabout()">
+                    <!-- (click)="setActive('about'); scrollToSection('about')" -->
                     About
                 </a>
 
-                <!-- (mouseenter)="showDropdown()" (mouseleave)="hideDropdown()" -->
                 <div class="nav-item-wrapper">
                     <a href="#" class="nav-item" [class.active]="activeSection === 'products'"
                         (click)="toggleProductsDropdown($event)">
@@ -37,7 +43,7 @@
                 </div>
 
                 <!-- <div style="position: absolute; color : red;top:100%; left:50%; border: 1px solid #333; -->
-                 <div style="position: absolute; color : red;top:70%; left:50%; border: 1px solid #333; z-index: 9999;
+                <div style="position: absolute; color : red;top:70%; left:50%; border: 1px solid #333; z-index: 9999;
                     border-radius: 8px; background-color: #1a1a1a;  border: 1px solid #333;  border-radius: 8px; min-width: 250px;"
                     *ngIf="showProductsDropdown">
                     <a *ngFor="let category of productCategories" class="dropdown-item"
@@ -47,14 +53,13 @@
                     </a>
 
                 </div>
-                <a href="#" class="nav-item" [class.active]="activeSection === 'recipes'"
+                <!-- <a href="#" class="nav-item" [class.active]="activeSection === 'recipes'"
                     (click)="setActive('recipes')">Recipes</a>
                 <a href="#" class="nav-item" [class.active]="activeSection === 'blog'"
-                    (click)="setActive('blog')">Blog</a>
-                <!-- <a href="#" class="nav-item" [class.active]="activeSection === 'contact'"
-                    (click)="setActive('contact')">Contact Us</a> -->
+                    (click)="setActive('blog')">Blog</a> -->
 
-                     <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="scrollToContact()">
+
+                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="scrollToContact()">
                     Contact Us
                 </a>
             </nav>
@@ -137,11 +142,12 @@
                     <section class="new-launched-section">
                         <div class="section-container">
                             <div class="products-grid">
-                                <div class="product-card" *ngFor="let product of newLaunchedProducts">
-                                    <div class="discount-badge">{{ product.discount }}%</div>
+                                <div class="product-card animate" *ngFor="let product of newLaunchedProducts"
+                                    #productCard>
+                                    <!-- <div class="discount-badge">{{ product.discount }}%</div> -->
                                     <div class="product-image-wrapper">
                                         <img [src]="product.image" [alt]="product.name" class="product-card-image"
-                                            (click)="ViewToProductDetails(product)">
+                                            (click)="ViewToProductDetails(product)" style="cursor: pointer;">
                                     </div>
                                     <div class="product-details">
                                         <h3 class="product-title">
@@ -150,17 +156,23 @@
                                         </h3>
                                         <p class="product-subtitle">{{ product.subtitle }}</p>
 
+
                                         <div class="product-pricing">
-                                            <div class="price-group">
-                                                <span class="price-symbol">£</span>
-                                                <span class="price-original">{{ product.originalPrice }}</span>
+                                            <div class="price-wrapper">
+                                                <!-- <div class="price-group">
+                                                    <span class="strike-price">
+                                                        £ {{ (product.originalPrice + 0.2) | number:'1.2-2' }}
+                                                    </span>
+                                                </div> -->
+                                                <div class="price-group">
+                                                    <span class="price-symbol">£</span>
+                                                    <span class="price-original">
+                                                        {{ product.originalPrice | number:'1.2-2' }}
+                                                    </span>
+                                                </div>
+
                                             </div>
 
-                                            <!-- <select class="weight-selector" [(ngModel)]="product.selectedWeight">
-                                                <option *ngFor="let weight of product.weights" [value]="weight">
-                                                    {{ weight }}
-                                                </option>
-                                            </select> -->
                                             <select class="weight-selector" [(ngModel)]="product.selectedWeight"
                                                 (change)="onWeightChange(product)">
                                                 <option *ngFor="let weight of product.weights" [ngValue]="weight">
@@ -194,10 +206,10 @@
 
 
     <section class="pc-section" *ngIf="IsProductView">
-        <div class="row align-items-center">
-            <div class="col-12 text-start">
+        <div class="row align-items-center" (click)="closeDetails()">
+            <div class="col-12 text-start" (click)="closeDetails()">
                 <button class="back" (click)="closeDetails()" style="padding-left: 50px;">
-                    <img src="../../../assets/bkbtn.png" alt="Back" width="55">
+                    <img src="../../../assets/bkbtn.png" alt="Back" width="55" (click)="closeDetails()">
                 </button>
             </div>
         </div>
@@ -229,8 +241,13 @@
                 <!-- Product Title and Price -->
                 <h1 class="product-title2">{{ selectedProduct.name }}</h1>
                 <div class="price-container2">
-                    <span class="original-price2">{{ selectedProduct.originalPrice }}</span>
-                    <span class="current-price2">{{ selectedProduct.price }}</span>
+                    <span class="original-price2">
+                        £ {{ (selectedProduct.originalPrice + 0.2) | number:'1.2-2' }}
+                    </span>
+                    <span class="current-price2">
+                        <!-- £ {{ selectedProduct.price }} -->
+                        £ {{ selectedProduct.price | number:'1.2-2' }}
+                    </span>
                 </div>
 
                 <!-- Weight Selector -->
@@ -242,24 +259,47 @@
                 </select>
 
 
+
+
                 <!-- Add to Cart Button -->
-                <button class="add-to-cart-btn2" (click)="addToCart2(selectedProduct)">Add to Cart</button>
+                <!-- <button class="add-to-cart-btn2" (click)="addToCart2(selectedProduct)">Add to Cart</button> -->
+                <button *ngIf="!isInCart(selectedProduct)" class="add-to-cart-btn2"
+                    (click)="addToCart2(selectedProduct)">
+                    Add to Cart
+                </button>
+
+                <div *ngIf="isInCart(selectedProduct)" class="quantity-controls">
+                    <button (click)="decrementQuantity(getCartItem(selectedProduct))"
+                        [disabled]="getCartItem(selectedProduct)?.locqunatity <= 1">
+                        −
+                    </button>
+
+                    <span>{{ getCartItem(selectedProduct)?.locqunatity }}</span>
+
+                    <button (click)="incrementQuantity(getCartItem(selectedProduct))">
+                        +
+                    </button>
+                </div>
+
+
 
 
                 <!-- Product Highlight Section -->
                 <div class="product-highlight" *ngIf="selectedProduct?.highlights?.length">
-                    <h2 class="highlight-title">Product Highlight</h2>
+                    <h2 class="highlight-title animate-up" [class.show]="showHighlight">
+                        Product Highlight
+                    </h2>
+
                     <ul class="highlight-list">
-                        <li *ngFor="let highlight of selectedProduct.highlights">
+                        <li *ngFor="let highlight of selectedProduct.highlights; let i = index" class="animate-up"
+                            [class.show]="showHighlight" [style.transitionDelay]="(i * 0.15) + 's'">
                             {{ highlight }}
                         </li>
-
                     </ul>
                 </div>
 
                 <!-- Special Offer Section -->
-                <div class="offer-section">
-                    <!-- *ngIf="selectedProduct.selectedWeight === '450 g' || selectedProduct.selectedWeight === '500 g'" -->
+                <!-- <div class="offer-section">
                     <div class="offer-content">
                         <p class="offer-text">
                             {{ offerText }}
@@ -271,7 +311,7 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
 
 
@@ -280,56 +320,33 @@
                     <img *ngFor="let logo of brandLogos" [src]="logo.src" [alt]="logo.alt" class="brand-logo">
                 </div>
 
-                <!-- Product Description -->
 
             </div>
         </div>
 
-        <div class="product-description">
-            <h2 class="description-title">Product Description</h2>
-            <!-- <p *ngFor="let paragraph of productDescription" class="description-text">
-                {{ paragraph }}
-            </p> -->
-            <p *ngFor="let paragraph of selectedProduct.description" class="description-text">
+        <div class="product-description" *ngIf="selectedProduct?.description?.length" #descriptionSection>
+            <h2 class="description-title animate-up" [class.show]="showDescription">
+                Product Description
+            </h2>
+
+            <p *ngFor="let paragraph of selectedProduct.description; let i = index" class="description-text animate-up"
+                [class.show]="showDescription" [style.transitionDelay]="(i * 0.15) + 's'">
                 {{ paragraph }}
             </p>
-
         </div>
+
 
     </section>
 
-    <!-- About Section -->
-    <!-- <section class="about-section" id="about">
-        <div class="section-container">
-            <div class="about-content">
-                <div class="about-image-wrapper">
-                    <img src="../../../assets/about us.png" alt="Plant Based Products" class="about-product-image">
-                </div>
-
-                <div class="about-text">
-                    <h2 class="about-title">About</h2>
-                    <p class="about-description">
-                        At Maitreya Traders, we believe in combining health, taste, and tradition. Our mission is to
-                        make plant-based eating exciting and accessible by offering premium-quality vegan and vegetarian
-                        frozen food sourced from around the world. We are committed to bringing only authentic,
-                        flavourful, and thoughtfully crafted products that align with your lifestyle.
-                    </p>
-                    <button class="read-more-btn">Read More</button>
-                </div>
-            </div>
-        </div>
-    </section> -->
 
     <!-- Customer Testimonials Section -->
-    <section class="testimonials-section">
+    <!-- <section class="testimonials-section">
         <div class="section-container">
             <div class="testimonials-content">
-                <!-- Left Side: Chef Image and Reviewers -->
-                <div class="testimonials-left">
+                <div class="testimonials-left animate-up delay-4" #animate>
                     <div class="chef-display">
                         <img src="../../../assets/image_3.png" alt="Chef" class="chef-image">
 
-                        <!-- Our Reviewers Badge -->
                         <div class="reviewers-badge">
                             <span class="badge-label">Our Reviewers</span>
                             <div class="customer-avatars">
@@ -341,11 +358,10 @@
                     </div>
                 </div>
 
-                <!-- Right Side: Testimonials Carousel -->
-                <div class="testimonials-right">
+                <div class="testimonials-right  animate-up delay-1" #animate>
                     <div class="testimonial-header">WHAT THEY SAY</div>
                     <h2 class="testimonial-title">
-                        What Our Customers <span class="title-gold">Say About Us</span>
+                        What Our Customers <span class="title-gold"></span>
                     </h2>
 
                     <div class="testimonials-carousel-wrapper">
@@ -391,80 +407,71 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
 
     <section class="newsletter-section">
         <div class="container">
-            <h2 class="newsletter-title">
+            <h2 class="newsletter-title animate-up delay-4" #animate>
                 Get Exclusive <span>Deals</span> in your Inbox
             </h2>
 
-            <div class="newsletter-form">
+            <div class="newsletter-form animate-up delay-1" #animate>
                 <input type="email" placeholder="youremail@gmail.com" class="newsletter-input"
-                    [(ngModel)]="newsletterEmail" />
-                <button class="newsletter-btn" (click)="sendEmail()">Subscribe</button>
+                    [(ngModel)]="newsletterEmail" [disabled]="isSubmitting" />
+
+                <button type="button" class="newsletter-btn" (click)="sendEmail()" [disabled]="isSubmitting">
+                    <span *ngIf="!isSubmitting">Subscribe</span>
+
+                    <span *ngIf="isSubmitting" class="btn-loader">
+                        <span class="spinner"></span>
+                        Sending...
+                    </span>
+                </button>
             </div>
         </div>
     </section>
 
 
     <footer class="footer" id="contact">
-        <!-- <div class="container"> -->
-
         <!-- Footer Top -->
         <div class="row">
-
-            <!-- Logo -->
             <div class="col-md-4 footer-section logo-section">
-                <div class="logo">
+                <div class="logo  animate-up delay-4" #animate>
                     <img [src]="logoPath" alt="Logo" class="logo-icon">
                 </div>
-                <p class="description">{{ companyDescription }}</p>
+                <!-- <p class="description animate-up delay-1" #animate>{{ companyDescription }}</p> -->
             </div>
-
-            <!-- Quick Links -->
             <div class="col-md-2  footer-section">
-                <h3 class="section-title2">Quick Links</h3>
-                <ul class="links-list">
+                <h3 class="section-title2 animate-up delay-4" #animate>Quick Links</h3>
+                <ul class="links-list animate-up delay-1" #animate>
                     <li *ngFor="let link of quickLinks">
-                        <a href="javascript:void(0)" (click)="scrollToSection(link.sectionId)">
+                        <a [routerLink]="link.route" (click)="scrollToSection(link.sectionId)">
                             {{ link.label }}
                         </a>
                     </li>
                 </ul>
-                <!-- <div class="footer-inner">
-                    <h3 class="section-title">Quick Links</h3>
-                    <ul class="links-list">
-                        <li *ngFor="let link of quickLinks">
-                            <a href="javascript:void(0)" (click)="scrollToSection(link.sectionId)">
-                                {{ link.label }}
-                            </a>
-                        </li>
-                    </ul>
-                </div> -->
             </div>
 
             <!-- Contact -->
             <div class="col-md-4 footer-section">
-                <h3 class="section-title2">Contact Us</h3>
-                <div class="contact-info">
+                <h3 class="section-title2 animate-up delay-4" #animate>Contact Us</h3>
+                <div class="contact-info animate-up delay-1" #animate>
                     <p><strong>KH No:</strong> {{ contactInfo.khNo }}<br />
                         {{ contactInfo.address }}
                     </p>
 
-                    <!-- <p>{{ contactInfo.address }}</p> -->
-                    <p><strong>Tel:</strong> {{ contactInfo.phone }}</p>
-                    <p><strong>Email:</strong>
-                        <a [href]="'mailto:' + contactInfo.email">{{ contactInfo.email }}</a>
+                    <p><strong>Tel :</strong>&nbsp; {{ contactInfo.phone }}</p>
+                    <p><strong>Email :</strong>
+                        <a [href]="'mailto:' + contactInfo.email">&nbsp;{{ contactInfo.email }}</a>
                     </p>
                 </div>
             </div>
 
             <!-- Social -->
             <div class="col-md-2  footer-section">
-                <h3 class="section-title2">Follow Us</h3>
-                <div class="social-icons">
+                <h3 class="section-title2 animate-up delay-4" #animate>Follow Us</h3>
+                <div class="social-icons animate-up delay-1" #animate>
                     <a *ngFor="let social of socialLinks" [href]="social.url" target="_blank">
                         <img [src]="social.icon" class="social-icon">
                     </a>
@@ -474,19 +481,17 @@
         </div>
 
         <!-- Footer Bottom -->
-        <div class="footer-bottom d-flex justify-content-between align-items-center">
+        <div class="footer-bottom">
             <p class="copyright">{{ copyrightText }}</p>
             <div class="footer-links">
-                <!-- <a href="/privacy-policy">Privacy Policy</a>
-                <a href="/terms">Terms</a> -->
-                <p>Privacy Policy</p>
-                <p>Terms</p>
+                <a [routerLink]="['/terms', 'terms']">Terms & Conditions</a>
+                <a [routerLink]="['/terms', 'privacy']">Privacy Policy</a>
+                <a [routerLink]="['/terms', 'refund']">Refund & Returns Policy</a>
+                <a [routerLink]="['/terms', 'shipping']">Shipping & Delivery Policy</a>
+                <a [routerLink]="['/terms', 'cookie']">Cookie Policy</a>
+                <a [routerLink]="['/terms', 'disclaimer']">Disclaimer Policy</a>
             </div>
-            <div></div>
         </div>
-
-        <!-- </div> -->
     </footer>
-
 
 </div>

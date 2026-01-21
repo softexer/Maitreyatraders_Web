@@ -4,12 +4,16 @@ import { HomeComponent } from './components/home/home.component';
 import { ProductsComponent } from './components/products/products.component';
 import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.component';
 import { CheckoutPageComponent } from './components/checkout-page/checkout-page.component';
+import { AboutUsComponent } from './components/about-us/about-us.component';
+import { TermsComponent } from './components/terms/terms.component';
 
 const routes: Routes = [
   { path: "home", component: HomeComponent },
   { path: "products", component: ProductsComponent },
   { path: "cart", component: ShoppingCartComponent },
-    { path: "checkout", component: CheckoutPageComponent },
+  { path: "checkout", component: CheckoutPageComponent },
+  { path: "about-us", component: AboutUsComponent },
+  {  path: 'terms/:type', component: TermsComponent },
   { path: '**', redirectTo: '/home', pathMatch: 'full' },
 ];
 

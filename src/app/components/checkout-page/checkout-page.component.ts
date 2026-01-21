@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ShopsService } from "src/app/services/shops.service";
@@ -7,6 +7,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { StripePaymentsComponent } from '../stripe-payments/stripe-payments.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfpaymentStatusComponent } from '../confpayment-status/confpayment-status.component';
+import { PostalCodeService } from 'src/app/services/postal-code.service';
+
+
 interface ProductCategory {
   id: string
   name: string
@@ -22,18 +25,6 @@ interface SubCategory {
 }
 
 interface CartItem {
-  // id: number
-  // name: string
-  // weight: string
-  // originalPrice: number
-  // salePrice: number
-  // quantity: number
-  // image: string
-  // categoryId: number
-  // subcatId: number
-  // productID: string
-  // locqunatity: number;   // ✅ ADD THIS
-
   id: number;
   productID: string;
   name: string;
@@ -56,6 +47,7 @@ interface CartItem {
   image: string;
   categoryId: string;
   subcatId: string;
+  isFrozen: boolean
 }
 
 @Component({
@@ -66,7 +58,7 @@ interface CartItem {
 export class CheckoutPageComponent {
   selectedCategoryId: string | null = null;
   IsProductView: boolean = false;
-  activeSection: string = 'products';
+  activeSection: string = '';
   showProductsDropdown = false;
   Subcategories: SubCategory[] = []
 
@@ -87,7 +79,7 @@ export class CheckoutPageComponent {
     khNo: '763, Sirorspur, Badli, Delhi,',
     address: 'India - 110042',
     phone: '+91-0000000000',
-    email: 'maitreyatraderslimited@gmail.com'
+    email: 'enquiry@maitreyatraderslimited.co.uk'
   };
 
   // Social Media Links (place social icons in assets folder)
@@ -98,7 +90,7 @@ export class CheckoutPageComponent {
   ];
 
   // Copyright text with current year
-  copyrightText = `Maitreya Traders Copyright ${new Date().getFullYear()}. All Rights Reserved.`;
+  copyrightText = `Maitreya Traders Limited Copyright ${new Date().getFullYear()}. All Rights Reserved.`;
 
   //chcekout
   // Form data
@@ -137,22 +129,29 @@ export class CheckoutPageComponent {
 
   promoCode = ""
 
-  deliveryFee = 0.0
+  // deliveryFee = 0.0
   cartItems: CartItem[] = [];
   serverCartItems: Array<any> = [];
   formSubmitted = false;
   cartCount: number = 0;
   @Output() openCart = new EventEmitter<MouseEvent>();
+  baseUrl: string = '';
+  discountAmt = 0;
 
+  // ValidationErrors: { [key: string]: any } = {};
 
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
     private CustomerService: MaitreyaCustomerService,
     private dialog: MatDialog,
-    private shopService: ShopsService) {
+    private cdr: ChangeDetectorRef,
+    private shopService: ShopsService,
+    private postcodeService: PostalCodeService,
+    private elementRef: ElementRef) {
     this.shopService.cartCountItems.subscribe(count => {
       this.cartCount = count;
+      this.cdr.markForCheck();
     });
   }
 
@@ -163,8 +162,13 @@ export class CheckoutPageComponent {
   }
 
   ngOnInit() {
+    this.baseUrl = this.CustomerService.baseUrl;
     this.GetAllCategories();
     // this.getCartItems();
+    let dem = localStorage.getItem('Discount')
+    if (dem) {
+      this.discountAmt = parseFloat(dem)
+    }
     this.subscribeCart();
   }
   cartpage(event: MouseEvent) {
@@ -173,55 +177,11 @@ export class CheckoutPageComponent {
     // this.openCart.emit(event);
     this.CustomerService.open();
   }
-  // private subscribeCart() {
-  //   this.shopService.getCart().subscribe(cart => {
-  //     this.serverCartItems = cart;
-
-  //     this.cartItems = cart.map((item: any) => ({
-  //       id: item.itemID,
-  //       name: item.categoryName,
-  //       weight: item.cartTitle || '',
-  //       originalPrice: Number(item.price),
-  //       salePrice: Number(item.price),
-  //       quantity: item.locqunatity,
-  //       image: item.cartImage,
-  //       categoryId: item.categoryID,
-  //       subcatId: item.subcatID,
-  //       productID: item.productID,
-  //       locqunatity: item.locqunatity,
-  //     }));
-  //   });
-
-  // }
 
   private subscribeCart() {
     this.shopService.getCart().subscribe(cart => {
       this.serverCartItems = cart;
-      // this.cartItems = cart.map((item: any) => {
-      //   const w = item.cartTitle;
-      //   return {
-      //     id: item.itemID,
-      //     name: item.categoryName,
 
-      //     // ✅ Weight display
-      //     weight: w ? `${w.weightNumber} ${w.weightUnit}` : '',
-
-      //     // ✅ Prices from cartTitle
-      //     originalPrice: w?.productPrice || 0,
-      //     salePrice:
-      //       w?.disCountProductprice && w.disCountProductprice > 0
-      //         ? w.disCountProductprice
-      //         : w?.productPrice || 0,
-
-      //     quantity: item.locqunatity,
-      //     locqunatity: item.locqunatity,
-
-      //     image: item.cartImage,
-      //     categoryId: item.categoryID,
-      //     subcatId: item.subcatID,
-      //     productID: item.productID,
-      //   };
-      // });
       this.cartItems = cart.map((item: any) => ({
         id: item.itemID,
         productID: item.productID,
@@ -244,8 +204,10 @@ export class CheckoutPageComponent {
         image: item.cartImage,
         categoryId: item.categoryID,
         subcatId: item.subcatID,
+        isFrozen: item.isFrozen || false
       }));
     });
+    this.cdr.markForCheck();
   }
 
   scrollToAbout() {
@@ -464,14 +426,38 @@ export class CheckoutPageComponent {
     this.shopService.removeFromCart(item.productID, item.cartTitle);
   }
 
+  MIN_ORDER_AMOUNT = 35;
+  FREE_DELIVERY_LIMIT = 80;
+  DELIVERY_CHARGE = 4.99;
+  FROZEN_SURCHARGE = 2.99;
 
-
+  // get subtotal(): number {
+  //   return this.cartItems.reduce((total, item) => total + item.salePrice * item.quantity, 0)
+  // }
   get subtotal(): number {
-    return this.cartItems.reduce((total, item) => total + item.salePrice * item.quantity, 0)
+    return this.cartItems.reduce(
+      (total, item) => total + item.salePrice * item.locqunatity,
+      0
+    );
   }
+ 
   get totalToPay(): number {
-    return this.subtotal + this.deliveryFee
+    // return this.subtotal + this.deliveryFee
+
+    return this.subtotal + this.deliveryFee + this.frozenCharge - this.discountAmt;
   }
+
+  get deliveryFee(): number {
+    if (this.subtotal >= this.FREE_DELIVERY_LIMIT) {
+      return 0; // Free delivery
+    }
+    return this.DELIVERY_CHARGE;
+  }
+  get frozenCharge(): number {
+    const hasFrozenItem = this.cartItems.some(item => item.isFrozen);
+    return hasFrozenItem ? this.FROZEN_SURCHARGE : 0;
+  }
+
 
   applyPromoCode(): void {
     console.log("Applying promo code:", this.promoCode)
@@ -514,10 +500,16 @@ export class CheckoutPageComponent {
     }
   }
   processPayment(form: any): void {
+    console.log(this.subtotal)
+
+    if (this.subtotal < this.MIN_ORDER_AMOUNT) {
+      this.openSnackBar(
+        `Minimum order amount is £${this.MIN_ORDER_AMOUNT}`, '');
+      return;
+    }
+
     if (form.invalid) {
-      form.form.markAllAsTouched();   // 🔥 KEY FIX
-      // this.markAllTouched(form);
-      // this.openSnackBar('Please fill all required fields', '');
+      form.form.markAllAsTouched();
       return;
     }
 
@@ -526,37 +518,49 @@ export class CheckoutPageComponent {
       return;
     }
 
+    // if (form.invalid) {
+    //   form.form.markAllAsTouched();  
+    //   return;
+    // }
+
+    // if (this.cartItems.length === 0) {
+    //   this.openSnackBar('Your cart is empty', '');
+    //   return;
+    // }
+
     let dailogRef = this.dialog.open(StripePaymentsComponent, {
       panelClass: "col-md-4",
       hasBackdrop: true,
       disableClose: true,
       data: {
-        // totalAmt: cifrmpayload.total,
-        // inrAmt: cifrmpayload.total,
         totalAmt: 1,
         inrAmt: 1,
+        name: this.deliveryInfo.firstName,
+        email: this.contactInfo_cart.emailOrMobile,
+        address: this.deliveryInfo.address,
+        phno: this.deliveryInfo.phoneNumber
       }
     });
     dailogRef.afterClosed().subscribe((res) => {
       console.log(res)
       if (res) {
-        // if (res.pstatus) {
-        //   this.processPayment1(form, res.paymentData);
-        // } else {
-        //   let obj = {
-        //     isSuccess: false,
-        //   };
-        //   let dialog = this.dialog.open(ConfpaymentStatusComponent, {
-        //     panelClass: "col-md-4",
-        //     hasBackdrop: true,
-        //     disableClose: true,
-        //     data: obj,
-        //   });
-        //   this.CustomerService.showLoader.next(false);
-        // }
-        // this.processPayment1(form, res.paymentData);
+        if (res.pstatus) {
+          this.processPayment1(form, res.paymentData);
+        } else {
+          let obj = {
+            isSuccess: false,
+          };
+          let dialog = this.dialog.open(ConfpaymentStatusComponent, {
+            panelClass: "col-md-4",
+            hasBackdrop: true,
+            disableClose: true,
+            data: obj,
+          });
+          this.CustomerService.showLoader.next(false);
+        }
+        this.processPayment1(form, res.paymentData);
       }
-      this.processPayment1(form, res);
+      // this.processPayment1(form, res);
     });
   }
   stripePaymentComplete(paymentStatusObj: any) {
@@ -632,16 +636,7 @@ export class CheckoutPageComponent {
         pincode: this.billingAddress.pinCode,
       };
     /* ---------- Products ---------- */
-    // const products = this.cartItems.map(item => ({
-    //   productID: item.productID,
-    //   productName: item.name,
-    //   categoryID: "" + item.categoryId,
-    //   subCategoryID: "" + item.subcatId,
-    //   quantity: item.quantity,
-    //   price: item.salePrice,
-    //   weight: item.weight,
-    //   productImagePath: item.image
-    // }));
+
     const products = this.cartItems.map(item => ({
       productID: item.productID,
       productName: item.name,
@@ -653,14 +648,10 @@ export class CheckoutPageComponent {
 
       // ✅ PRICE LOCKED TO WEIGHT
       // price: item.cartTitle.productPrice,
-      price: Math.round(item.cartTitle.productPrice * 100) ,
+      price: Math.round(item.cartTitle.productPrice * 100),
       // discountPrice: item.cartTitle.disCountProductprice,
       weight: item.cartTitle.weightNumber + " " + item.cartTitle.weightUnit,
-      // ✅ FULL WEIGHT OBJECT
-      // weightDetails: {
-      //   weightNumber: item.cartTitle.weightNumber,
-      //   weightUnit: item.cartTitle.weightUnit
-      // },
+
 
       productImagePath: item.image
     }));
@@ -728,4 +719,163 @@ export class CheckoutPageComponent {
       }
     );
   }
+
+  limitPhoneLength() {
+    if (this.billingAddress.phoneNumber) {
+      this.billingAddress.phoneNumber =
+        this.billingAddress.phoneNumber.replace(/\D/g, '').slice(0, 11);
+    }
+  }
+  scrollToContact() {
+    this.activeSection = 'contact';
+
+    const footer = document.getElementById('contact');
+    if (!footer) return;
+
+    const headerOffset = 80; // height of fixed header
+    const elementPosition = footer.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
+
+  navigatetoabout() {
+    this.router.navigate(["/about-us"])
+  }
+
+  //search
+
+  showSearch: boolean = false;
+  searchText: string = ''
+
+  toggleSearch() {
+    this.showSearch = true;
+  }
+  AllSearchItems: Array<any> = [];
+  displaylist: boolean = false;
+  GotoSearch() {
+    if (!this.searchText || !this.searchText.trim()) {
+      // this.displaylist = false;
+      return;
+    }
+    const payload = {
+      searchText: this.searchText
+    };
+    this.displaylist = true;
+    this.CustomerService.showLoader.next(true);
+    this.CustomerService.SearchinHdr(payload).subscribe(
+      (res: any) => {
+        console.log(res)
+        if (res.response === 3) {
+          this.AllSearchItems = res.SearchProducts || [];
+        } else {
+          this.AllSearchItems = [];
+          console.error("Unexpected response:", res.message);
+        }
+        this.CustomerService.showLoader.next(false);
+      },
+      (err: HttpErrorResponse) => {
+        console.error("Error fetching:", err);
+        this.openSnackBar(err.message, "");
+        this.CustomerService.showLoader.next(false);
+      }
+    );
+  }
+
+  ProductView(pd: any) {
+    console.log(pd);
+
+    localStorage.setItem("CategoryID", pd.categoryID.toString());
+    localStorage.setItem("SerhSubCat", pd.subCategoryID.toString());
+    this.activeSection = "products"
+    this.showProductsDropdown = false;
+    this.router.navigate(["/products"])
+
+  }
+  gotoAllProducts() {
+    this.router.navigate(["/products"])
+  }
+
+  closeSearch() {
+    this.showSearch = false;
+    this.searchText = "";
+    this.displaylist = false;
+  }
+  numericOnly(event: KeyboardEvent) {
+    const pattern = /^[0-9]*$/;
+    if (!pattern.test(event.key)) {
+      event.preventDefault(); // Prevent input if it's not a number
+    }
+  }
+
+  postcodes: string[] = [];
+  showpostalDropdown = false;
+
+  onPostcodeInput(value: string) {
+    console.log('Typed value:', value);
+
+    if (!value || value.length < 2) {
+      this.postcodes = [];
+      this.showpostalDropdown = false;
+      return;
+    }
+
+    this.postcodeService.searchPostcodes(value).subscribe({
+      next: (res: any) => {
+        console.log('API response:', res);
+
+        this.postcodes = (res?.result || []).map((pc: any) =>
+          typeof pc === 'string' ? pc : pc.postcode
+        );
+
+        this.showpostalDropdown = this.postcodes.length > 0;
+      },
+      error: err => {
+        console.error('Postcode API error:', err);
+      }
+    });
+  }
+
+  selectPostcode(postcode: string) {
+    this.showpostalDropdown = false;
+
+    if (!postcode) return;
+
+    this.deliveryInfo.pinCode = postcode;
+
+    this.postcodeService.getPostcodeDetails(postcode).subscribe({
+      next: (res: any) => {
+        const data = res?.result;
+        if (!data) return;
+
+        this.deliveryInfo.city =
+          data.admin_district || data.post_town || '';
+
+        this.deliveryInfo.state =
+          data.region || data.pfa || '';
+
+        this.deliveryInfo.country =
+          ['England', 'Scotland', 'Wales', 'Northern Ireland'].includes(data.country)
+            ? 'UK'
+            : data.country || '';
+
+        this.deliveryInfo.address =
+          `${data.admin_ward || ''}, ${data.admin_district || ''}`.replace(/^,|,$/g, '');
+      },
+      error: err => console.error(err)
+    });
+  }
+
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent) {
+    const clickedInside = this.elementRef.nativeElement.contains(event.target);
+    if (!clickedInside) {
+      this.showpostalDropdown = false;
+    }
+  }
+
 }

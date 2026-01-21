@@ -34,6 +34,9 @@ import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.
 import { CheckoutPageComponent } from './components/checkout-page/checkout-page.component';
 import { StripePaymentsComponent } from './components/stripe-payments/stripe-payments.component';
 import { ConfpaymentStatusComponent } from './components/confpayment-status/confpayment-status.component';
+import { AboutUsComponent } from './components/about-us/about-us.component';
+import { TermsComponent } from './components/terms/terms.component';
+import { SafeUrlPipePipe } from './pipes/safe-url.pipe.pipe';
 
 @NgModule({
   declarations: [
@@ -46,6 +49,9 @@ import { ConfpaymentStatusComponent } from './components/confpayment-status/conf
     CheckoutPageComponent,
     StripePaymentsComponent,
     ConfpaymentStatusComponent,
+    AboutUsComponent,
+    TermsComponent,
+    SafeUrlPipePipe,
   ],
   imports: [
     BrowserModule,
