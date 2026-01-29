@@ -172,52 +172,100 @@ export class ContactusComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  async sendEmail() {
+  // async sendEmail() {
 
-    // if (this.isSubmitting) return;
+  //   if (!this.form.name || !this.form.email || !this.form.message) {
+  //     alert('Please fill required fields');
+  //     return;
+  //   }
 
-     if (!this.form.name || !this.form.email || !this.form.message) {
-      alert('Please fill required fields');
+  //   this.isSubmitting = true;
+  //   this.loading = true;
+  //   const apipayload = {
+  //     title: 'Contact us emails',
+  //     name: 'Contact Us: Enquiry request',
+  //     from_name: this.form.name,
+  //     from_email: this.form.email,
+  //     phone: this.form.phone,
+  //     subject: this.form.subject,
+  //     message: this.form.message,
+  //   };
+  //   console.log(apipayload)
+
+
+  //   let response = await emailjs.send("service_4i31vcn", "template_aizbuok", apipayload, { publicKey: '0TocvA3hn_6xpQ9SV' });
+  //   console.log(response)
+  //   if (response.status == 200) {
+  //     this.openSnackBar('Thank you...Your details have been submitted successfully', '');
+
+  //     setTimeout(() => {
+  //       this.isSubmitting = false;
+  //       this.isSubmitted = true;
+  //       this.resetForm();
+  //       this.loading = false;
+
+  //       setTimeout(() => {
+  //         this.isSubmitted = false;
+  //         this.loading = false;
+  //       }, 5000);
+  //     }, 2000);
+
+
+  //   } else {
+  //     this.openSnackBar('Your Details Not Submitted!', '');
+  //   }
+
+  // }
+
+
+  async sendEmail(contactForm: any) {
+
+    // if invalid -> show errors but STOP sending
+    if (contactForm.invalid) {
+      contactForm.form.markAllAsTouched();
+      this.openSnackBar('Please fill all required fields correctly!', '');
       return;
     }
 
+    if (this.isSubmitting) return;
+
     this.isSubmitting = true;
     this.loading = true;
+
     const apipayload = {
+      title: 'Contact us emails',
+      name: 'Contact Us: Enquiry request',
       from_name: this.form.name,
       from_email: this.form.email,
       phone: this.form.phone,
       subject: this.form.subject,
       message: this.form.message,
     };
-    console.log(apipayload)
 
+    try {
+      const response = await emailjs.send(
+        "service_4i31vcn",
+        "template_aizbuok",
+        apipayload,
+        { publicKey: '0TocvA3hn_6xpQ9SV' }
+      );
 
-    let response = await emailjs.send("service_4i31vcn", "template_aizbuok", apipayload, { publicKey: '0TocvA3hn_6xpQ9SV' });
-    console.log(response)
-    if (response.status == 200) {
-      // this.submittedText = 'Your Details Submitted! We will update your email.';
+      if (response.status === 200) {
+        this.openSnackBar('Thank you...Your details have been submitted successfully', '');
 
-      this.openSnackBar('Thank you...Your details have been submitted successfully', '');
-
-      setTimeout(() => {
-        this.isSubmitting = false;
+        // ✅ reset form + reset errors
+        contactForm.resetForm();
         this.isSubmitted = true;
-        this.resetForm();
-        this.loading = false;
-
-        setTimeout(() => {
-          this.isSubmitted = false;
-          this.loading = false;
-        }, 5000);
-      }, 2000);
-
-
-    } else {
-      // this.submittedText = 'Your Details Not Submitted!';
+      } else {
+        this.openSnackBar('Your Details Not Submitted!', '');
+      }
+    } catch (error) {
+      console.error(error);
       this.openSnackBar('Your Details Not Submitted!', '');
-    }  
-
+    } finally {
+      this.isSubmitting = false;
+      this.loading = false;
+    }
   }
 
 
@@ -338,7 +386,7 @@ export class ContactusComponent implements OnInit, OnDestroy, AfterViewInit {
     { label: 'Home', sectionId: 'home', route: "/home" },
     { label: 'About', sectionId: 'about', route: '/about-us' },
     { label: 'Products', sectionId: 'products', route: '/products' },
-      { label: 'Contact Us', sectionId: 'contact', route: '/ContactUs' },
+    { label: 'Contact Us', sectionId: 'contact', route: '/ContactUs' },
 
   ];
 
@@ -794,9 +842,9 @@ export class ContactusComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ProductView(pd: any) {
     console.log(pd);
-
     localStorage.setItem("CategoryID", pd.categoryID.toString());
     localStorage.setItem("SerhSubCat", pd.subCategoryID.toString());
+    localStorage.setItem("SearchProHm", pd.productID.toString());
     this.activeSection = "products"
     this.showProductsDropdown = false;
     this.router.navigate(["/products"])
@@ -896,7 +944,7 @@ export class ContactusComponent implements OnInit, OnDestroy, AfterViewInit {
   toggleMobileProducts() {
     this.showMobileProducts = !this.showMobileProducts;
   }
-    navigatetocontact() {
+  navigatetocontact() {
     this.router.navigate(["/ContactUs"])
   }
 }

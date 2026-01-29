@@ -6,6 +6,10 @@ import { MaitreyaCustomerService } from 'src/app/services/maitreya-customer.serv
 import { ShopsService } from 'src/app/services/shops.service';
 import emailjs from '@emailjs/browser';
 import { AfterViewInit, QueryList, ViewChildren } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+
+
 interface CarouselSlide {
   title: string
   titleHighlight: string
@@ -89,6 +93,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   showMobileMenu = false;
   showMobileProducts = false;
   @ViewChildren('animate') elements!: QueryList<ElementRef>;
+  newsletterEmail: string = '';
+  //search
+  showSearch: boolean = false;
+  searchText: string = ''
   slides: CarouselSlide[] = [
     {
       title: "100% Vegetarian/Vegan",
@@ -157,7 +165,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       reviewCount: "15.8k Review",
       productImage: "../../../assets/SVF-ROASTED-DUCK1.jpg",
       productIcon: "../../../assets/SVF-ROASTED-DUCK1.jpg",
-      productName: "VeganDuck",
+      productName: "Vegan Spring Roll",
       productRating: 4,
       price: "6.20",
     },
@@ -190,7 +198,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   bgimage: string = '../../../assets/home_bg.png';
 
 
-@ViewChild('bs2Scroll', { static: false }) bs2Scroll!: ElementRef;
+  @ViewChild('bs2Scroll', { static: false }) bs2Scroll!: ElementRef;
 
   isOfferApplicable: boolean = false;
   offerProductId = "";
@@ -255,38 +263,38 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.stopAutoPlay2();
   }
 
-private getBs2ScrollAmount(): number {
-  const container = this.bs2Scroll?.nativeElement;
-  if (!container) return 0;
+  private getBs2ScrollAmount(): number {
+    const container = this.bs2Scroll?.nativeElement;
+    if (!container) return 0;
 
-  const card = container.querySelector('.bs2-card') as HTMLElement;
-  if (!card) return 0;
+    const card = container.querySelector('.bs2-card') as HTMLElement;
+    if (!card) return 0;
 
-  const styles = window.getComputedStyle(container);
-  const gap = parseFloat(styles.gap || '0');
+    const styles = window.getComputedStyle(container);
+    const gap = parseFloat(styles.gap || '0');
 
-  return card.getBoundingClientRect().width + gap;
-}
+    return card.getBoundingClientRect().width + gap;
+  }
 
-scrollBs2Left() {
-  const container = this.bs2Scroll?.nativeElement;
-  if (!container) return;
+  scrollBs2Left() {
+    const container = this.bs2Scroll?.nativeElement;
+    if (!container) return;
 
-  const scrollAmount = this.getBs2ScrollAmount();
-  if (!scrollAmount) return;
+    const scrollAmount = this.getBs2ScrollAmount();
+    if (!scrollAmount) return;
 
-  container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-}
+    container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+  }
 
-scrollBs2Right() {
-  const container = this.bs2Scroll?.nativeElement;
-  if (!container) return;
+  scrollBs2Right() {
+    const container = this.bs2Scroll?.nativeElement;
+    if (!container) return;
 
-  const scrollAmount = this.getBs2ScrollAmount();
-  if (!scrollAmount) return;
+    const scrollAmount = this.getBs2ScrollAmount();
+    if (!scrollAmount) return;
 
-  container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-}
+    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  }
 
 
 
@@ -1071,30 +1079,65 @@ scrollBs2Right() {
       }));
     });
   }
-  newsletterEmail: string = '';
 
-  sendEmail2() {
-    if (!this.newsletterEmail) {
-      this.openSnackBar('Please enter email', '');
-      return;
-    }
 
-    this.newsletterEmail = '';
-  }
+  // async sendEmail() {
+  //   if (this.isSubmitting) return;
+  //   this.isSubmitting = true;
+  //   await new Promise(resolve => setTimeout(resolve));
+
+  //   const apipayload = {
+  //     title: 'Subscription emails',
+  //     name: 'Subscription: Request',
+  //     email: this.newsletterEmail,
+  //   };
+
+  //   try {
+  //     const response = await emailjs.send(
+  //       'service_4i31vcn',
+  //       'template_vm2sdr9',
+  //       apipayload,
+  //       { publicKey: '0TocvA3hn_6xpQ9SV' }
+  //     );
+
+  //     if (response.status === 200) {
+  //       this.openSnackBar(
+  //         'Thanks for signing up! We’re excited to have you.',
+  //         ''
+  //       );
+  //       this.resetForm();
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     this.openSnackBar('Your Details Not Submitted!', '');
+  //   } finally {
+  //     this.isSubmitting = false;
+  //   }
+  // }
 
 
   async sendEmail() {
     if (this.isSubmitting) return;
 
+    // Empty check
+    if (!this.newsletterEmail || this.newsletterEmail.trim() === '') {
+      this.openSnackBar('Email is required!', '');
+      return;
+    }
+
+    // Email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(this.newsletterEmail.trim())) {
+      this.openSnackBar('Please enter a valid email address..!', '');
+      return;
+    }
+
     this.isSubmitting = true;
 
-    // 🔥 Force UI update
-    await new Promise(resolve => setTimeout(resolve));
-
     const apipayload = {
-      title: 'Maitreya Traders Customer contact us page',
-      name: 'Maitreya Traders',
-      email: this.newsletterEmail,
+      title: 'Subscription Emails',
+      name: 'Subscription: Request',
+      email: this.newsletterEmail.trim(),
     };
 
     try {
@@ -1106,11 +1149,8 @@ scrollBs2Right() {
       );
 
       if (response.status === 200) {
-        this.openSnackBar(
-          'Your Details Submitted! We will update your email.',
-          ''
-        );
-        this.resetForm();
+        this.openSnackBar('Thanks for signing up! We’re excited to have you.', '');
+        this.newsletterEmail = '';
       }
     } catch (error) {
       console.error(error);
@@ -1120,14 +1160,11 @@ scrollBs2Right() {
     }
   }
 
+
   resetForm() {
     this.newsletterEmail = ''
   }
 
-  //search
-
-  showSearch: boolean = false;
-  searchText: string = ''
 
   toggleSearch() {
     this.showSearch = true;
@@ -1165,9 +1202,9 @@ scrollBs2Right() {
 
   ProductView(pd: any) {
     console.log(pd);
-
     localStorage.setItem("CategoryID", pd.categoryID.toString());
     localStorage.setItem("SerhSubCat", pd.subCategoryID.toString());
+    localStorage.setItem("SearchProHm", pd.productID.toString());
     this.activeSection = "products"
     this.showProductsDropdown = false;
     this.router.navigate(["/products"])

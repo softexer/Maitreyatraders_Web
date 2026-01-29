@@ -79,7 +79,10 @@ export class AboutUsComponent implements OnInit, OnDestroy {
   currentTestimonial = 0
   Math = Math
   baseUrl: string = '';
-
+  newsletterEmail: string = ''; 
+  isSubmitting = false;
+  isSubmitted = false;
+  submittedText: string = "";
   showProductsDropdown = false;
   @ViewChildren('animate') elements!: QueryList<ElementRef>;
   slides: CarouselSlide[] = [
@@ -128,7 +131,7 @@ export class AboutUsComponent implements OnInit, OnDestroy {
   ]
 
 
-showMobileMenu = false;
+  showMobileMenu = false;
   showMobileProducts = false;
   newLaunchedProducts: Product[] = [];
   bestSellers: Product[] = []
@@ -754,56 +757,50 @@ showMobileMenu = false;
 
     });
   }
-  newsletterEmail: string = '';
 
-  sendEmail2() {
-    if (!this.newsletterEmail) {
-      this.openSnackBar('Please enter email', '');
-      return;
-    }
 
-    // this.openSnackBar('Send to email in progress', '');
 
-    // 👉 call API / EmailJS here
-
-    // ✅ clear input after snackbar
-    this.newsletterEmail = '';
-  }
-  isSubmitting = false;
-  isSubmitted = false;
-  submittedText: string = "";
   async sendEmail() {
     if (this.isSubmitting) return;
 
+    // Empty check
+    if (!this.newsletterEmail || this.newsletterEmail.trim() === '') {
+      this.openSnackBar('Email is required!', '');
+      return;
+    }
+
+    // Email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(this.newsletterEmail.trim())) {
+      this.openSnackBar('Please enter a valid email address..!', '');
+      return;
+    }
+
     this.isSubmitting = true;
+
     const apipayload = {
-      title: "Maitreya Traders Customer contact us page ",
-      name: "Maitreya Traders",
-      email: this.newsletterEmail,
+      title: 'Subscription Emails',
+      name: 'Subscription: Request',
+      email: this.newsletterEmail.trim(),
     };
-    console.log(apipayload)
-    // "service_xd7q9u7","template_slg27hy"  template_slg27hy
-    let response = await emailjs.send("service_xd7q9u7", "template_slg27hy", apipayload, { publicKey: 'FXF6rxTuZE6ZIsRz2' });
-    console.log(response)
-    if (response.status == 200) {
-      // this.submittedText = 'Your Details Submitted! We will update your email.';
 
-      this.openSnackBar('Your Details Submitted! We will update your email.', '');
+    try {
+      const response = await emailjs.send(
+        'service_4i31vcn',
+        'template_vm2sdr9',
+        apipayload,
+        { publicKey: '0TocvA3hn_6xpQ9SV' }
+      );
 
-      setTimeout(() => {
-        this.isSubmitting = false;
-        this.isSubmitted = true;
-        this.resetForm();
-
-        setTimeout(() => {
-          this.isSubmitted = false;
-        }, 5000);
-      }, 2000);
-
-
-    } else {
-      // this.submittedText = 'Your Details Not Submitted!';
+      if (response.status === 200) {
+        this.openSnackBar('Thanks for signing up! We’re excited to have you.', '');
+        this.newsletterEmail = '';
+      }
+    } catch (error) {
+      console.error(error);
       this.openSnackBar('Your Details Not Submitted!', '');
+    } finally {
+      this.isSubmitting = false;
     }
   }
   resetForm() {
@@ -851,9 +848,9 @@ showMobileMenu = false;
 
   ProductView(pd: any) {
     console.log(pd);
-
     localStorage.setItem("CategoryID", pd.categoryID.toString());
     localStorage.setItem("SerhSubCat", pd.subCategoryID.toString());
+    localStorage.setItem("SearchProHm", pd.productID.toString());
     this.activeSection = "products"
     this.showProductsDropdown = false;
     this.router.navigate(["/products"])
@@ -939,7 +936,7 @@ showMobileMenu = false;
   navigatetocontact() {
     this.router.navigate(["/ContactUs"])
   }
-  
+
 
 }
 

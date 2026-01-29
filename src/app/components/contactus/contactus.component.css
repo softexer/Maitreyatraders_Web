@@ -2128,11 +2128,17 @@
   display: flex;
   min-height: 90vh;
   background: #fff;
+   align-items: stretch; 
+   
 }
 
 /* LEFT IMAGE */
 .contact-image {
   width: 55%;
+    height: 100%;    
+
+    flex: 1;
+  overflow: hidden;
 }
 
 .contact-image img {
@@ -2141,6 +2147,8 @@
     width: 90%;
   height: 90%;
   object-fit: cover;
+
+  display: block;
 }
 
 /* RIGHT FORM */

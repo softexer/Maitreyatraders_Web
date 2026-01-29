@@ -147,7 +147,9 @@
 
   pointer-events: none;
 }
-
+.newsletter-form .error {
+  display: none !important;
+}
 /* Carousel Section */
 .carousel-section {
   background-color: #000;
@@ -1647,8 +1649,6 @@
   max-height: 450px;
   overflow-y: auto;
   padding-right: 15px;
-
-  /* Firefox */
   scrollbar-width: thin;
   scrollbar-color: rgba(247, 180, 26, 1) #ffffff;
 }
@@ -1658,18 +1658,14 @@
   max-height: 450px;
   overflow-y: auto;
   padding-right: 15px;
-
-  /* Firefox */
   scrollbar-width: none;
   scrollbar-color: rgba(247, 180, 26, 1) #ffffff;
 }
 
-/* Chrome, Edge, Safari */
 .scrollable-content::-webkit-scrollbar {
   width: 6px;
 }
 
-/* 🔥 FORCE REMOVE arrows (all states) */
 .scrollable-content::-webkit-scrollbar-button:single-button {
   display: none;
   width: 0;
@@ -1685,13 +1681,11 @@
   height: 0;
 }
 
-/* Scrollbar thumb */
 .scrollable-content::-webkit-scrollbar-thumb {
   background-color: rgba(247, 180, 26, 1);
   border-radius: 6px;
 }
 
-/* Scrollbar track (white) */
 .scrollable-content::-webkit-scrollbar-track {
   background-color: #ffffff;
   border-radius: 6px;

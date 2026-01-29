@@ -476,7 +476,7 @@ showMobileMenu = false;
           if (ditems.selectFreeProductID == items.categoryId && ditems.applicableIds.includes(items.subcatId)) {
             this.promoCode = ditems.enterCoupanCode;
             this.discountAmt += ((items.salePrice) * (Number(items.locqunatity) * Number(ditems.discountAmountPercentage))) / 100
-
+           console.log(this.promoCode)
           }
         })
       }
@@ -784,9 +784,9 @@ showMobileMenu = false;
 
   ProductView(pd: any) {
     console.log(pd);
-
     localStorage.setItem("CategoryID", pd.categoryID.toString());
     localStorage.setItem("SerhSubCat", pd.subCategoryID.toString());
+    localStorage.setItem("SearchProHm", pd.productID.toString());
     this.activeSection = "products"
     this.showProductsDropdown = false;
     this.router.navigate(["/products"])
@@ -810,6 +810,9 @@ showMobileMenu = false;
 
   postcodes: string[] = [];
   showpostalDropdown = false;
+
+  postcodes2: string[] = [];
+  showpostalDropdown2 = false;
 
   onPostcodeInput(value: string) {
     console.log('Typed value:', value);
@@ -873,6 +876,61 @@ showMobileMenu = false;
     if (!clickedInside) {
       this.showpostalDropdown = false;
     }
+  }
+
+    onPostcodeInput2(value: string) {
+    console.log('Typed value:', value);
+
+    if (!value || value.length < 2) {
+      this.postcodes2 = [];
+      this.showpostalDropdown2 = false;
+      return;
+    }
+
+    this.postcodeService.searchPostcodes(value).subscribe({
+      next: (res: any) => {
+        console.log('API response:', res);
+
+        this.postcodes2 = (res?.result || []).map((pc: any) =>
+          typeof pc === 'string' ? pc : pc.postcode
+        );
+
+        this.showpostalDropdown2 = this.postcodes2.length > 0;
+      },
+      error: err => {
+        console.error('Postcode API error:', err);
+      }
+    });
+  }
+
+  selectPostcode2(postcode: string) {
+    this.showpostalDropdown2 = false;
+
+    if (!postcode) return;
+
+    this.billingAddress.pinCode = postcode;
+
+    this.postcodeService.getPostcodeDetails(postcode).subscribe({
+      next: (res: any) => {
+        const data = res?.result;
+        if (!data) return;
+
+        this.billingAddress.city =
+          data.admin_district || data.post_town || '';
+
+        this.billingAddress.state =
+          data.region || data.pfa || '';
+
+        this.billingAddress.country =
+          ['England', 'Scotland', 'Wales', 'Northern Ireland'].includes(data.country)
+            ? 'UK'
+            : data.country || '';
+
+        this.billingAddress.address =
+          `${data.admin_ward || ''}, ${data.admin_district || ''}`.replace(/^,|,$/g, '');
+      },
+      error: err => console.error(err)
+    });
   }
   Logout() {
     this.cartItems = [];

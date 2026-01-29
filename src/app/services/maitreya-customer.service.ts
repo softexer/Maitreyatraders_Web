@@ -241,31 +241,6 @@ clearLatestOrder() {
   this.latestOrderSubject.next([]);
 }
 
-// setLatestOrder(order: any[]) {
-//   // 🔥 persist
-//   localStorage.setItem('latestOrder', JSON.stringify(order));
-//   this.latestOrderSubject.next(order);
-// }
-
-// getLatestOrder(): any[] {
-//   // 🧠 fallback from storage
-//   const stored = localStorage.getItem('latestOrder');
-//   if (stored && this.latestOrderSubject.value.length === 0) {
-//     const parsed = JSON.parse(stored);
-//     this.latestOrderSubject.next(parsed);
-//     return parsed;
-//   }
-//   return this.latestOrderSubject.value;
-// }
-
-// /* call this once on app start */
-// loadLatestOrder() {
-//   const stored = localStorage.getItem('latestOrder');
-//   if (stored) {
-//     this.latestOrderSubject.next(JSON.parse(stored));
-//   }
-// }
-
   UserLogin(data: any) {
     return this.http.post(`${this.baseUrl}/api/customer/login`, data)
   }

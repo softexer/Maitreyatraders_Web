@@ -104,7 +104,7 @@
         </div>
     </header> -->
 
-         <header class="header">
+    <header class="header">
         <div class="header-content">
 
             <!-- LEFT: Hamburger -->
@@ -229,7 +229,7 @@
 
         <a class="drawer-link" *ngIf="isLoggeIn" (click)="navigateorders(); closeMobileMenu()">My Orders</a>
     </div>
-  
+
     <form #checkoutForm="ngForm" (ngSubmit)="processPayment(checkoutForm)">
         <!-- (ngSubmit)="processPayment(checkoutForm)"  (ngSubmit)="LoginPage(checkoutForm)"-->
 
@@ -273,7 +273,7 @@
                 </section>
 
                 <section class="form-section">
-                    <h2>Delivery</h2>
+                    <h2>Shipping Address</h2>
 
                     <!-- Country -->
                     <label class="form-label">Country / Region</label>
@@ -413,7 +413,7 @@
                                 Phone number is required
                             </span>
                             <span *ngIf="deliveryPhone.errors?.['pattern']">
-                                Enter a valid 11-digit phone number
+                                Enter a valid phone number
                             </span>
                         </div>
                     </div>
@@ -475,10 +475,10 @@
                             [class.invalid]="billingCountry.invalid && (billingCountry.touched || checkoutForm.submitted)">
 
                             <option value="" disabled>Country / Region</option>
-                            <option value="US" style="color:black">United States</option>
                             <option value="UK" style="color:black">United Kingdom</option>
+                            <!-- <option value="US" style="color:black">United States</option>                           
                             <option value="CA" style="color:black">Canada</option>
-                            <option value="IN" style="color:black">India</option>
+                            <option value="IN" style="color:black">India</option> -->
                         </select>
 
                         <div class="error"
@@ -560,8 +560,8 @@
                                 </div>
                             </div>
 
-                            <div class="form-field">
-                                <label class="form-label">Pincode</label>
+                            <!-- <div class="form-field">
+                                <label class="form-label">Postcode</label>
                                 <input type="text" name="billingPincode" required [(ngModel)]="billingAddress.pinCode"
                                     #billingPincode="ngModel" class="form-input" maxlength="10"
                                     [class.invalid]="billingPincode.invalid && (billingPincode.touched || checkoutForm.submitted)" />
@@ -570,16 +570,35 @@
                                     *ngIf="billingPincode.invalid && (billingPincode.touched || checkoutForm.submitted)">
                                     Pincode is required
                                 </div>
+                            </div> -->
+
+                            <div class="form-field position-relative">
+                                <div class="form-field postcode-container">
+                                    <label class="form-label">Postcode</label>
+                                    <input type="text" name="billingPincode" required
+                                        [(ngModel)]="billingAddress.pinCode" #billingPincode="ngModel"
+                                        class="form-input" maxlength="10" (ngModelChange)="onPostcodeInput2($event)"
+                                        autocomplete="off" />
+
+                                    <ul *ngIf="showpostalDropdown2" class="postcode-dropdown">
+                                        <li *ngFor="let pc of postcodes2" (click)="selectPostcode2(pc)">
+                                            {{pc }}
+                                        </li>
+                                    </ul>
+                                </div>
+
+
+                                <div class="error"
+                                    *ngIf="billingPincode.invalid && (billingPincode.touched || checkoutForm.submitted)">
+                                    Postcode is required
+                                </div>
                             </div>
                         </div>
 
                         <!-- Phone -->
                         <div class="form-field">
                             <label class="form-label">Phone Number</label>
-                            <!-- <input type="text" name="billingPhone" required maxlength="11" pattern="^[0-9]{11}$"
-                                [(ngModel)]="billingAddress.phoneNumber" #billingPhone="ngModel" class="form-input"
-                                [class.invalid]="billingPhone.invalid && (billingPhone.touched || checkoutForm.submitted)" /> -->
-                            <input type="tel" name="billingPhone" required maxlength="11" pattern="^[0-9]{1,11}$"
+                            <!-- <input type="tel" name="billingPhone" required maxlength="11" pattern="^[0-9]{1,11}$"
                                 [(ngModel)]="billingAddress.phoneNumber" #billingPhone="ngModel" class="form-input"
                                 (input)="limitPhoneLength()"
                                 [class.invalid]="billingPhone.invalid && (billingPhone.touched || checkoutForm.submitted)" />
@@ -588,6 +607,21 @@
                             <div class="error"
                                 *ngIf="billingPhone.invalid && (billingPhone.touched || checkoutForm.submitted)">
                                 Enter valid 11-digit phone number
+                            </div> -->
+
+                            <input type="text" name="billingPhone" required pattern="^[0-9]{11}$" maxlength="11"
+                                inputmode="numeric" [(ngModel)]="deliveryInfo.phoneNumber" #billingPhone="ngModel"
+                                class="form-input" (keypress)="numericOnly($event)"
+                                [class.invalid]="billingPhone.invalid && (billingPhone.touched || checkoutForm.submitted)" />
+
+                            <div class="error"
+                                *ngIf="billingPhone.invalid && (billingPhone.touched || checkoutForm.submitted)">
+                                <span *ngIf="billingPhone.errors?.['required']">
+                                    Phone number is required
+                                </span>
+                                <span *ngIf="billingPhone.errors?.['pattern']">
+                                    Enter a valid phone number
+                                </span>
                             </div>
                         </div>
 
@@ -631,12 +665,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="promo-section">
+                <!-- <div class="promo-section">
                     <div class="promo-wrapper">
                         <input type="text" name="promoCode" [(ngModel)]="promoCode" class="promo-input" />
                         <button type="button" (click)="applyPromoCode()" class="apply-btn">
                             Apply
                         </button>
+                    </div>                    
+                </div> -->
+
+                <div class="discount-section" >
+                    <div class="discount-input-group">
+                        <img src="../../../assets/ticket.png" alt="Discount" class="discount-icon" />
+                        <input type="text" name="promoCode" [(ngModel)]="promoCode" placeholder="CouponCode" />
+                        <button class="apply-btn" (click)="applyPromoCode()">Apply</button>
                     </div>
                 </div>
 

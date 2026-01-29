@@ -160,6 +160,10 @@
   color: #d4af37;
 }
 
+.newsletter-form .error {
+  display: none !important;
+}
+
 .cart-badge {
   position: absolute;
   top: 6px;
@@ -2275,10 +2279,66 @@
 }
 
 
+/* ✅ Mobile View */
+@media (max-width: 768px) {
+  .carousel-wrapper {
+    /* height: 320px; */
+    width: 100%;
+    height: 100%;
+    /* bigger banner height */
+  }
+
+  .backgroundimg {
+    height: auto;
+    width: 100%
+      /* padding: 10px; */
+  }
+
+  .brlogo {
+    max-width: 100%;
+    /* bigger image */
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* ✅ Extra Small Mobile */
+@media (max-width: 480px) {
+
+  /* .carousel-wrapper {
+    height: 280px;
+  }
+
+  .backgroundimg {
+    height: 280px;
+  }
+
+  .brlogo {
+    max-width: 95%;
+  } */
+  .carousel-wrapper {
+    /* height: 320px; */
+    width: 100%;
+    height: 100%;
+    /* bigger banner height */
+  }
+
+  .backgroundimg {
+    height: auto;
+    width: 100%
+      /* padding: 10px; */
+  }
+
+  .brlogo {
+    max-width: 100%;
+    /* bigger image */
+    height: 100%;
+    object-fit: cover;
+  }
+}
 
 .carousel-wrapper {
   width: 100%;
-  /* height: 60dvh; */
   overflow: hidden;
   position: relative;
 }
@@ -2309,8 +2369,6 @@
 }
 
 .brlogo {
-  /* width: 80px;
-  margin-bottom: 10px; */
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -2575,7 +2633,6 @@
 /* for footer bottm css */
 
 @media (max-width: 768px) {
-
   .footer-bottom {
     flex-direction: column;
     align-items: center;

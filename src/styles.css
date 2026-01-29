@@ -496,7 +496,7 @@ body {
 /* Snackbar surface */
 .mat-mdc-snack-bar-container.center-snackbar
 .mdc-snackbar__surface {
-  background-color: #000 !important;
+  background-color: #4c4b4b !important;
 }
 
 /* 🔥 ACTUAL TEXT */

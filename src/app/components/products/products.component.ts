@@ -766,6 +766,14 @@ export class ProductsComponent {
 
     this.newLaunchedProducts = [];
     this.GetSubCategoryProducts(subCategoryId);
+
+    // const searchPD = localStorage.getItem('SearchProHm');
+
+    // if (searchPD) {
+    //   console.log(searchPD);
+    //   this.ViewToProductDetails()
+    // }
+
   }
 
   GetSubCategoryProducts(subCategoryId: string) {
@@ -780,57 +788,6 @@ export class ProductsComponent {
         console.log(res)
         if (res.response === 3 && res.ProductDetails?.length) {
           localStorage.removeItem('SerhSubCat');
-
-
-          // const mappedProducts: Product[] = res.ProductDetails.map(
-          //   (item: any, index: number) => ({
-          //     id: index + 1,
-          //     type: item.categoryName ? `(${item.categoryName})` : '',
-          //     name: item.productName,
-          //     subtitle: item.subCategoryName ? `(${item.subCategoryName})` : '',
-          //     image:
-          //       item.productImagesList?.length && item.productImagesList[0]
-          //         ? this.baseUrl + item.productImagesList[0]
-          //         : 'assets/no-image.png',
-
-          //     productImagesList: item.productImagesList?.length
-          //       ? item.productImagesList.map((img: string) => this.baseUrl + img)
-          //       : item.image
-          //         ? [item.image]
-          //         : ['assets/no-image.png'],
-
-          //     categoryId: item.categoryID,
-          //     subcatId: item.subCategoryID,
-          //     productID: item.productID,
-
-          //     weights: item.weightList || [],
-          //     selectedWeight: item.weightList?.[0],
-          //     originalPrice: item.weightList?.[0]?.productPrice || item.productPrice,
-
-          //     price:
-          //       item.weightList?.[0]
-          //         ? (item.weightList[0].productPrice -
-          //           (item.weightList[0].disCountProductprice || 0))
-          //         : item.productPrice || 0,
-
-          //     discount: item.weightList?.[0]?.disCountProductprice || item.disCountProductprice
-          //       ? Math.round((item.weightList?.[0]?.disCountProductprice / item.weightList?.[0]?.productPrice) * 100)
-          //       : 0,
-
-          //     highlights: item.productHighlight,
-          //     description: item.productDescription,
-          //     isFrozen: item.isfrozenProduct || false,
-          //     isTopHighlight: item.isHighlightedProduct || false,
-          //     isFreeItem: false,
-          //     promoId: null
-          //   })
-          // );
-
-          // ⭐ SORT highlighted products first
-
-
-
-
           const mappedProducts: Product[] = res.ProductDetails.map(
             (item: any, index: number) => {
 
@@ -899,6 +856,20 @@ export class ProductsComponent {
             ...mappedProducts
           ];
           this.LoadPromoData();
+
+          const searchPD = localStorage.getItem('SearchProHm');
+          if (searchPD) {
+            const matchedProduct = this.newLaunchedProducts.find(
+              (p: any) => p.productID === searchPD
+            );
+
+            if (matchedProduct) {
+              console.log("Matched Product:", matchedProduct);
+              this.ViewToProductDetails(matchedProduct);
+              localStorage.removeItem('SearchProHm'); 
+            }
+          }
+
 
         } else {
           this.openSnackBar(res.message, '');
@@ -1079,15 +1050,25 @@ export class ProductsComponent {
   async sendEmail() {
     if (this.isSubmitting) return;
 
+    // Empty check
+    if (!this.newsletterEmail || this.newsletterEmail.trim() === '') {
+      this.openSnackBar('Email is required!', '');
+      return;
+    }
+
+    // Email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(this.newsletterEmail.trim())) {
+      this.openSnackBar('Please enter a valid email address..!', '');
+      return;
+    }
+
     this.isSubmitting = true;
 
-    // 🔥 Force UI update
-    await new Promise(resolve => setTimeout(resolve));
-
     const apipayload = {
-      title: 'Maitreya Traders Customer contact us page',
-      name: 'Maitreya Traders',
-      email: this.newsletterEmail,
+      title: 'Subscription Emails',
+      name: 'Subscription: Request',
+      email: this.newsletterEmail.trim(),
     };
 
     try {
@@ -1099,11 +1080,8 @@ export class ProductsComponent {
       );
 
       if (response.status === 200) {
-        this.openSnackBar(
-          'Your Details Submitted! We will update your email.',
-          ''
-        );
-        this.resetForm();
+        this.openSnackBar('Thanks for signing up! We’re excited to have you.', '');
+        this.newsletterEmail = '';
       }
     } catch (error) {
       console.error(error);
@@ -1112,42 +1090,6 @@ export class ProductsComponent {
       this.isSubmitting = false;
     }
   }
-
-  // async sendEmail() {
-  //   if (this.isSubmitting) return;
-
-  //   this.isSubmitting = true;
-  //   const apipayload = {
-  //     title: "Maitreya Traders Customer contact us page ",
-  //     name: "Maitreya Traders",
-  //     email: this.newsletterEmail,
-  //   };
-  //   console.log(apipayload)
-  //   // let response = await emailjs.send("service_xd7q9u7", "template_slg27hy", apipayload, { publicKey: 'FXF6rxTuZE6ZIsRz2' });
-  //  let response = await emailjs.send("service_4i31vcn", "template_vm2sdr9", apipayload, { publicKey: '0TocvA3hn_6xpQ9SV' });
-
-  //   console.log(response)
-  //   if (response.status == 200) {
-  //     // this.submittedText = 'Your Details Submitted! We will update your email.';
-
-  //     this.openSnackBar('Your Details Submitted! We will update your email.', '');
-
-  //     setTimeout(() => {
-  //       this.isSubmitting = false;
-  //       this.isSubmitted = true;
-  //       this.resetForm();
-
-  //       setTimeout(() => {
-  //         this.isSubmitted = false;
-  //       }, 5000);
-  //     }, 2000);
-
-
-  //   } else {
-  //     // this.submittedText = 'Your Details Not Submitted!';
-  //     this.openSnackBar('Your Details Not Submitted!', '');
-  //   }
-  // }
   resetForm() {
     this.newsletterEmail = ''
   }
@@ -1195,6 +1137,7 @@ export class ProductsComponent {
     console.log(pd);
     localStorage.setItem("CategoryID", pd.categoryID.toString());
     localStorage.setItem("SerhSubCat", pd.subCategoryID.toString());
+    localStorage.setItem("SearchProHm", pd.productID.toString());
     this.GetAllCategories();
     this.closeSearch();
   }

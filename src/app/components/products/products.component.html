@@ -244,7 +244,7 @@
             <div class="row">
                 <!-- *ngIf="newLaunchedProducts.length>0" -->
                 <div class="col-md-3 col-sm-6 col-12 mobileapps scrollable-content"
-                    style="height: 500px; overflow-y: auto;" *ngIf="!IsProductView && Subcategories.length>0">
+                    style="height: 220px; overflow-y: auto;" *ngIf="!IsProductView && Subcategories.length>0">
                     <div class="category-sidebar">
                         <div class="category-list">
                             <button *ngFor="let category of Subcategories"
@@ -256,7 +256,7 @@
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6 col-12 mobileapps scrollable-content"
-                    style="height: 500px; overflow-y: auto;"
+                    style="height: 220px; overflow-y: auto;"
                     *ngIf="IsProductView && IsClickedfrmproducts && Subcategories.length>0">
                     <div class="category-sidebar">
                         <div class="category-list">
@@ -724,19 +724,22 @@
                 Get Exclusive <span>Deals</span> in your Inbox
             </h2>
 
-            <div class="newsletter-form animate-up delay-1" #animate>
-                <input type="email" placeholder="youremail@gmail.com" class="newsletter-input"
-                    [(ngModel)]="newsletterEmail" [disabled]="isSubmitting" />
+            <form #newsletterForm="ngForm" class="newsletter-form animate-up delay-1" #animate>
+                <input type="email" name="newsletterEmail" placeholder="youremail@gmail.com" class="newsletter-input"
+                    [(ngModel)]="newsletterEmail" #emailRef="ngModel" required email [disabled]="isSubmitting" />
 
                 <button type="button" class="newsletter-btn" (click)="sendEmail()" [disabled]="isSubmitting">
+
                     <span *ngIf="!isSubmitting">Subscribe</span>
 
                     <span *ngIf="isSubmitting" class="btn-loader">
                         <span class="spinner"></span>
                         Sending...
                     </span>
+
                 </button>
-            </div>
+
+            </form>
         </div>
     </section>
 

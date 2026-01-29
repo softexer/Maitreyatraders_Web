@@ -105,8 +105,8 @@
         </div>
     </header> -->
 
-    
-        <header class="header">
+
+    <header class="header">
         <div class="header-content">
 
             <!-- LEFT: Hamburger -->
@@ -231,14 +231,13 @@
 
         <a class="drawer-link" *ngIf="isLoggeIn" (click)="navigateorders(); closeMobileMenu()">My Orders</a>
     </div>
-    
+
     <!-- About Section -->
     <section class="about-section" id="contact">
-        <!-- <div class="section-container"> -->
         <div class="contact-wrapper">
             <!-- LEFT IMAGE -->
             <div class="contact-image">
-                <img src="../../../assets/57568.png" alt="Contact Image" />
+                <img src="../../../assets/78.png" alt="Contact Image" />
             </div>
 
             <!-- RIGHT FORM -->
@@ -251,67 +250,72 @@
                         Tel : +44 7982376506 <br />
                         Email : enquiry@maitreyatraderslimited.co.uk
                     </p>
-                    
+
                 </div>
 
-                <form (ngSubmit)="sendEmail()" #contactForm="ngForm" novalidate>
-
-                    <!-- NAME -->
+                <form (ngSubmit)="sendEmail(contactForm)" #contactForm="ngForm" novalidate>
                     <div class="form-group">
                         <input type="text" name="name" [(ngModel)]="form.name" placeholder="Name" required
                             maxlength="70" #name="ngModel" />
-                        <small class="error" *ngIf="name.invalid && name.touched">
+                        <small class="error"
+                            *ngIf="name.invalid && ((name.touched && name.value?.trim() === '') || name.dirty || contactForm.submitted)">
                             Please enter your name
                         </small>
 
+
+                        <!-- <small class="error" *ngIf="name.invalid && (name.touched || contactForm.submitted)">
+                            Please enter your name
+                        </small> -->
                     </div>
-
-
-                    <!-- EMAIL -->
                     <div class="form-group">
                         <input type="email" name="email" [(ngModel)]="form.email" placeholder="Email" required
                             maxlength="100" email #email="ngModel" />
-                        <small class="error" *ngIf="email.invalid && email.touched">
+                        <!-- <small class="error" *ngIf="email.invalid && (email.touched || contactForm.submitted)">
+                            Please enter a valid email address
+                        </small> -->
+                        <small class="error"
+                            *ngIf="email.invalid && ((email.touched && email.value?.trim() === '') || email.dirty || contactForm.submitted)">
                             Please enter a valid email address
                         </small>
+
                     </div>
 
-
                     <div class="form-group">
-                        <!-- PHONE (NUMERIC + 11 DIGITS) -->
                         <input type="text" name="phone" [(ngModel)]="form.phone" placeholder="Phone" required
                             (keypress)="numericOnly($event)" pattern="^[0-9]{11}$" maxlength="11" inputmode="numeric"
                             #phone="ngModel" />
-                        <small class="error" *ngIf="phone.invalid && phone.touched">
+                        <!-- <small class="error" *ngIf="phone.invalid && (phone.touched || contactForm.submitted)">
+                            Phone enter valid phone number
+                        </small> -->
+                        <small class="error"
+                            *ngIf="phone.invalid && ((phone.touched && phone.value?.trim() === '') || phone.dirty || contactForm.submitted)">
                             Phone number must be exactly 11 digits
                         </small>
 
                     </div>
-
-
-
-                    <!-- SUBJECT -->
                     <div class="form-group">
                         <input type="text" name="subject" [(ngModel)]="form.subject" placeholder="Subject"
                             maxlength="70" required #subject="ngModel" />
-
-                        <small class="error" *ngIf="subject.invalid && subject.touched">
-                            Please enter your Subject
+                        <small class="error"
+                            *ngIf="subject.invalid && ((subject.touched && subject.value?.trim() === '') || subject.dirty || contactForm.submitted)">
+                            Please enter your subject
                         </small>
+
+                        <!-- <small class="error" *ngIf="subject.invalid && (subject.touched || contactForm.submitted)">
+                            Please enter your Subject
+                        </small> -->
                     </div>
-
-
-                    <!-- MESSAGE -->
                     <div class="form-group"><textarea name="message" [(ngModel)]="form.message"
                             placeholder="Type your message here" maxlength="300" required #message="ngModel"></textarea>
-                        <small class="error" *ngIf="message.invalid && message.touched">
+                        <!-- <small class="error" *ngIf="message.invalid && (message.touched || contactForm.submitted)">
+                            Message is required
+                        </small> -->
+                        <small class="error"
+                            *ngIf="message.invalid && ((message.touched && message.value?.trim() === '') || message.dirty || contactForm.submitted)">
                             Message is required
                         </small>
+
                     </div>
-
-
-
-                    <!-- SUBMIT -->
                     <button type="submit" [disabled]="loading || contactForm.invalid" style="padding-top: 10px;">
                         {{ loading ? 'Sending...' : 'Submit' }}
                     </button>
