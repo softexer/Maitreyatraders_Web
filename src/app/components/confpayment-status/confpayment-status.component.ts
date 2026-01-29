@@ -22,7 +22,7 @@ export class ConfpaymentStatusComponent implements OnInit {
         this.closeTab()
       }, 3000)
     } else {    
-      this.isSucess = true;
+      this.isSucess = false;
       setTimeout(() => {
         this.closeTab()
       }, 3000)

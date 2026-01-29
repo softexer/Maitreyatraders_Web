@@ -11,14 +11,11 @@
     </div>
 
     <!-- Header -->
-    <header class="header">
+    <!-- <header class="header">
         <div class="header-content">
-            <!-- Logo -->
             <div class="logo d-md-block d-none">
                 <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image">
             </div>
-
-            <!-- Navigation -->
             <nav class="nav">
                 <a class="d-block d-md-none">
                     <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" width="70px">
@@ -28,7 +25,6 @@
 
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
                     (click)="navigatetoabout()">
-                    <!-- (click)="setActive('about'); scrollToSection('about')" -->
                     About
                 </a>
                 <div class="nav-item-wrapper">
@@ -47,19 +43,18 @@
                     </a>
                 </div>
 
-                <!-- <a href="#" class="nav-item" [class.active]="activeSection === 'recipes'"
-                    (click)="setActive('recipes')">Recipes</a>
-                <a href="#" class="nav-item" [class.active]="activeSection === 'blog'"
-                    (click)="setActive('blog')">Blog</a> -->
 
-                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="scrollToContact()">
-                    Contact Us
+               <a class="nav-item" [class.active]="activeSection === 'contact'"  (click)="navigatetocontact()">
+                                   Contact Us
+                </a>
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="navigateorders()" *ngIf="isLoggeIn">
+                    My Orders
                 </a>
 
 
             </nav>
 
-            <!-- Header Actions -->
             <div class="header-actions">
                 <div class="search-wrapper" (click)="$event.stopPropagation()">
                     <img src="../../../assets/Icon-3.png" class="icon search-trigger" [class.hide]="showSearch"
@@ -77,7 +72,7 @@
                     <div class="search-dropdown" *ngIf="displaylist">
                         <div *ngIf="AllSearchItems.length > 0">
                             <div class="panel-header">
-                                <span>Products</span>
+                                <span style="padding: 10px;">Products</span>
                                 <div></div>
                             </div>
                             <div class="search-results" *ngFor="let n of AllSearchItems">
@@ -86,9 +81,6 @@
                                         alt="product" (click)="ProductView(n)" />
                                 </div>
                                 <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
-                            </div>
-                            <div class="see-all">
-                                See all products
                             </div>
                         </div>
                         <div *ngIf="AllSearchItems.length === 0">
@@ -110,9 +102,136 @@
 
             </div>
         </div>
+    </header> -->
+
+         <header class="header">
+        <div class="header-content">
+
+            <!-- LEFT: Hamburger -->
+            <button class="menu-btn d-md-none" (click)="toggleMobileMenu()">
+                ☰
+            </button>
+
+            <!-- Logo -->
+            <div class="logo" style="margin-top: 20px;">
+                <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image d-none d-md-block">
+                <!-- <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" class="logo-image d-block d-md-none"> -->
+            </div>
+
+            <!-- DESKTOP NAV -->
+            <nav class="nav d-none d-md-flex">
+                <a routerLink="/home" class="nav-item" [class.active]="activeSection === 'home'"
+                    (click)="setActive('home')">Home</a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
+                    (click)="navigatetoabout()">About</a>
+
+                <div class="nav-item-wrapper">
+                    <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'products'"
+                        (click)="toggleProductsDropdown($event)">
+                        Products <span class="dropdown-arrow" [class.rotated]="showProductsDropdown">▼</span>
+                    </a>
+
+                    <div class="products-dropdown" *ngIf="showProductsDropdown">
+                        <a *ngFor="let category of productCategories" class="dropdown-item"
+                            (click)="navigateToCategory(category)">
+                            {{ category.name }}
+                        </a>
+                    </div>
+                </div>
+
+                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="navigatetocontact()">Contact
+                    Us</a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="navigateorders()" *ngIf="isLoggeIn">
+                    My Orders
+                </a>
+            </nav>
+
+            <!-- RIGHT: Search + Cart -->
+            <div class="header-actions">
+                <!-- Search -->
+                <div class="search-wrapper" (click)="$event.stopPropagation()">
+                    <img src="../../../assets/Icon-3.png" class="icon search-trigger"
+                        (click)="toggleSearch(); $event.stopPropagation()" />
+
+                    <div class="search-inline" [class.show]="showSearch" (click)="$event.stopPropagation()">
+                        <img src="../../../assets/Icon-3.png" class="icon small" />
+                        <input type="text" [(ngModel)]="searchText" placeholder="Search products"
+                            (keydown.enter)="GotoSearch(); $event.preventDefault(); $event.stopPropagation()" />
+                        <img src="../../../assets/cancel.png" class="icon small close-icon"
+                            (click)="closeSearch(); $event.stopPropagation()" width="10" />
+                    </div>
+
+                    <div class="search-dropdown" *ngIf="displaylist">
+                        <div *ngIf="AllSearchItems.length > 0">
+                            <div class="panel-header">
+                                <span style="padding: 10px;">Products</span>
+                            </div>
+
+                            <div class="search-results" *ngFor="let n of AllSearchItems">
+                                <div class="image-wrap">
+                                    <img *ngIf="n.productImagesList?.length" [src]="baseUrl + n.productImagesList[0]"
+                                        alt="product" (click)="ProductView(n)" />
+                                </div>
+                                <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="AllSearchItems.length === 0">
+                            <div class="search-results">
+                                <div class="title">No results</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart -->
+                <button class="icon-btn" (click)="cartpage($event)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+                </button>
+            </div>
+        </div>
     </header>
 
+    <!-- MOBILE MENU OVERLAY -->
+    <div class="mobile-overlay" *ngIf="showMobileMenu" (click)="closeMobileMenu()"></div>
+
+    <!-- MOBILE DRAWER (LEFT) -->
+    <div class="mobile-drawer" [class.open]="showMobileMenu">
+        <div class="drawer-header">
+            <span class="drawer-title">Menu</span>
+            <button class="drawer-close" (click)="closeMobileMenu()">✕</button>
+        </div>
+
+        <a class="drawer-link" routerLink="/home" (click)="setActive('home'); closeMobileMenu()">Home</a>
+        <a class="drawer-link" (click)="navigatetoabout(); closeMobileMenu()">About</a>
+
+        <div class="drawer-link" (click)="toggleMobileProducts()">
+            Products
+            <span class="dropdown-arrow" [class.rotated]="showMobileProducts">▼</span>
+        </div>
+
+        <div class="drawer-submenu" *ngIf="showMobileProducts">
+            <a *ngFor="let category of productCategories" class="drawer-sublink"
+                (click)="navigateToCategory(category); closeMobileMenu()">
+                {{ category.name }}
+            </a>
+        </div>
+
+        <a class="drawer-link" (click)="navigatetocontact(); closeMobileMenu()">Contact Us</a>
+
+        <a class="drawer-link" *ngIf="isLoggeIn" (click)="navigateorders(); closeMobileMenu()">My Orders</a>
+    </div>
+  
     <form #checkoutForm="ngForm" (ngSubmit)="processPayment(checkoutForm)">
+        <!-- (ngSubmit)="processPayment(checkoutForm)"  (ngSubmit)="LoginPage(checkoutForm)"-->
 
         <div class="checkout-container">
             <div class="col-md-5">
@@ -217,8 +336,15 @@
                     <!-- Apartment -->
                     <div class="form-field">
                         <label class="form-label">Apartment, Suite, etc.</label>
-                        <input type="text" name="deliveryApartment" [(ngModel)]="deliveryInfo.apartment"
-                            class="form-input" maxlength="100" />
+                        <input type="text" name="deliveryApartment" required [(ngModel)]="deliveryInfo.apartment"
+                            class="form-input" maxlength="100" #deliveryApartment="ngModel"
+                            [class.invalid]="deliveryApartment.invalid && (deliveryApartment.touched || checkoutForm.submitted)" />
+
+                        <div class="error"
+                            *ngIf="deliveryApartment.invalid && (deliveryApartment.touched || checkoutForm.submitted)">
+                            Apartment Address is required
+                        </div>
+
                     </div>
 
                     <!-- City / State / Pincode -->
@@ -247,30 +373,9 @@
                             </div>
                         </div>
 
-                        <!-- <div class="form-field">
-                            <label class="form-label">Postcode</label>
-                            <input type="text" name="deliveryPincode" required [(ngModel)]="deliveryInfo.pinCode"
-                                #deliveryPincode="ngModel" class="form-input" maxlength="10"
-                                [class.invalid]="deliveryPincode.invalid && (deliveryPincode.touched || checkoutForm.submitted)" />
-
-                            <div class="error"
-                                *ngIf="deliveryPincode.invalid && (deliveryPincode.touched || checkoutForm.submitted)">
-                                Postcode is required
-                            </div>
-                        </div> -->
 
                         <div class="form-field position-relative">
-                            <!-- <label class="form-label">Postcode</label> -->
 
-                            <!-- <input type="text" name="deliveryPincode" required [(ngModel)]="deliveryInfo.pinCode"
-                                #deliveryPincode="ngModel" class="form-input" maxlength="10"
-                                (ngModelChange)="onPostcodeInput($event)" autocomplete="off" />
-
-                            <ul class="postcode-dropdown" *ngIf="showpostalDropdown">
-                                <li *ngFor="let pc of postcodes" (click)="selectPostcode(pc)">
-                                    {{ pc }}
-                                </li>
-                            </ul> -->
                             <div class="form-field postcode-container">
                                 <label class="form-label">Postcode</label>
                                 <input type="text" name="deliveryPincode" required [(ngModel)]="deliveryInfo.pinCode"
@@ -316,27 +421,27 @@
                 </section>
 
 
-                <section class="form-section">
+                <!-- <section class="form-section">
                     <h2>Shipping method</h2>
                     <div class="shipping-method">
                         <span>{{shippingMethod}}</span>
                         <span class="free-badge">FREE</span>
                     </div>
-                </section>
+                </section> -->
 
-                <section class="form-section">
+                <!-- <section class="form-section">
                     <h2>Payment</h2>
                     <div class="payment-info">
-                        <p>Razorpay (UPI, Cards, Net Banking, All Debit, Credit Cards, Wallets)</p>
+                        <p>Stripe (UPI, Cards, Net Banking, All Debit, Credit Cards, Wallets)</p>
                         <div class="payment-placeholder">
                             <div class="card-icon"></div>
                             <p class="payment-note">
-                                After clicking "Pay now", you will be redirected to Razorpay (Secure UPI, Cards, Net
+                                After clicking "Pay now", you will be redirected to Stripe (Secure UPI, Cards, Net
                                 Banking, Wallets) to complete your purchase securely.
                             </p>
                         </div>
                     </div>
-                </section>
+                </section> -->
 
                 <section class="form-section">
                     <h2>Billing address</h2>
@@ -507,10 +612,13 @@
                                 {{ item.cartTitle.weightNumber }} {{ item.cartTitle.weightUnit }}
                             </p>
 
-                            <p class="item-price">£ {{item.salePrice.toFixed(2)}}</p>
+                            <p class="item-price">
+                                <!-- £ {{item.salePrice.toFixed(2)}} -->
+                                £ {{ item.salePrice| number:'1.2-2' }}
+                            </p>
                         </div>
                         <div class="item-actions">
-                            <div class="quantity-controls">
+                            <div class="quantity-controls" *ngIf="!item.isFreeItem">
                                 <button (click)="decrementQuantity(item); $event.preventDefault()"
                                     class="qty-btn">-</button>
                                 <span class="qty-value">{{item.locqunatity }}</span>
@@ -523,15 +631,16 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="promo-section">
+                <div class="promo-section">
                     <div class="promo-wrapper">
                         <input type="text" name="promoCode" [(ngModel)]="promoCode" class="promo-input" />
-
                         <button type="button" (click)="applyPromoCode()" class="apply-btn">
                             Apply
                         </button>
                     </div>
-                </div> -->
+                </div>
+
+
                 <div class="summary">
                     <div class="summary-row">
                         <span>Sub Total</span>
@@ -543,29 +652,33 @@
                             {{ deliveryFee === 0 ? 'Free' : '£' + deliveryFee.toFixed(2) }}
                         </span>
                     </div>
-                    <div class="summary-row">
+                    <div class="summary-row" *ngIf="discountAmt > 0">
                         <span>Discount Amount</span>
-                       <span>£{{ discountAmt.toFixed(2) }}</span>
+                        <span>£{{ discountAmt.toFixed(2) }}</span>
                     </div>
-                  
+
                     <div class="summary-row" *ngIf="frozenCharge > 0">
                         <span>Frozen Packing Charge</span>
                         <span>£{{ frozenCharge.toFixed(2) }}</span>
                     </div>
                     <div class="summary-row total">
                         <span>Total to pay</span>
-                        <!-- <span>£{{totalToPay.toFixed(2)}}</span> -->
                         <span>£{{ totalToPay.toFixed(2) }}</span>
                     </div>
                 </div>
                 <button type="submit" class="pay-now-btn"
-                    [class.disabled]="checkoutForm.invalid || cartItems.length === 0 || subtotal < MIN_ORDER_AMOUNT">
-                    <!-- [class.disabled]="checkoutForm.invalid || cartItems.length === 0" -->
+                    [class.disabled]="checkoutForm.invalid || cartItems.length === 0">
+                    <!-- [class.disabled]="checkoutForm.invalid || cartItems.length === 0 || subtotal < MIN_ORDER_AMOUNT" -->
+
                     Pay Now
                 </button>
-                <p class="text-danger mt-2" *ngIf="subtotal < MIN_ORDER_AMOUNT">
+                <!-- <p class="text-danger mt-2" *ngIf="subtotal < MIN_ORDER_AMOUNT">
                     Minimum order amount is £{{ MIN_ORDER_AMOUNT }}
-                </p>
+                </p> -->
+
+                <!-- <button type="submit" class="pay-now-btn" (click)="LoginPage()">                   
+                    Login
+                </button> -->
 
 
 

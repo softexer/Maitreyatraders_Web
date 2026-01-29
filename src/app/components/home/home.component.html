@@ -11,14 +11,12 @@
     </div>
 
     <!-- Header -->
-    <header class="header">
+    <!-- <header class="header">
         <div class="header-content">
-            <!-- Logo -->
             <div class="logo d-md-block d-none">
                 <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image">
             </div>
 
-            <!-- Navigation -->
             <nav class="nav">
                 <a class="d-block d-md-none">
                     <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" width="70px">
@@ -28,7 +26,6 @@
 
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
                     (click)="navigatetoabout()">
-                    <!-- (click)="setActive('about'); scrollToSection('about')" -->
                     About
                 </a>
                 <div class="nav-item-wrapper">
@@ -47,19 +44,20 @@
                     </a>
                 </div>
 
-                <!-- <a href="#" class="nav-item" [class.active]="activeSection === 'recipes'"
-                    (click)="setActive('recipes')">Recipes</a>
-                <a href="#" class="nav-item" [class.active]="activeSection === 'blog'"
-                    (click)="setActive('blog')">Blog</a> -->
 
-                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="scrollToContact()">
+                <a class="nav-item" [class.active]="activeSection === 'contact'"  (click)="navigatetocontact()">
+                
                     Contact Us
                 </a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="navigateorders()" *ngIf="isLoggeIn">
+                    My Orders
+                </a>         
 
 
             </nav>
 
-            <!-- Header Actions -->
             <div class="header-actions">
                 <div class="search-wrapper" (click)="$event.stopPropagation()">
                     <img src="../../../assets/Icon-3.png" class="icon search-trigger" [class.hide]="showSearch"
@@ -77,7 +75,7 @@
                     <div class="search-dropdown" *ngIf="displaylist">
                         <div *ngIf="AllSearchItems.length > 0">
                             <div class="panel-header">
-                                <span>Products</span>
+                                <span style="padding: 10px;">Products</span>
                                 <div></div>
                             </div>
                             <div class="search-results" *ngFor="let n of AllSearchItems">
@@ -86,9 +84,6 @@
                                         alt="product" (click)="ProductView(n)" />
                                 </div>
                                 <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
-                            </div>
-                            <div class="see-all">
-                                See all products
                             </div>
                         </div>
                         <div *ngIf="AllSearchItems.length === 0">
@@ -110,7 +105,136 @@
 
             </div>
         </div>
+    </header> -->
+
+
+
+    <header class="header">
+        <div class="header-content">
+
+            <!-- LEFT: Hamburger -->
+            <button class="menu-btn d-md-none" (click)="toggleMobileMenu()">
+                ☰
+            </button>
+
+            <!-- Logo -->
+            <div class="logo" style="margin-top: 20px;">
+                <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image d-none d-md-block">
+                <!-- <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" class="logo-image d-block d-md-none"> -->
+            </div>
+
+            <!-- DESKTOP NAV -->
+            <nav class="nav d-none d-md-flex">
+                <a href="#" class="nav-item" [class.active]="activeSection === 'home'"
+                    (click)="setActive('home')">Home</a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
+                    (click)="navigatetoabout()">About</a>
+
+                <div class="nav-item-wrapper">
+                    <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'products'"
+                        (click)="toggleProductsDropdown($event)">
+                        Products <span class="dropdown-arrow" [class.rotated]="showProductsDropdown">▼</span>
+                    </a>
+
+                    <div class="products-dropdown" *ngIf="showProductsDropdown">
+                        <a *ngFor="let category of productCategories" class="dropdown-item"
+                            (click)="navigateToCategory(category)">
+                            {{ category.name }}
+                        </a>
+                    </div>
+                </div>
+
+                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="navigatetocontact()">Contact
+                    Us</a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="navigateorders()" *ngIf="isLoggeIn">
+                    My Orders
+                </a>
+            </nav>
+
+            <!-- RIGHT: Search + Cart -->
+            <div class="header-actions">
+                <!-- Search -->
+                <div class="search-wrapper" (click)="$event.stopPropagation()">
+                    <img src="../../../assets/Icon-3.png" class="icon search-trigger"
+                        (click)="toggleSearch(); $event.stopPropagation()" />
+
+                    <div class="search-inline" [class.show]="showSearch" (click)="$event.stopPropagation()">
+                        <img src="../../../assets/Icon-3.png" class="icon small" />
+                        <input type="text" [(ngModel)]="searchText" placeholder="Search products"
+                            (keydown.enter)="GotoSearch(); $event.preventDefault(); $event.stopPropagation()" />
+                        <img src="../../../assets/cancel.png" class="icon small close-icon"
+                            (click)="closeSearch(); $event.stopPropagation()" width="10" />
+                    </div>
+
+                    <div class="search-dropdown" *ngIf="displaylist">
+                        <div *ngIf="AllSearchItems.length > 0">
+                            <div class="panel-header">
+                                <span style="padding: 10px;">Products</span>
+                            </div>
+
+                            <div class="search-results" *ngFor="let n of AllSearchItems">
+                                <div class="image-wrap">
+                                    <img *ngIf="n.productImagesList?.length" [src]="baseUrl + n.productImagesList[0]"
+                                        alt="product" (click)="ProductView(n)" />
+                                </div>
+                                <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="AllSearchItems.length === 0">
+                            <div class="search-results">
+                                <div class="title">No results</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart -->
+                <button class="icon-btn" (click)="cartpage($event)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+                </button>
+            </div>
+        </div>
     </header>
+
+    <!-- MOBILE MENU OVERLAY -->
+    <div class="mobile-overlay" *ngIf="showMobileMenu" (click)="closeMobileMenu()"></div>
+
+    <!-- MOBILE DRAWER (LEFT) -->
+    <div class="mobile-drawer" [class.open]="showMobileMenu">
+        <div class="drawer-header">
+            <span class="drawer-title">Menu</span>
+            <button class="drawer-close" (click)="closeMobileMenu()">✕</button>
+        </div>
+
+        <a class="drawer-link" (click)="setActive('home'); closeMobileMenu()">Home</a>
+        <a class="drawer-link" (click)="navigatetoabout(); closeMobileMenu()">About</a>
+
+        <div class="drawer-link" (click)="toggleMobileProducts()">
+            Products
+            <span class="dropdown-arrow" [class.rotated]="showMobileProducts">▼</span>
+        </div>
+
+        <div class="drawer-submenu" *ngIf="showMobileProducts">
+            <a *ngFor="let category of productCategories" class="drawer-sublink"
+                (click)="navigateToCategory(category); closeMobileMenu()">
+                {{ category.name }}
+            </a>
+        </div>
+
+        <a class="drawer-link" (click)="navigatetocontact(); closeMobileMenu()">Contact Us</a>
+
+        <a class="drawer-link" *ngIf="isLoggeIn" (click)="navigateorders(); closeMobileMenu()">My Orders</a>
+    </div>
+
 
     <!-- Carousel Section -->
     <div class="carousel-section">
@@ -151,10 +275,10 @@
                                     <img [src]="slide.productIcon" alt="Product Icon" class="product-icon">
                                     <div class="product-info">
                                         <div class="product-name">{{ slide.productName }}</div>
-                                        <div class="product-rating">
+                                        <!-- <div class="product-rating">
                                             <span *ngFor="let star of [1,2,3,4,5]" class="star-small"
                                                 [class.filled]="star <= slide.productRating">★</span>
-                                        </div>
+                                        </div> -->
                                     </div>
                                     <!-- <div class="product-price">£ {{ slide.price }}</div> -->
                                 </div>
@@ -173,28 +297,44 @@
         </div>
     </div>
 
-
     <!-- <div class="row p-0 m-0 bannerimg animate-up delay-1" #animate>
-        <img src="../../../assets/banner.png" class="bannerimg">
-
+        <img [src]="bgimage" class="bannerimg" />
     </div> -->
 
-    <div class="row p-0 m-0 bannerimg animate-up delay-1" #animate>
-        <img [src]="bgimage" class="bannerimg" />
+
+
+    <div class="carousel-wrapper">
+        <div class="carousel-track" [style.transform]="'translateX(-' + currentSlide_bnr * 100 + '%)'">
+            <div class="backgroundimg" *ngFor="let item of bannerslides"
+                [style.backgroundImage]="'url(' + item.image + ')'" style="display: flex;justify-content: center;">
+                <div style="display: flex;justify-content: center; align-items: center;">
+                    <div>
+                        <img [src]="item.image" class="brlogo" />
+                    </div>
+                    <!-- <div class="slide-inner2">
+                        <img [src]="item.image" class="bannerimg" alt="Promotion Banner" />
+                    </div> -->
+
+                </div>
+            </div>
+        </div>
+        <div class="aidots">
+            <span *ngFor="let item of bannerslides; let i = index" class="aidot"
+                [class.aiactive]="i === currentSlide_bnr" (click)="currentSlide_bnr = i"></span>
+        </div>
     </div>
 
 
 
-    <section class="new-launched-section">
+    <!-- <section class="new-launched-section">
         <div class="section-container">
-            <h2 class="section-title">
+            <h2 class="section-title" style="padding-top:20px;">
                 <span class="title-new">New</span>&nbsp; <span class="title-launched">Launched</span>
             </h2>
 
             <div class="products-grid">
                 <div class="product-card animate" *ngFor="let product of firstRowProducts" #productCard>
-                    <!-- this is  display all producys of newlaunched items *ngFor="let product of newLaunchedProducts"  -->
-                    <!-- <div class="discount-badge">{{ product.discount }}%</div> -->
+                    <div class="discount-badge">{{ product.discount }}%</div>
                     <div class="product-image-wrapper" (click)="ViewToProductDetails(product)" style="cursor: pointer;">
                         <img [src]="product.image" [alt]="product.name" class="product-card-image">
                     </div>
@@ -206,11 +346,6 @@
 
                         <div class="product-pricing">
                             <div class="price-wrapper">
-                                <!-- <div class="price-group">
-                                    <span class="strike-price">
-                                     £ {{ (product.originalPrice + 0.2) | number:'1.2-2' }}
-                                    </span>
-                                </div> -->
                                 <div class="price-group">
                                     <span class="price-symbol">£</span>
                                     <span class="price-original">
@@ -240,14 +375,22 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
     <!-- Best Sellers Section with Carousel -->
-    <section class="best-sellers-section">
+
+    <div class="top-bar23">
+        <div class="top-bar23-content">
+            <span style="font-size: 21px;">
+                Our Best Sellers
+            </span>
+
+        </div>
+    </div>
+
+
+    <section class="best-sellers-section desktop-only ">
         <div class="section-container">
-            <h2 class="section-title">
-                Our <span class="title-highlight">Best Sellers</span>
-            </h2>
 
             <div class="best-sellers-carousel">
                 <button class="carousel-nav-btn left" (click)="scrollBestSellersLeft()">
@@ -258,7 +401,9 @@
 
                 <div class="best-sellers-scroll" #bestSellersScroll>
                     <div class="product-card2 animate" *ngFor="let product of bestSellers" #productCard>
-                        <!-- <div class="discount-badge">{{ product.discount }}%</div> -->
+                        <div class="discount-badge" *ngIf="(product.discount ?? 0) > 0">
+                            {{ product.discount }}%
+                        </div>
                         <div class="product-image-wrapper" (click)="ViewToProductDetails(product)"
                             style="cursor: pointer;">
                             <img [src]="product.image" [alt]="product.name" class="product-card-image2">
@@ -266,7 +411,7 @@
                         <div class="product-details2">
                             <h3 class="product-title">
                                 <!-- {{ product.name }} -->
-                                {{ product.name.length > 20 ? (product.name | slice:0:20) + '...' : product.name }}
+                                {{ product.name.length > 22 ? (product.name | slice:0:22) + '...' : product.name }}
                             </h3>
                             <div class="product-pricing">
                                 <div class="price-wrapper">
@@ -311,13 +456,81 @@
         </div>
     </section>
 
+
+
+    <!-- ✅ MOBILE + iPAD BEST SELLERS (NEW) -->
+    <section class="bs2-wrapper mobile-tablet-only">
+        <div class="bs2-container">
+
+            <div class="bs2-carousel">
+                <button class="bs2-nav bs2-left" (click)="scrollBs2Left()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+
+                <div class="bs2-scroll" #bs2Scroll>
+                    <div class="bs2-card" *ngFor="let product of bestSellers">
+                        <div class="bs2-discount" *ngIf="(product.discount ?? 0) > 0">
+                            {{ product.discount }}%
+                        </div>
+
+                        <div class="bs2-imgwrap" (click)="ViewToProductDetails(product)" style="cursor:pointer;">
+                            <img [src]="product.image" [alt]="product.name" class="bs2-img">
+                        </div>
+
+                        <div class="bs2-details">
+                            <h3 class="bs2-title">
+                                {{ product.name.length > 22 ? (product.name | slice:0:22) + '...' : product.name }}
+                            </h3>
+
+                            <div class="bs2-price-row">
+                                <div class="bs2-price">
+                                    <span class="bs2-pound">£</span>
+                                    <span class="bs2-value">{{ product.originalPrice | number:'1.2-2' }}</span>
+                                </div>
+
+                                <select class="bs2-weight" [(ngModel)]="product.selectedWeight"
+                                    (change)="onWeightChange(product)">
+                                    <option *ngFor="let weight of product.weights" [ngValue]="weight">
+                                        {{ weight.weightNumber }} {{ weight.weightUnit }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button *ngIf="!isInCart(product)" class="bs2-add" (click)="addToCart(product)">
+                                Add to Cart
+                            </button>
+
+                            <div *ngIf="isInCart(product)" class="bs2-qty">
+                                <button (click)="decrementQuantity(getCartItem(product))"
+                                    [disabled]="getCartItem(product)?.locqunatity <= 1">-</button>
+                                <span>{{ getCartItem(product)?.locqunatity }}</span>
+                                <button (click)="incrementQuantity(getCartItem(product))">+</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <button class="bs2-nav bs2-right" (click)="scrollBs2Right()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+
     <!-- About Section -->
     <section class="about-section" id="about">
         <div class="section-container">
             <div class="about-content">
                 <!-- <div class="about-image-wrapper"> -->
                 <div class="about-image-wrapper animate-up delay-1" #animate>
-                    <img src="../../../assets/about us.png" alt="Plant Based Products" class="about-product-image">
+                    <img src="../../../assets/aboutlogo.png" alt="Plant Based Products" class="about-product-image">
                 </div>
 
                 <!-- <div class="about-text"> -->
@@ -486,11 +699,11 @@
     </section>
 
 
-    <footer class="footer" id="contact">
+    <footer class="footer">
         <!-- Footer Top -->
         <div class="row">
             <div class="col-md-4 footer-section logo-section">
-                <div class="logo  animate-up delay-4" #animate>
+                <div class="flogo  animate-up delay-4" #animate>
                     <img [src]="logoPath" alt="Logo" class="logo-icon">
                 </div>
                 <!-- <p class="description animate-up delay-1" #animate>{{ companyDescription }}</p> -->
@@ -510,7 +723,7 @@
             <div class="col-md-4 footer-section">
                 <h3 class="section-title2 animate-up delay-4" #animate>Contact Us</h3>
                 <div class="contact-info animate-up delay-1" #animate>
-                    <p><strong>KH No:</strong> {{ contactInfo.khNo }}<br />
+                    <p><strong>Address : </strong> {{ contactInfo.khNo }}<br />
                         {{ contactInfo.address }}
                     </p>
 

@@ -11,17 +11,11 @@
     </div>
 
     <!-- Header -->
-    <header class="header">
+    <!-- <header class="header">
         <div class="header-content">
-            <!-- Logo -->
-            <!-- <div class="logo">
-                <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image" width="250">
-            </div> -->
             <div class="logo d-md-block d-none">
                 <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image">
             </div>
-
-            <!-- Navigation -->
             <nav class="nav">
                 <a class="d-block d-md-none">
                     <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" width="70px">
@@ -30,8 +24,7 @@
                     (click)="setActive('home')">Home</a>
 
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
-                    (click)="navigatetoabout()">
-                    <!-- (click)="setActive('about'); scrollToSection('about')" -->
+                    (click)="navigatetoabout()">                 
                     About
                 </a>
 
@@ -42,8 +35,7 @@
                     </a>
                 </div>
 
-                <!-- <div style="position: absolute; color : red;top:100%; left:50%; border: 1px solid #333; -->
-                <div style="position: absolute; color : red;top:70%; left:50%; border: 1px solid #333; z-index: 9999;
+                 <div style="position: absolute; color : red;top:70%; left:50%; border: 1px solid #333; z-index: 9999;
                     border-radius: 8px; background-color: #1a1a1a;  border: 1px solid #333;  border-radius: 8px; min-width: 250px;"
                     *ngIf="showProductsDropdown">
                     <a *ngFor="let category of productCategories" class="dropdown-item"
@@ -53,18 +45,18 @@
                     </a>
 
                 </div>
-                <!-- <a href="#" class="nav-item" [class.active]="activeSection === 'recipes'"
-                    (click)="setActive('recipes')">Recipes</a>
-                <a href="#" class="nav-item" [class.active]="activeSection === 'blog'"
-                    (click)="setActive('blog')">Blog</a> -->
+               
 
-
-                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="scrollToContact()">
+                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="navigatetocontact()">
                     Contact Us
+                </a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="navigateorders()" *ngIf="isLoggeIn">
+                    My Orders
                 </a>
             </nav>
 
-            <!-- Header Actions -->
             <div class="header-actions">
                 <div class="search-wrapper" (click)="$event.stopPropagation()">
                     <img src="../../../assets/Icon-3.png" class="icon search-trigger" [class.hide]="showSearch"
@@ -82,7 +74,7 @@
                     <div class="search-dropdown" *ngIf="displaylist">
                         <div *ngIf="AllSearchItems.length > 0">
                             <div class="panel-header">
-                                <span>Products</span>
+                                <span style="padding: 10px;">Products</span>
                                 <div></div>
                             </div>
                             <div class="search-results" *ngFor="let n of AllSearchItems">
@@ -91,9 +83,6 @@
                                         alt="product" (click)="ProductView(n)" />
                                 </div>
                                 <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
-                            </div>
-                            <div class="see-all">
-                                See all products
                             </div>
                         </div>
                         <div *ngIf="AllSearchItems.length === 0">
@@ -114,11 +103,139 @@
                 </button>
             </div>
         </div>
+    </header> -->
+
+
+
+       <header class="header">
+        <div class="header-content">
+
+            <!-- LEFT: Hamburger -->
+            <button class="menu-btn d-md-none" (click)="toggleMobileMenu()">
+                ☰
+            </button>
+
+            <!-- Logo -->
+            <div class="logo" style="margin-top: 20px;">
+                <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image d-none d-md-block">
+                <!-- <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" class="logo-image d-block d-md-none"> -->
+            </div>
+
+            <!-- DESKTOP NAV -->
+            <nav class="nav d-none d-md-flex">
+                <a routerLink="/home" class="nav-item" [class.active]="activeSection === 'home'"
+                    (click)="setActive('home')">Home</a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
+                    (click)="navigatetoabout()">About</a>
+
+                <div class="nav-item-wrapper">
+                    <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'products'"
+                        (click)="toggleProductsDropdown($event)">
+                        Products <span class="dropdown-arrow" [class.rotated]="showProductsDropdown">▼</span>
+                    </a>
+
+                    <div class="products-dropdown" *ngIf="showProductsDropdown">
+                        <a *ngFor="let category of productCategories" class="dropdown-item"
+                            (click)="navigateToCategory(category)">
+                            {{ category.name }}
+                        </a>
+                    </div>
+                </div>
+
+                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="navigatetocontact()">Contact
+                    Us</a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="navigateorders()" *ngIf="isLoggeIn">
+                    My Orders
+                </a>
+            </nav>
+
+            <!-- RIGHT: Search + Cart -->
+            <div class="header-actions">
+                <!-- Search -->
+                <div class="search-wrapper" (click)="$event.stopPropagation()">
+                    <img src="../../../assets/Icon-3.png" class="icon search-trigger"
+                        (click)="toggleSearch(); $event.stopPropagation()" />
+
+                    <div class="search-inline" [class.show]="showSearch" (click)="$event.stopPropagation()">
+                        <img src="../../../assets/Icon-3.png" class="icon small" />
+                        <input type="text" [(ngModel)]="searchText" placeholder="Search products"
+                            (keydown.enter)="GotoSearch(); $event.preventDefault(); $event.stopPropagation()" />
+                        <img src="../../../assets/cancel.png" class="icon small close-icon"
+                            (click)="closeSearch(); $event.stopPropagation()" width="10" />
+                    </div>
+
+                    <div class="search-dropdown" *ngIf="displaylist">
+                        <div *ngIf="AllSearchItems.length > 0">
+                            <div class="panel-header">
+                                <span style="padding: 10px;">Products</span>
+                            </div>
+
+                            <div class="search-results" *ngFor="let n of AllSearchItems">
+                                <div class="image-wrap">
+                                    <img *ngIf="n.productImagesList?.length" [src]="baseUrl + n.productImagesList[0]"
+                                        alt="product" (click)="ProductView(n)" />
+                                </div>
+                                <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="AllSearchItems.length === 0">
+                            <div class="search-results">
+                                <div class="title">No results</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart -->
+                <button class="icon-btn" (click)="cartpage($event)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+                </button>
+            </div>
+        </div>
     </header>
 
-    <section class="pc-section" *ngIf="!IsProductView" id="products">
+    <!-- MOBILE MENU OVERLAY -->
+    <div class="mobile-overlay" *ngIf="showMobileMenu" (click)="closeMobileMenu()"></div>
+
+    <!-- MOBILE DRAWER (LEFT) -->
+    <div class="mobile-drawer" [class.open]="showMobileMenu">
+        <div class="drawer-header">
+            <span class="drawer-title">Menu</span>
+            <button class="drawer-close" (click)="closeMobileMenu()">✕</button>
+        </div>
+
+        <a class="drawer-link" routerLink="/home" (click)="setActive('home'); closeMobileMenu()">Home</a>
+        <a class="drawer-link" (click)="navigatetoabout(); closeMobileMenu()">About</a>
+
+        <div class="drawer-link" (click)="toggleMobileProducts()">
+            Products
+            <span class="dropdown-arrow" [class.rotated]="showMobileProducts">▼</span>
+        </div>
+
+        <div class="drawer-submenu" *ngIf="showMobileProducts">
+            <a *ngFor="let category of productCategories" class="drawer-sublink"
+                (click)="navigateToCategory(category); closeMobileMenu()">
+                {{ category.name }}
+            </a>
+        </div>
+
+        <a class="drawer-link" (click)="navigatetocontact(); closeMobileMenu()">Contact Us</a>
+
+        <a class="drawer-link" *ngIf="isLoggeIn" (click)="navigateorders(); closeMobileMenu()">My Orders</a>
+    </div>
+  
+    <section class="pc-section" id="products">
         <div class="section-container">
-            <h2 class="section-title">
+            <h2 class="section-title" *ngIf="!IsProductView">
                 <span class="title-new">{{ titleFirstPart }}</span>
                 &nbsp;
                 <span class="title-launched">{{ titleSecondPart }}</span>
@@ -126,8 +243,8 @@
 
             <div class="row">
                 <!-- *ngIf="newLaunchedProducts.length>0" -->
-                <div class="col-md-2 col-sm-6 col-12 mobileapps scrollable-content"
-                    style="height: 500px; overflow-y: auto;" *ngIf="Subcategories.length>0">
+                <div class="col-md-3 col-sm-6 col-12 mobileapps scrollable-content"
+                    style="height: 500px; overflow-y: auto;" *ngIf="!IsProductView && Subcategories.length>0">
                     <div class="category-sidebar">
                         <div class="category-list">
                             <button *ngFor="let category of Subcategories"
@@ -138,13 +255,32 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-10 col-sm-6 col-12">
+                <div class="col-md-3 col-sm-6 col-12 mobileapps scrollable-content"
+                    style="height: 500px; overflow-y: auto;"
+                    *ngIf="IsProductView && IsClickedfrmproducts && Subcategories.length>0">
+                    <div class="category-sidebar">
+                        <div class="category-list">
+                            <button *ngFor="let category of Subcategories"
+                                [class.active]="selectedSubCategoryId === category.id"
+                                (click)="selectSubCategory(category.id)" class="category-button">
+                                {{ category.name }}
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9 col-sm-6 col-12" *ngIf="!IsProductView">
                     <section class="new-launched-section">
                         <div class="section-container">
                             <div class="products-grid">
                                 <div class="product-card animate" *ngFor="let product of newLaunchedProducts"
                                     #productCard>
-                                    <!-- <div class="discount-badge">{{ product.discount }}%</div> -->
+                                    <!-- <div class="discount-badge" >{{ product.discount }}%</div> -->
+                                    <div class="discount-badge" *ngIf="(product.discount ?? 0) > 0">
+                                        {{ product.discount }}%
+                                    </div>
+
+
                                     <div class="product-image-wrapper">
                                         <img [src]="product.image" [alt]="product.name" class="product-card-image"
                                             (click)="ViewToProductDetails(product)" style="cursor: pointer;">
@@ -154,16 +290,11 @@
                                             {{ product.name.length > 20 ? (product.name | slice:0:20) + '...' :
                                             product.name }}
                                         </h3>
-                                        <p class="product-subtitle">{{ product.subtitle }}</p>
+                                        <!-- <p class="product-subtitle">{{ product.subtitle }}</p> -->
 
 
                                         <div class="product-pricing">
                                             <div class="price-wrapper">
-                                                <!-- <div class="price-group">
-                                                    <span class="strike-price">
-                                                        £ {{ (product.originalPrice + 0.2) | number:'1.2-2' }}
-                                                    </span>
-                                                </div> -->
                                                 <div class="price-group">
                                                     <span class="price-symbol">£</span>
                                                     <span class="price-original">
@@ -199,13 +330,167 @@
                     </section>
 
                 </div>
+                <div class="col-md-9 col-sm-6 col-12" *ngIf="IsProductView">
+                    <section class="pc-section">
+                        <div class="row p-0 m-0 align-items-center" (click)="closeDetails()">
+                            <div class="col-12 p-0 m-0 text-start" (click)="closeDetails()">
+                                <button class="back" (click)="closeDetails()"
+                                    style="padding-left: 5px;margin-top: -30px;">
+                                    <img src="../../../assets/bkbtn.png" alt="Back" width="55" (click)="closeDetails()">
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <div class="product-detail-container">
+                            <!-- <div class="image-gallery">
+                                               <div class="main-image-container">
+                                <img [src]="selectedImage" alt="Product Preview" class="main-image">
+                            </div>
+                            <div class="thumbnail-container">
+                               <div class="thumbnail-wrapper"
+                                   *ngFor="let image of selectedProduct.productImagesList; let i = index"
+                                  [class.blurred]="i === selectedIndex" (click)="selectImage(image, i)">
+                                 <img [src]="image" [alt]="'Product view ' + (i + 1)" class="thumbnail-image" />
+                                </div>
+                            </div>
+                             </div> -->
+
+                            <div class="image-gallery">
+                                <div class="main-image-container">
+                                    <!-- Left Arrow -->
+                                    <button class="nav-arrow left" (click)="prevImage()">
+                                        &#10094;
+                                    </button>
+
+                                    <img [src]="selectedImage" alt="Product Preview" class="main-image" />
+
+                                    <!-- Right Arrow -->
+                                    <button class="nav-arrow right" (click)="nextImage()">
+                                        &#10095;
+                                    </button>
+                                </div>
+
+                                <div class="thumbnail-container">
+                                    <div class="thumbnail-wrapper"
+                                        *ngFor="let image of selectedProduct.productImagesList; let i = index"
+                                        [class.active]="i === selectedIndex" (click)="selectImage(image, i)">
+                                        <img [src]="image" [alt]="'Product view ' + (i + 1)" class="thumbnail-image" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- Right Side - Product Information -->
+                            <div class="product-info2">
+                                <!-- Product Title and Price -->
+                                <h1 class="product-title2">{{ selectedProduct.name }}</h1>
+                                <div class="price-container2">
+                                    <!-- <span class="original-price2">
+                        £ {{ (selectedProduct.originalPrice + 0.2) | number:'1.2-2' }}
+                    </span> -->
+                                    <span class="current-price2">
+                                        <!-- £ {{ selectedProduct.price }} -->
+                                        £ {{ selectedProduct.price | number:'1.2-2' }}
+                                    </span>
+                                </div>
+
+                                <!-- Weight Selector -->
+                                <select class="weight-selector" [(ngModel)]="selectedProduct.selectedWeight"
+                                    (change)="onWeightChange(selectedProduct)">
+                                    <option *ngFor="let weight of selectedProduct.weights" [ngValue]="weight">
+                                        {{ weight.weightNumber }} {{ weight.weightUnit }}
+                                    </option>
+                                </select>
+
+
+
+
+                                <!-- Add to Cart Button -->
+                                <!-- <button class="add-to-cart-btn2" (click)="addToCart2(selectedProduct)">Add to Cart</button> -->
+                                <button *ngIf="!isInCart(selectedProduct)" class="add-to-cart-btn2"
+                                    (click)="addToCart2(selectedProduct)">
+                                    Add to Cart
+                                </button>
+
+                                <div *ngIf="isInCart(selectedProduct)" class="quantity-controls">
+                                    <button (click)="decrementQuantity(getCartItem(selectedProduct))"
+                                        [disabled]="getCartItem(selectedProduct)?.locqunatity <= 1">
+                                        −
+                                    </button>
+
+                                    <span>{{ getCartItem(selectedProduct)?.locqunatity }}</span>
+
+                                    <button (click)="incrementQuantity(getCartItem(selectedProduct))">
+                                        +
+                                    </button>
+                                </div>
+
+
+
+
+                                <!-- Product Highlight Section -->
+                                <div class="product-highlight" *ngIf="selectedProduct?.highlights?.length">
+                                    <h2 class="highlight-title animate-up" [class.show]="showHighlight">
+                                        Product Highlight
+                                    </h2>
+
+                                    <ul class="highlight-list">
+                                        <li *ngFor="let highlight of selectedProduct.highlights; let i = index"
+                                            class="animate-up" [class.show]="showHighlight"
+                                            [style.transitionDelay]="(i * 0.15) + 's'">
+                                            {{ highlight }}
+                                        </li>
+                                    </ul>
+                                </div>
+                                <!-- Special Offer Section -->
+                                <!-- <div class="offer-section">
+                                                    <div class="offer-content">
+                                                        <p class="offer-text">
+                                                            {{ offerText }}
+                                                        </p>
+                                                        <div class="offer-bottom-row">
+                                                            <img [src]="offerProductImage" alt="Offer Product" class="offer-product-image" />
+                                                            <button class="navigate-btn" (click)="navigateToProducts()">
+                                                                <img src="../../../assets/plusimg.png" alt="Add" class="plus-img" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div> -->
+
+
+
+                                <!-- Brand Logos -->
+                                <div class="brand-logos">
+                                    <img *ngFor="let logo of brandLogos" [src]="logo.src" [alt]="logo.alt"
+                                        class="brand-logo">
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div class="product-description" *ngIf="selectedProduct?.description?.length"
+                            #descriptionSection>
+                            <h2 class="description-title animate-up" [class.show]="showDescription">
+                                Product Description
+                            </h2>
+
+                            <p *ngFor="let paragraph of selectedProduct.description; let i = index"
+                                class="description-text animate-up" [class.show]="showDescription"
+                                [style.transitionDelay]="(i * 0.15) + 's'">
+                                {{ paragraph }}
+                            </p>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
 
     </section>
 
 
-    <section class="pc-section" *ngIf="IsProductView">
+    <section class="pc-section" *ngIf="IsProductView_old">
         <div class="row align-items-center" (click)="closeDetails()">
             <div class="col-12 text-start" (click)="closeDetails()">
                 <button class="back" (click)="closeDetails()" style="padding-left: 50px;">
@@ -216,15 +501,10 @@
 
 
         <div class="product-detail-container">
-
-            <!-- Left Side - Image Gallery -->
-            <div class="image-gallery">
-                <!-- Main Product Image -->
+            <!-- <div class="image-gallery">
                 <div class="main-image-container">
                     <img [src]="selectedImage" alt="Product Preview" class="main-image">
                 </div>
-
-                <!-- Thumbnail Images -->
                 <div class="thumbnail-container">
                     <div class="thumbnail-wrapper"
                         *ngFor="let image of selectedProduct.productImagesList; let i = index"
@@ -232,18 +512,41 @@
                         <img [src]="image" [alt]="'Product view ' + (i + 1)" class="thumbnail-image" />
                     </div>
                 </div>
+            </div> -->
 
+            <div class="image-gallery">
+                <div class="main-image-container">
+                    <!-- Left Arrow -->
+                    <button class="nav-arrow left" (click)="prevImage()">
+                        &#10094;
+                    </button>
 
+                    <img [src]="selectedImage" alt="Product Preview" class="main-image" />
+
+                    <!-- Right Arrow -->
+                    <button class="nav-arrow right" (click)="nextImage()">
+                        &#10095;
+                    </button>
+                </div>
+
+                <div class="thumbnail-container">
+                    <div class="thumbnail-wrapper"
+                        *ngFor="let image of selectedProduct.productImagesList; let i = index"
+                        [class.active]="i === selectedIndex" (click)="selectImage(image, i)">
+                        <img [src]="image" [alt]="'Product view ' + (i + 1)" class="thumbnail-image" />
+                    </div>
+                </div>
             </div>
+
 
             <!-- Right Side - Product Information -->
             <div class="product-info2">
                 <!-- Product Title and Price -->
                 <h1 class="product-title2">{{ selectedProduct.name }}</h1>
                 <div class="price-container2">
-                    <span class="original-price2">
+                    <!-- <span class="original-price2">
                         £ {{ (selectedProduct.originalPrice + 0.2) | number:'1.2-2' }}
-                    </span>
+                    </span> -->
                     <span class="current-price2">
                         <!-- £ {{ selectedProduct.price }} -->
                         £ {{ selectedProduct.price | number:'1.2-2' }}
@@ -333,7 +636,12 @@
                 [class.show]="showDescription" [style.transitionDelay]="(i * 0.15) + 's'">
                 {{ paragraph }}
             </p>
+
+
         </div>
+
+
+
 
 
     </section>
@@ -433,11 +741,11 @@
     </section>
 
 
-    <footer class="footer" id="contact">
+    <footer class="footer">
         <!-- Footer Top -->
         <div class="row">
             <div class="col-md-4 footer-section logo-section">
-                <div class="logo  animate-up delay-4" #animate>
+                <div class="flogo  animate-up delay-4" #animate>
                     <img [src]="logoPath" alt="Logo" class="logo-icon">
                 </div>
                 <!-- <p class="description animate-up delay-1" #animate>{{ companyDescription }}</p> -->
@@ -457,7 +765,7 @@
             <div class="col-md-4 footer-section">
                 <h3 class="section-title2 animate-up delay-4" #animate>Contact Us</h3>
                 <div class="contact-info animate-up delay-1" #animate>
-                    <p><strong>KH No:</strong> {{ contactInfo.khNo }}<br />
+                    <p><strong>Address : </strong> {{ contactInfo.khNo }}<br />
                         {{ contactInfo.address }}
                     </p>
 

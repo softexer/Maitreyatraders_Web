@@ -13,19 +13,19 @@
     <!-- Header -->
     <!-- <header class="header">
         <div class="header-content">
-           <div class="logo d-md-block d-none">
+            <div class="logo d-md-block d-none">
                 <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image">
             </div>
 
             <nav class="nav">
-             <a class="d-block d-md-none">
-                <img src="../../../assets/mlogo.png"  alt="Maitreya Traders Limited" width="70px">
-             </a>
+                <a class="d-block d-md-none">
+                    <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" width="70px">
+                </a>
                 <a href="#" class="nav-item" [class.active]="activeSection === 'home'"
                     (click)="setActive('home')">Home</a>
 
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
-                   (click)="setActive('about'); scrollToSection('about')" >
+                    (click)="navigatetoabout()">
                     About
                 </a>
                 <div class="nav-item-wrapper">
@@ -44,12 +44,12 @@
                     </a>
                 </div>
 
-                <a class="nav-item" [class.active]="activeSection === 'contact'"  (click)="navigatetocontact()">
-                                    Contact Us
-                </a>
 
-                  <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
-                    (click)="navigateorders()" *ngIf="isLoggeIn">
+                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="navigatetocontact()">
+                    Contact Us
+                </a>
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="setActive('order')" (click)="navigateorders()">
                     My Orders
                 </a>
 
@@ -104,6 +104,8 @@
             </div>
         </div>
     </header> -->
+
+
     <header class="header">
         <div class="header-content">
 
@@ -123,13 +125,8 @@
                 <a routerLink="/home" class="nav-item" [class.active]="activeSection === 'home'"
                     (click)="setActive('home')">Home</a>
 
-                
-
-
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
-                    (click)="setActive('about'); scrollToSection('about')">
-                    About
-                </a>
+                    (click)="navigatetoabout()">About</a>
 
                 <div class="nav-item-wrapper">
                     <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'products'"
@@ -148,8 +145,12 @@
                 <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="navigatetocontact()">Contact
                     Us</a>
 
-                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                <!-- <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
                     (click)="navigateorders()" *ngIf="isLoggeIn">
+                    My Orders
+                </a> -->
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="setActive('order')" (click)="navigateorders()">
                     My Orders
                 </a>
             </nav>
@@ -232,29 +233,106 @@
 
         <a class="drawer-link" (click)="navigatetocontact(); closeMobileMenu()">Contact Us</a>
 
-        <a class="drawer-link" *ngIf="isLoggeIn" (click)="navigateorders(); closeMobileMenu()">My Orders</a>
+        <a class="drawer-link" (click)="navigateorders(); closeMobileMenu()">
+            My Orders
+        </a>
+        <!-- <a class="drawer-link" *ngIf="isLoggeIn" (click)="navigateorders(); closeMobileMenu()">My Orders</a> -->
     </div>
-
     <!-- About Section -->
-    <section class="about-section" id="about">
+    <section class="about-section" id="order">
         <div class="section-container">
-            <div class="about-content">
-                <!-- <div class="about-image-wrapper"> -->
-                <div class="about-image-wrapper animate-up delay-1" #animate>
-                    <img src="../../../assets/aboutlogo.png" alt="Plant Based Products" class="about-product-image">
+            <div class="policy-page">
+                <div class="policy-container">
+
+                    <div class="order-body-grid" *ngFor="let order of orders">
+
+                        <!-- Header -->
+                        <div class="order-header">
+                            <div class="order-meta">
+                                <h4>Order ID : {{ order.orderId }}</h4>
+                                <span class="order-date">
+                                    {{ getOrderDate(order.orderTimeStamp) | date:'medium' }}
+                                </span>
+                            </div>
+
+                            <div class="status" style="padding-right: 25px;font-size: 18px; font-weight: 600;">
+                                <span class="paid" *ngIf="order.paymentStatus === 'Completed'">
+                                    Paid
+                                </span>
+                                <span class="pending" *ngIf="order.paymentStatus !== 'Completed'">
+                                    Pending
+                                </span>
+                            </div>
+                        </div>
+                        <div class="order-header2">
+                            <div class="order-meta2">
+                                <h4>Order Status : {{ order.orderStatus }}</h4>
+                            </div>
+                            <div class="status" style="padding-right: 25px;">
+                            </div>
+                        </div>
+
+                        <!-- Products -->
+                        <div class="product-row" *ngFor="let p of order.Products">
+                            <img [src]="p.productImagePath" alt="" />
+                            <div class="info">
+                                <h5>{{ p.productName }}</h5>
+                                <p>{{ p.weight }} × {{ p.quantity }}</p>
+                            </div>
+                            <div class="price" style="padding-right: 25px;">
+                                £{{ p.price | number:'1.2-2' }}
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="order-summary summary-right">
+                            <div class="summary-line">
+                                <span class="label">Subtotal</span>
+                                <span class="colon">:</span>
+                                <span class="value" style="margin-left: 25px;">£{{ order.subTotal | number:'1.2-2'
+                                    }}</span>
+                            </div>
+
+                            <div class="summary-line">
+                                <span class="label">Delivery</span>
+                                <span class="colon">:</span>
+                                <span class="value" style="margin-left: 25px;">£{{ order.deliveryFee | number:'1.2-2'
+                                    }}</span>
+                            </div>
+                            <div class="summary-line" *ngIf="order.fronzenCharges>0">
+                                <span class="label">Frozen Charge</span>
+                                <span class="colon">:</span>
+                                <span class="value" style="margin-left: 25px;">£{{ order.fronzenCharges | number:'1.2-2'
+                                    }}</span>
+                            </div>
+
+                            <div class="summary-line total">
+                                <span class="label">Total</span>
+                                <span class="colon">:</span>
+                                <span class="value" style="margin-left: 25px;">£{{ order.totalToPay | number:'1.2-2'
+                                    }}</span>
+                            </div>
+                        </div>
+
+                        <div class="address">
+                            <strong>Delivery Address : </strong>
+                            <p>
+                                {{ order.addressDetails.firstName }}
+                                {{ order.addressDetails.lastName }}<br>
+                                {{ order.emailID }}<br>
+                                {{ order.billingAddressDetails.phoneNumber }}<br>
+                                {{ order.addressDetails.address }}<br>
+                                {{ order.addressDetails.apartment }}<br>
+                                {{ order.addressDetails.city }},
+                                {{ order.addressDetails.state }}
+                                {{ order.addressDetails.country }} -
+                                {{ order.addressDetails.pincode }}
+                            </p>
+                        </div>
+
+                    </div>
                 </div>
 
-                <!-- <div class="about-text"> -->
-                <div class="about-text animate-up delay-2" #animate>
-                    <h2 class="about-title">About</h2>
-                    <p class="about-description">
-                        At Maitreya Traders, we believe in combining health, taste, and tradition. Our mission is to
-                        make plant-based eating exciting and accessible by offering premium-quality vegan and vegetarian
-                        frozen food sourced from around the world. We are committed to bringing only authentic,
-                        flavourful, and thoughtfully crafted products that align with your lifestyle.
-                    </p>
-                    <!-- <button class="read-more-btn">Read More</button> -->
-                </div>
             </div>
         </div>
     </section>

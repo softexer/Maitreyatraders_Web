@@ -38,6 +38,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.customerservice.isOpen$.subscribe(v => this.isCartOpen = v);
+     this.customerservice.loadLatestOrder();
   }
   closeCart() {
     this.customerservice.close();

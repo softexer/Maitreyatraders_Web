@@ -1,6 +1,6 @@
 <div class="bg-light p-3 header-bar">
     <h5 class="title-text">
-        To Payment Maitreya Traders USD
+        To Payment Maitreya Traders
     </h5>
 
     <button class="close-btn" (click)="closeTab()" type="button">
@@ -24,7 +24,7 @@
                 <span>
                     <button type="submit" style="text-decoration: underline"
                         [ngClass]="stripeCardValid ? 'btn-submit' : 'btn-submit1'" [disabled]="!stripeCardValid">
-                        Pay Now ( ${{budjet}} )
+                        Pay Now ( £{{budjet |  number:'1.2-2'}} )
                     </button>
                 </span>
             </div>

@@ -1,0 +1,43 @@
+<div class="login-container">
+    <div class="login-card">
+
+        <!-- Close Button -->
+        <button class="close-btn" type="button" (click)="closeLogin()">
+            &times;
+        </button>
+        <div class="logo-section">
+            <img src="../../../assets/logo.png" alt="Maitreya Traders Logo" class="logo" />
+        </div>
+
+        <h2 class="login-title">Login</h2>
+
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+            <div class="form-group">
+                <!-- <input type="text" id="username" formControlName="username" placeholder="Username" class="form-input"
+                    [class.error]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" /> -->
+                <input type="email" id="username" formControlName="username" placeholder="Email address"
+                    class="form-input" readonly
+                    [class.error]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" />
+                <small class="error-text"
+                    *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.errors">
+
+                    <span *ngIf="loginForm.get('username')?.errors?.['required']">
+                        Email is required
+                    </span>
+
+                    <span *ngIf="loginForm.get('username')?.errors?.['email']">
+                        Enter a valid email address
+                    </span>
+                </small>
+            </div>
+
+
+            <!-- Login Button -->
+            <button type="submit" class="login-button">
+                <span *ngIf="!isLoading">LOGIN</span>
+                <span *ngIf="isLoading">Loading...</span>
+            </button>
+        </form>
+    </div>
+</div>

@@ -8,6 +8,7 @@ import { StripePaymentsComponent } from '../stripe-payments/stripe-payments.comp
 import { MatDialog } from '@angular/material/dialog';
 import { ConfpaymentStatusComponent } from '../confpayment-status/confpayment-status.component';
 import { PostalCodeService } from 'src/app/services/postal-code.service';
+import { LoginComponent } from '../login/login.component';
 
 
 interface ProductCategory {
@@ -47,7 +48,9 @@ interface CartItem {
   image: string;
   categoryId: string;
   subcatId: string;
-  isFrozen: boolean
+  isFrozen: boolean;
+  isFreeItem?: boolean;
+  promoId?: string;
 }
 
 @Component({
@@ -129,7 +132,6 @@ export class CheckoutPageComponent {
 
   promoCode = ""
 
-  // deliveryFee = 0.0
   cartItems: CartItem[] = [];
   serverCartItems: Array<any> = [];
   formSubmitted = false;
@@ -137,9 +139,11 @@ export class CheckoutPageComponent {
   @Output() openCart = new EventEmitter<MouseEvent>();
   baseUrl: string = '';
   discountAmt = 0;
-
+  discountOffer: any[] = [];
   // ValidationErrors: { [key: string]: any } = {};
-
+  isLoggeIn: boolean = false;
+showMobileMenu = false;
+  showMobileProducts = false;
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
@@ -162,19 +166,31 @@ export class CheckoutPageComponent {
   }
 
   ngOnInit() {
+    this.CustomerService.userIdSubject.subscribe((val: any) => {
+      console.log(val);
+      if (val != 'NotLogin') {
+        this.isLoggeIn = true;
+      }
+    })
+     this.CustomerService.latestOrder$.subscribe((orders: any[]) => {
+    if (orders && orders.length > 0) {
+      this.isLoggeIn = true; // guest order = logged in
+    }
+  });
     this.baseUrl = this.CustomerService.baseUrl;
     this.GetAllCategories();
-    // this.getCartItems();
-    let dem = localStorage.getItem('Discount')
-    if (dem) {
-      this.discountAmt = parseFloat(dem)
+
+
+    let disoffer = localStorage.getItem('DISCOUNT_PROMO');
+    if (disoffer) {
+      this.discountOffer = JSON.parse(disoffer);
     }
+
+    console.log(this.discountOffer)
     this.subscribeCart();
   }
   cartpage(event: MouseEvent) {
     event.stopPropagation();
-    // this.router.navigate(['/cart']);
-    // this.openCart.emit(event);
     this.CustomerService.open();
   }
 
@@ -187,15 +203,11 @@ export class CheckoutPageComponent {
         productID: item.productID,
         name: item.categoryName,
 
-        cartTitle: item.cartTitle,   // 👈 REQUIRED
+        cartTitle: item.cartTitle,
 
         weightLabel: `${item.cartTitle.weightNumber} ${item.cartTitle.weightUnit}`,
 
         originalPrice: item.cartTitle.productPrice,
-        // salePrice:
-        //   item.cartTitle.disCountProductprice > 0
-        //     ? item.cartTitle.disCountProductprice
-        //     : item.cartTitle.productPrice,
         salePrice: item.price,
 
         quantity: item.locqunatity,
@@ -204,7 +216,9 @@ export class CheckoutPageComponent {
         image: item.cartImage,
         categoryId: item.categoryID,
         subcatId: item.subcatID,
-        isFrozen: item.isFrozen || false
+        isFrozen: item.isFrozen || false,
+        isFreeItem: item.isFreeItem || false,
+        promoId: item.promoId || null
       }));
     });
     this.cdr.markForCheck();
@@ -228,7 +242,6 @@ export class CheckoutPageComponent {
 
   goToProduct(section: string) {
     this.showProductsDropdown = false;
-    // this.scrollToSection(section);
   }
   @HostListener('document:click')
   closeDropdown() {
@@ -254,12 +267,7 @@ export class CheckoutPageComponent {
   selectedWeight = "450 g"
 
   // Product Highlights
-  productHighlights: string[] = [
-    "Indulge guilt-free in the delectable taste of vegan mock chicken, a plant-based delight.",
-    "Elevate your meals with the savory satisfaction of canned vegan mock chicken.",
-    "Savor the protein-packed goodness of mock chicken in every convenient can.",
-    "From stir-fries to sandwiches, explore versatile creations with canned vegan mock chicken.",
-  ]
+  productHighlights: string[] = []
 
   // Offer Section
   offerText = "Buy 3 Canned Product Get 1 Free Soya Chaap"
@@ -273,14 +281,7 @@ export class CheckoutPageComponent {
   ]
 
   // Product Description
-  productDescription: string[] = [
-    "The emergence of plant-based chicken alternatives has ushered in a delightful culinary revolution, providing a novel experience that closely mimics the taste, texture, and appearance of traditional chicken, all while remaining entirely vegetarian.",
-    "Crafted from an assortment of plant-based ingredients, these alternatives offer a cruelty-free and ethical option for individuals who adhere to vegetarian or vegan dietary preferences.",
-    "One of the standout benefits of these mock chicken products is their health-conscious profile. Compared to conventional chicken, they tend to contain lower levels of cholesterol and saturated fat, making them a heart-healthy choice.",
-    "However, they don't compromise on protein content, and they often provide an abundant source of plant-based protein. This not only supports muscle growth and repair but also contributes to an overall balanced diet.",
-    "Furthermore, plant-based chicken alternatives frequently incorporate dietary fiber and other essential nutrients, contributing to a nutritionally robust choice for those looking to maintain a wholesome diet.",
-    "Whether you're a dedicated vegetarian, a flexitarian exploring plant-based options, or simply seeking a healthier alternative to traditional chicken, these innovative products offer a tasty, ethical, and nutritious solution that aligns with both your values and your well-being.",
-  ]
+  productDescription: string[] = []
 
   // Select image from thumbnails
   selectImage(image: string): void {
@@ -367,12 +368,15 @@ export class CheckoutPageComponent {
     // this.Subcategories = category?.subCategories || [];
   }
 
+
   openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action, {
       duration: 3000,
-      panelClass: "red-snackbar",
+      panelClass: ['center-snackbar'],
+      horizontalPosition: 'center'
     });
   }
+
   toggleProductsDropdown(event: Event): void {
     event.preventDefault()
     event.stopPropagation()
@@ -392,14 +396,14 @@ export class CheckoutPageComponent {
 
   navigateToCategory(category: ProductCategory): void {
     console.log("[v0] Navigating to category:", category.name)
+    localStorage.removeItem('CategoryID');
     this.activeSection = "products"
     this.showProductsDropdown = false;
     this.router.navigate(["/products"])
-    // this.router.navigate([category.route], {
-    //   queryParams: { category: category.id, name: category.name },
-    // })
   }
-
+  navigatetocontact() {
+    this.router.navigate(["/ContactUs"])
+  }
   setProduct(section: string): void {
     this.activeSection = section
     this.router.navigate(["/products"])
@@ -410,6 +414,7 @@ export class CheckoutPageComponent {
       cartTitle: item.cartTitle,
       locqunatity: item.locqunatity + 1
     });
+    this.openSnackBar('Added to cart successfully', '');
   }
   decrementQuantity(item: CartItem): void {
     if (item.locqunatity > 1) {
@@ -428,7 +433,7 @@ export class CheckoutPageComponent {
 
   MIN_ORDER_AMOUNT = 35;
   FREE_DELIVERY_LIMIT = 80;
-  DELIVERY_CHARGE = 4.99;
+  DELIVERY_CHARGE = 5.99;
   FROZEN_SURCHARGE = 2.99;
 
   // get subtotal(): number {
@@ -440,11 +445,12 @@ export class CheckoutPageComponent {
       0
     );
   }
- 
-  get totalToPay(): number {
-    // return this.subtotal + this.deliveryFee
 
-    return this.subtotal + this.deliveryFee + this.frozenCharge - this.discountAmt;
+  get totalToPay(): number {
+    return this.subtotal
+      + this.deliveryFee
+      + this.frozenCharge
+      - this.discountAmt;
   }
 
   get deliveryFee(): number {
@@ -460,8 +466,21 @@ export class CheckoutPageComponent {
 
 
   applyPromoCode(): void {
-    console.log("Applying promo code:", this.promoCode)
-    // Add your promo code logic here
+    let promoCode = "";
+    this.discountAmt = 0;
+    this.cartItems.filter((items: any) => {
+      console.log(items);
+      if (!items.isFreeItem) {
+        this.discountOffer.filter((ditems: any) => {
+          console.log(ditems);
+          if (ditems.selectFreeProductID == items.categoryId && ditems.applicableIds.includes(items.subcatId)) {
+            this.promoCode = ditems.enterCoupanCode;
+            this.discountAmt += ((items.salePrice) * (Number(items.locqunatity) * Number(ditems.discountAmountPercentage))) / 100
+
+          }
+        })
+      }
+    })
   }
   markAllTouched(form: any) {
     Object.values(form.controls).forEach((control: any) => {
@@ -502,11 +521,11 @@ export class CheckoutPageComponent {
   processPayment(form: any): void {
     console.log(this.subtotal)
 
-    if (this.subtotal < this.MIN_ORDER_AMOUNT) {
-      this.openSnackBar(
-        `Minimum order amount is £${this.MIN_ORDER_AMOUNT}`, '');
-      return;
-    }
+    // if (this.subtotal < this.MIN_ORDER_AMOUNT) {
+    //   this.openSnackBar(
+    //     `Minimum order amount is £${this.MIN_ORDER_AMOUNT}`, '');
+    //   return;
+    // }
 
     if (form.invalid) {
       form.form.markAllAsTouched();
@@ -518,26 +537,16 @@ export class CheckoutPageComponent {
       return;
     }
 
-    // if (form.invalid) {
-    //   form.form.markAllAsTouched();  
-    //   return;
-    // }
-
-    // if (this.cartItems.length === 0) {
-    //   this.openSnackBar('Your cart is empty', '');
-    //   return;
-    // }
-
     let dailogRef = this.dialog.open(StripePaymentsComponent, {
       panelClass: "col-md-4",
       hasBackdrop: true,
       disableClose: true,
       data: {
-        totalAmt: 1,
+        totalAmt: this.totalToPay,
         inrAmt: 1,
         name: this.deliveryInfo.firstName,
         email: this.contactInfo_cart.emailOrMobile,
-        address: this.deliveryInfo.address,
+        address: this.deliveryInfo,
         phno: this.deliveryInfo.phoneNumber
       }
     });
@@ -546,21 +555,9 @@ export class CheckoutPageComponent {
       if (res) {
         if (res.pstatus) {
           this.processPayment1(form, res.paymentData);
-        } else {
-          let obj = {
-            isSuccess: false,
-          };
-          let dialog = this.dialog.open(ConfpaymentStatusComponent, {
-            panelClass: "col-md-4",
-            hasBackdrop: true,
-            disableClose: true,
-            data: obj,
-          });
-          this.CustomerService.showLoader.next(false);
         }
-        this.processPayment1(form, res.paymentData);
       }
-      // this.processPayment1(form, res);
+
     });
   }
   stripePaymentComplete(paymentStatusObj: any) {
@@ -579,11 +576,8 @@ export class CheckoutPageComponent {
           data: obj,
         });
         dialog.afterClosed().subscribe((res: any) => {
-          // this.CustomerService.isRozarPayStatus.next(true);
-          // this.isloading = false;
         })
       } else {
-        // this.isloading = false;
         this.openSnackBar(posRes.message, "");
         this.CustomerService.showLoader.next(false);
       }
@@ -620,6 +614,7 @@ export class CheckoutPageComponent {
       city: this.deliveryInfo.city,
       state: this.deliveryInfo.state,
       pincode: this.deliveryInfo.pinCode,
+      phoneNumber: this.deliveryInfo.phoneNumber
     };
 
     /* ---------- Billing Address ---------- */
@@ -634,6 +629,7 @@ export class CheckoutPageComponent {
         city: this.billingAddress.city,
         state: this.billingAddress.state,
         pincode: this.billingAddress.pinCode,
+        phoneNumber: this.billingAddress.phoneNumber
       };
     /* ---------- Products ---------- */
 
@@ -647,8 +643,8 @@ export class CheckoutPageComponent {
       quantity: item.quantity,
 
       // ✅ PRICE LOCKED TO WEIGHT
-      // price: item.cartTitle.productPrice,
-      price: Math.round(item.cartTitle.productPrice * 100),
+      // price: Math.round(item.cartTitle.productPrice * 100),
+      price: item.cartTitle.productPrice,
       // discountPrice: item.cartTitle.disCountProductprice,
       weight: item.cartTitle.weightNumber + " " + item.cartTitle.weightUnit,
 
@@ -665,10 +661,11 @@ export class CheckoutPageComponent {
       coupanCode: this.promoCode || "",
       // coupanAmount: this.discountAmount || 0,
       coupanAmount: 0 || 0,
-      subTotal: Math.round(this.subtotal * 100),
-      deliveryFee: Math.round(this.deliveryFee * 100),
-      totalToPay: Math.round(this.totalToPay * 100),
-      paymentType: "Razorpay",
+      subTotal: Number(this.subtotal.toFixed(2)),
+      deliveryFee: Number(this.deliveryFee.toFixed(2)),
+      totalToPay: Number(this.totalToPay.toFixed(2)),
+      fronzenCharges: Number(this.frozenCharge.toFixed(2)),
+      paymentType: "Stripe",
       Products: products,
       paymentData: paymentData // filled after Razorpay success
     };
@@ -685,23 +682,23 @@ export class CheckoutPageComponent {
         this.CustomerService.showLoader.next(false);
 
         if (posRes.response === 3) {
-          // this.openSnackBar("Order placed successfully", "");
           this.openSnackBar(posRes.message, "");
           this.cartItems = [];
-
-          // 2️⃣ Clear localStorage
           localStorage.removeItem('cartItems');
-
-          // Optional: clear payment status if stored
           localStorage.removeItem('paymentStatus');
-
-          // 3️⃣ Reset cart count in service (if used)
           this.shopService.clearCart();
+          this.CustomerService.setUserId(this.contactInfo_cart.emailOrMobile);
+          // this.router.navigateByUrl('/home');
 
-          // Optional: redirect
-          // this.router.navigate(['/order-success']);
+          // 🔥 SAVE ORDER
+          this.CustomerService.setLatestOrder(posRes.orderData);
 
-          this.router.navigateByUrl('/home');
+          // 🔥 SAVE USER (guest login)
+          this.CustomerService.setUserId(this.contactInfo_cart.emailOrMobile);
+          this.router.navigate(['/OrderSummary']);
+
+
+
         } else {
           this.openSnackBar(posRes.message, "");
           // this.router.navigateByUrl('/login');
@@ -877,5 +874,67 @@ export class CheckoutPageComponent {
       this.showpostalDropdown = false;
     }
   }
+  Logout() {
+    this.cartItems = [];
+    localStorage.removeItem('cartItems');
+    localStorage.removeItem('paymentStatus');
+    this.shopService.clearCart();
+    // localStorage.removeItem('Userid');
+    let userid = "NotLogin";               // 🔥 IMPORTANT
+    this.CustomerService.setUserId(userid);
+    this.shopService.cartCountItems.next(0);
+    localStorage.clear();
+    // this.openSnackBar('You’ve been logged out successfully.', '');
+    this.router.navigateByUrl('/home');
+  }
+  navigateorders() {
+    this.router.navigate(["/OrderSummary"])
+  }
+  LoginPage(form: any) {
+    const enteredUserId = this.contactInfo_cart.emailOrMobile;
+    const storedUserId = localStorage.getItem('Userid');
+    console.log(enteredUserId, storedUserId)
 
+    // ✅ SAME USER → skip API
+    if (storedUserId && storedUserId === enteredUserId) {
+      console.log('Same user detected, skipping login API');
+      this.processPayment(form);
+      return;
+    }
+
+    let dailogRef = this.dialog.open(LoginComponent, {
+      panelClass: 'col-md-3',
+      hasBackdrop: true,
+      disableClose: true,
+      data: {
+        ems: this.contactInfo_cart.emailOrMobile
+      }
+    });
+    dailogRef.afterClosed().subscribe((res) => {
+      console.log(res)
+      if (res) {
+        this.processPayment(form);
+
+
+      }
+    });
+  }
+
+  
+  toggleMobileMenu() {
+    console.log(this.showMobileMenu)
+    this.showMobileMenu = !this.showMobileMenu;
+    if (!this.showMobileMenu) {
+      this.showMobileProducts = false;
+    }
+  }
+
+  closeMobileMenu() {
+    this.showMobileMenu = false;
+    this.showMobileProducts = false;
+  }
+
+  toggleMobileProducts() {
+    this.showMobileProducts = !this.showMobileProducts;
+  }
 }

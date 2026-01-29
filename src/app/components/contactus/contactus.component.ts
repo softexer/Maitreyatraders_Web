@@ -1,12 +1,15 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { AfterViewInit, Component, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { customValidator } from '../../validators/custom-email.validator';
+import { HttpErrorResponse } from '@angular/common/http';
+import emailjs from '@emailjs/browser';
+
+import { ElementRef, EventEmitter, HostListener, OnDestroy, Output, ViewChild } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MaitreyaCustomerService } from 'src/app/services/maitreya-customer.service';
 import { ShopsService } from 'src/app/services/shops.service';
-import emailjs from '@emailjs/browser';
-import { AfterViewInit, QueryList, ViewChildren } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
 
 interface CarouselSlide {
   title: string
@@ -69,11 +72,11 @@ interface ProductCategory {
 
 
 @Component({
-  selector: 'app-terms',
-  templateUrl: './terms.component.html',
-  styleUrls: ['./terms.component.css']
+  selector: 'app-contactus',
+  templateUrl: './contactus.component.html',
+  styleUrls: ['./contactus.component.css']
 })
-export class TermsComponent implements OnInit, OnDestroy {
+export class ContactusComponent implements OnInit, OnDestroy, AfterViewInit {
   currentSlide = 0
   autoPlayInterval: any
   @ViewChild("bestSellersScroll") bestSellersScroll!: ElementRef
@@ -84,59 +87,34 @@ export class TermsComponent implements OnInit, OnDestroy {
 
   showProductsDropdown = false;
   @ViewChildren('animate') elements!: QueryList<ElementRef>;
-  slides: CarouselSlide[] = [
-    {
-      title: "100% Vegetarian/Vegan",
-      titleHighlight: "frozen food",
-      description: "Lorem ipsum dolor sit amet consectetur. Aenean mau risnam tortor curabitur phasellus.",
-      customerAvatars: ["../../../assets/Ellipse5.png",
-        "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
-      rating: 4.8,
-      reviewCount: "18.5k Review",
-      productImage: "../../../assets/image_1.png",
-      productIcon: "../../../assets/Rectangle1.png",
-      productName: "Chicken",
-      productRating: 4,
-      price: "5.80",
-    },
-    {
-      title: "Delicious Organic",
-      titleHighlight: "vegan meals",
-      description: "Experience the best taste with our handcrafted organic vegan products.",
-      customerAvatars: ["../../../assets/Ellipse5.png",
-        "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
-      rating: 4.9,
-      reviewCount: "22.3k Review",
-      productImage: "../../../assets/Rectangle2.png",
-      productIcon: "../../../assets/Rectangle2.png",
-      productName: "Vegan Mix",
-      productRating: 5,
-      price: "7.50",
-    },
-    {
-      title: "Premium Quality",
-      titleHighlight: "plant-based",
-      description: "Sourced from the finest ingredients for your healthy lifestyle.",
-      customerAvatars: ["../../../assets/Ellipse5.png",
-        "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
-      rating: 4.7,
-      reviewCount: "15.8k Review",
-      productImage: "../../../assets/Rectangle3.png",
-      productIcon: "../../../assets/Rectangle3.png",
-      productName: "Plant Bowl",
-      productRating: 4,
-      price: "6.20",
-    },
-  ]
+
   isLoggeIn: boolean = false;
 
   newLaunchedProducts: Product[] = [];
   bestSellers: Product[] = []
   isCartOpen: boolean = false;
   cartCount: number = 0;
+
+  contactForm!: FormGroup;
+  submitted = false;
+  submittedText: string = "";
+  isLoading: boolean = false;
+
+  activeSection: string = 'contact';
+
+  loading = false;
+
+  form = {
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+  };
   showMobileMenu = false;
   showMobileProducts = false;
   constructor(
+    private fb: FormBuilder,
     private router: Router,
     private snackBar: MatSnackBar,
     private CustomerService: MaitreyaCustomerService,
@@ -148,11 +126,15 @@ export class TermsComponent implements OnInit, OnDestroy {
     });
   }
 
-  activeSection: string = '';
 
-
-
-  ngOnInit() {
+  ngOnInit(): void {
+    this.contactForm = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email, customValidator('email')]],
+      mobile: ['', [Validators.required, Validators.pattern('^[0-9]{10}$'), customValidator('mobile')]],
+      message: ['', Validators.required]
+    });
     this.CustomerService.userIdSubject.subscribe((val: any) => {
       console.log(val);
       if (val != 'NotLogin') {
@@ -165,8 +147,8 @@ export class TermsComponent implements OnInit, OnDestroy {
       }
     });
     this.baseUrl = this.CustomerService.baseUrl;
-    this.startAutoPlay();
-    this.GetHomepageData();
+    // this.startAutoPlay();
+    // this.GetHomepageData();
     this.GetAllCategories();
     this.newLaunchedProducts.forEach(p => {
       if (!p.selectedWeight) {
@@ -180,55 +162,74 @@ export class TermsComponent implements OnInit, OnDestroy {
       window.scrollTo(0, 0);
     });
   }
+  get f(): { [key: string]: any } {
+    return this.contactForm.controls;
+  }
+  numericOnly(event: KeyboardEvent) {
+    const pattern = /^[0-9]*$/;
+    if (!pattern.test(event.key)) {
+      event.preventDefault(); // Prevent input if it's not a number
+    }
+  }
+
+  async sendEmail() {
+
+    // if (this.isSubmitting) return;
+
+     if (!this.form.name || !this.form.email || !this.form.message) {
+      alert('Please fill required fields');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.loading = true;
+    const apipayload = {
+      from_name: this.form.name,
+      from_email: this.form.email,
+      phone: this.form.phone,
+      subject: this.form.subject,
+      message: this.form.message,
+    };
+    console.log(apipayload)
+
+
+    let response = await emailjs.send("service_4i31vcn", "template_aizbuok", apipayload, { publicKey: '0TocvA3hn_6xpQ9SV' });
+    console.log(response)
+    if (response.status == 200) {
+      // this.submittedText = 'Your Details Submitted! We will update your email.';
+
+      this.openSnackBar('Thank you...Your details have been submitted successfully', '');
+
+      setTimeout(() => {
+        this.isSubmitting = false;
+        this.isSubmitted = true;
+        this.resetForm();
+        this.loading = false;
+
+        setTimeout(() => {
+          this.isSubmitted = false;
+          this.loading = false;
+        }, 5000);
+      }, 2000);
+
+
+    } else {
+      // this.submittedText = 'Your Details Not Submitted!';
+      this.openSnackBar('Your Details Not Submitted!', '');
+    }  
+
+  }
+
+
 
   ngOnDestroy() {
-    this.stopAutoPlay()
+    // this.stopAutoPlay()
+    // this.stopAutoPlay2();
   }
+
+
   setActive(section: string): void {
     this.activeSection = section;
-  }
-  toggleMobileMenu() {
-    this.showMobileMenu = !this.showMobileMenu;
-    if (!this.showMobileMenu) {
-      this.showMobileProducts = false;
-    }
-  }
-
-  closeMobileMenu() {
-    this.showMobileMenu = false;
-    this.showMobileProducts = false;
-  }
-
-  toggleMobileProducts() {
-    this.showMobileProducts = !this.showMobileProducts;
-  }
-  startAutoPlay() {
-    this.autoPlayInterval = setInterval(() => {
-      this.nextSlide()
-    }, 5000)
-  }
-
-  stopAutoPlay() {
-    if (this.autoPlayInterval) {
-      clearInterval(this.autoPlayInterval)
-    }
-  }
-  navigatetoabout() {
-    this.router.navigate(["/about-us"])
-  }
-
-  nextSlide() {
-    this.currentSlide = (this.currentSlide + 1) % this.slides.length
-  }
-
-  prevSlide() {
-    this.currentSlide = this.currentSlide === 0 ? this.slides.length - 1 : this.currentSlide - 1
-  }
-
-  goToSlide(index: number) {
-    this.currentSlide = index
-    this.stopAutoPlay()
-    this.startAutoPlay()
   }
 
   addToCart(product: Product) {
@@ -301,36 +302,25 @@ export class TermsComponent implements OnInit, OnDestroy {
       behavior: 'smooth'
     });
   }
-  // scrollToSection(sectionId: string): void {
-  //   const element = document.getElementById(sectionId);
-  //   if (element) {
-  //     element.scrollIntoView({
-  //       behavior: 'smooth',
-  //       block: 'start'
-  //     });
-  //   }
-  // }
-
   scrollToSection(sectionId: string): void {
     const element = document.getElementById(sectionId);
-
-    if (!element) return;
-
-    const yOffset = -300; // 👈 adjust this value
-    const y =
-      element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-
-    window.scrollTo({
-      top: y,
-      behavior: 'smooth'
-    });
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }
+  navigatetoabout() {
+    this.router.navigate(["/about-us"])
   }
 
 
 
+
   goToProduct(section: string) {
-    // this.showProductsDropdown = false;
-    // this.scrollToSection(section);
+    this.showProductsDropdown = false;
+    this.scrollToSection(section);
   }
   @HostListener('document:click')
   closeDropdown() {
@@ -348,7 +338,7 @@ export class TermsComponent implements OnInit, OnDestroy {
     { label: 'Home', sectionId: 'home', route: "/home" },
     { label: 'About', sectionId: 'about', route: '/about-us' },
     { label: 'Products', sectionId: 'products', route: '/products' },
-    { label: 'Contact Us', sectionId: 'contact', route: '/ContactUs' },
+      { label: 'Contact Us', sectionId: 'contact', route: '/ContactUs' },
 
   ];
 
@@ -684,53 +674,8 @@ export class TermsComponent implements OnInit, OnDestroy {
 
 
   private subscribeCart() {
-    // this.shopService.getCart().subscribe(cart => {
-    //   // this.serverCartItems = cart;
-
-    //   this.cartItems = cart.map((item: any) => ({
-    //     id: item.itemID,
-    //     name: item.categoryName,
-    //     weight: item.cartTitle || '',
-    //     originalPrice: Number(item.price),
-    //     salePrice: Number(item.price),
-    //     quantity: item.locqunatity,
-    //     image: item.cartImage,
-    //     categoryId: item.categoryID,
-    //     subcatId: item.subcatID,
-    //     productID: item.productID,
-    //     locqunatity: item.locqunatity,
-    //   }));
-    // });
-
 
     this.shopService.getCart().subscribe(cart => {
-      // this.serverCartItems = cart;
-      // console.log(this.serverCartItems)
-      // this.cartItems = cart.map((item: any) => {
-      //   const w = item.cartTitle;
-      //   return {
-      //     id: item.itemID,
-      //     name: item.categoryName,
-
-      //     // ✅ Weight display
-      //     weight: w ? `${w.weightNumber} ${w.weightUnit}` : '',
-
-      //     // ✅ Prices from cartTitle
-      //     originalPrice: w?.productPrice || 0,
-      //     salePrice:
-      //       w?.disCountProductprice && w.disCountProductprice > 0
-      //         ? w.disCountProductprice
-      //         : w?.productPrice || 0,
-
-      //     quantity: item.locqunatity,
-      //     locqunatity: item.locqunatity,
-
-      //     image: item.cartImage,
-      //     categoryId: item.categoryID,
-      //     subcatId: item.subcatID,
-      //     productID: item.productID,
-      //   };
-      // });
 
       this.cartItems = cart.map((item: any) => ({
         id: item.itemID,
@@ -762,23 +707,9 @@ export class TermsComponent implements OnInit, OnDestroy {
   }
   newsletterEmail: string = '';
 
-  sendEmail2() {
-    if (!this.newsletterEmail) {
-      this.openSnackBar('Please enter email', '');
-      return;
-    }
-
-    // this.openSnackBar('Send to email in progress', '');
-
-    // 👉 call API / EmailJS here
-
-    // ✅ clear input after snackbar
-    this.newsletterEmail = '';
-  }
   isSubmitting = false;
   isSubmitted = false;
-  submittedText: string = "";
-  async sendEmail() {
+  async sendEmail23() {
     if (this.isSubmitting) return;
 
     this.isSubmitting = true;
@@ -813,7 +744,13 @@ export class TermsComponent implements OnInit, OnDestroy {
     }
   }
   resetForm() {
-    this.newsletterEmail = ''
+    this.form = {
+      name: '',
+      email: '',
+      phone: '',
+      subject: '',
+      message: '',
+    };
   }
 
   //search
@@ -941,8 +878,25 @@ export class TermsComponent implements OnInit, OnDestroy {
     // this.openSnackBar('You’ve been logged out successfully.', '');
     this.router.navigateByUrl('/home');
   }
-  navigatetocontact() {
+
+
+  toggleMobileMenu() {
+    console.log(this.showMobileMenu)
+    this.showMobileMenu = !this.showMobileMenu;
+    if (!this.showMobileMenu) {
+      this.showMobileProducts = false;
+    }
+  }
+
+  closeMobileMenu() {
+    this.showMobileMenu = false;
+    this.showMobileProducts = false;
+  }
+
+  toggleMobileProducts() {
+    this.showMobileProducts = !this.showMobileProducts;
+  }
+    navigatetocontact() {
     this.router.navigate(["/ContactUs"])
   }
 }
-

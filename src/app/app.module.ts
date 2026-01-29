@@ -37,6 +37,9 @@ import { ConfpaymentStatusComponent } from './components/confpayment-status/conf
 import { AboutUsComponent } from './components/about-us/about-us.component';
 import { TermsComponent } from './components/terms/terms.component';
 import { SafeUrlPipePipe } from './pipes/safe-url.pipe.pipe';
+import { OrderSummaryComponent } from './components/order-summary/order-summary.component';
+import { LoginComponent } from './components/login/login.component';
+import { ContactusComponent } from './components/contactus/contactus.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +55,9 @@ import { SafeUrlPipePipe } from './pipes/safe-url.pipe.pipe';
     AboutUsComponent,
     TermsComponent,
     SafeUrlPipePipe,
+    OrderSummaryComponent,
+    LoginComponent,
+    ContactusComponent
   ],
   imports: [
     BrowserModule,

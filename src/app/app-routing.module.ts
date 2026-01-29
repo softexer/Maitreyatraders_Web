@@ -6,6 +6,8 @@ import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.
 import { CheckoutPageComponent } from './components/checkout-page/checkout-page.component';
 import { AboutUsComponent } from './components/about-us/about-us.component';
 import { TermsComponent } from './components/terms/terms.component';
+import { OrderSummaryComponent } from './components/order-summary/order-summary.component';
+import { ContactusComponent } from './components/contactus/contactus.component';
 
 const routes: Routes = [
   { path: "home", component: HomeComponent },
@@ -14,6 +16,8 @@ const routes: Routes = [
   { path: "checkout", component: CheckoutPageComponent },
   { path: "about-us", component: AboutUsComponent },
   {  path: 'terms/:type', component: TermsComponent },
+  { path: "OrderSummary", component: OrderSummaryComponent },
+  { path: "ContactUs", component: ContactusComponent },
   { path: '**', redirectTo: '/home', pathMatch: 'full' },
 ];
 

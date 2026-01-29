@@ -483,3 +483,40 @@ body {
 .delay-1 { transition-delay: 0.1s; }
 .delay-2 { transition-delay: 0.3s; }
 .delay-3 { transition-delay: 0.5s; }
+
+
+/* Center position */
+.mat-mdc-snack-bar-container.center-snackbar {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* Snackbar surface */
+.mat-mdc-snack-bar-container.center-snackbar
+.mdc-snackbar__surface {
+  background-color: #000 !important;
+}
+
+/* 🔥 ACTUAL TEXT */
+.mat-mdc-snack-bar-container.center-snackbar
+.mdc-snackbar__label {
+  color: #f4a300 !important;
+  /* color:  #ff4d4f !important; */
+  font-weight: 500;
+  font-weight: 500;
+  font-size: 16px;   /* 👈 increase here */
+  line-height: 1.4; 
+  text-align: center;
+}
+
+.mat-mdc-snack-bar-container.center-snackbar
+.mdc-snackbar__label {
+  color: #f4a300 !important;
+   /* color:  #ff4d4f !important; */
+  font-weight: 500;
+  font-size: 16px;   /* 👈 increase here */
+  line-height: 1.4;  /* optional, looks cleaner */
+  text-align: center;
+}

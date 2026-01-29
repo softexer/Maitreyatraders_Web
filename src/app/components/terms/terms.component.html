@@ -11,14 +11,11 @@
     </div>
 
     <!-- Header -->
-    <header class="header">
+    <!-- <header class="header">
         <div class="header-content">
-            <!-- Logo -->
             <div class="logo d-md-block d-none">
                 <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image">
             </div>
-
-            <!-- Navigation -->
             <nav class="nav">
                 <a class="d-block d-md-none">
                     <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" width="70px">
@@ -28,7 +25,6 @@
 
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
                     (click)="setActive('about'); scrollToSection('about')">
-                    <!--  -->
                     About
                 </a>
                 <div class="nav-item-wrapper">
@@ -46,20 +42,18 @@
                         {{ category.name }}
                     </a>
                 </div>
-
-                <!-- <a href="#" class="nav-item" [class.active]="activeSection === 'recipes'"
-                    (click)="setActive('recipes')">Recipes</a>
-                <a href="#" class="nav-item" [class.active]="activeSection === 'blog'"
-                    (click)="setActive('blog')">Blog</a> -->
-
-                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="scrollToContact()">
+              <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="navigatetocontact()">
                     Contact Us
+                </a>
+
+                  <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="navigateorders()" *ngIf="isLoggeIn">
+                    My Orders
                 </a>
 
 
             </nav>
 
-            <!-- Header Actions -->
             <div class="header-actions">
                 <div class="search-wrapper" (click)="$event.stopPropagation()">
                     <img src="../../../assets/Icon-3.png" class="icon search-trigger" [class.hide]="showSearch"
@@ -77,7 +71,7 @@
                     <div class="search-dropdown" *ngIf="displaylist">
                         <div *ngIf="AllSearchItems.length > 0">
                             <div class="panel-header">
-                                <span>Products</span>
+                                 <span style="padding: 10px;">Products</span>
                                 <div></div>
                             </div>
                             <div class="search-results" *ngFor="let n of AllSearchItems">
@@ -87,9 +81,7 @@
                                 </div>
                                 <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
                             </div>
-                            <div class="see-all">
-                                See all products
-                            </div>
+                           
                         </div>
                         <div *ngIf="AllSearchItems.length === 0">
                             <div class="search-results">
@@ -107,25 +99,456 @@
                     </svg>
                     <span class="cart-badge" *ngIf="cartCount > 0" (click)="cartpage($event)">{{ cartCount }}</span>
                 </button>
+                
 
+            </div>
+        </div>
+    </header> -->
+
+    
+          <header class="header">
+        <div class="header-content">
+
+            <!-- LEFT: Hamburger -->
+            <button class="menu-btn d-md-none" (click)="toggleMobileMenu()">
+                ☰
+            </button>
+
+            <!-- Logo -->
+            <div class="logo" style="margin-top: 20px;">
+                <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image d-none d-md-block">
+                <!-- <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" class="logo-image d-block d-md-none"> -->
+            </div>
+
+            <!-- DESKTOP NAV -->
+            <nav class="nav d-none d-md-flex">
+                <a routerLink="/home" class="nav-item" [class.active]="activeSection === 'home'"
+                    (click)="setActive('home')">Home</a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
+                    (click)="navigatetoabout()">About</a>
+
+                <div class="nav-item-wrapper">
+                    <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'products'"
+                        (click)="toggleProductsDropdown($event)">
+                        Products <span class="dropdown-arrow" [class.rotated]="showProductsDropdown">▼</span>
+                    </a>
+
+                    <div class="products-dropdown" *ngIf="showProductsDropdown">
+                        <a *ngFor="let category of productCategories" class="dropdown-item"
+                            (click)="navigateToCategory(category)">
+                            {{ category.name }}
+                        </a>
+                    </div>
+                </div>
+
+                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="navigatetocontact()">Contact
+                    Us</a>
+
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                    (click)="navigateorders()" *ngIf="isLoggeIn">
+                    My Orders
+                </a>
+            </nav>
+
+            <!-- RIGHT: Search + Cart -->
+            <div class="header-actions">
+                <!-- Search -->
+                <div class="search-wrapper" (click)="$event.stopPropagation()">
+                    <img src="../../../assets/Icon-3.png" class="icon search-trigger"
+                        (click)="toggleSearch(); $event.stopPropagation()" />
+
+                    <div class="search-inline" [class.show]="showSearch" (click)="$event.stopPropagation()">
+                        <img src="../../../assets/Icon-3.png" class="icon small" />
+                        <input type="text" [(ngModel)]="searchText" placeholder="Search products"
+                            (keydown.enter)="GotoSearch(); $event.preventDefault(); $event.stopPropagation()" />
+                        <img src="../../../assets/cancel.png" class="icon small close-icon"
+                            (click)="closeSearch(); $event.stopPropagation()" width="10" />
+                    </div>
+
+                    <div class="search-dropdown" *ngIf="displaylist">
+                        <div *ngIf="AllSearchItems.length > 0">
+                            <div class="panel-header">
+                                <span style="padding: 10px;">Products</span>
+                            </div>
+
+                            <div class="search-results" *ngFor="let n of AllSearchItems">
+                                <div class="image-wrap">
+                                    <img *ngIf="n.productImagesList?.length" [src]="baseUrl + n.productImagesList[0]"
+                                        alt="product" (click)="ProductView(n)" />
+                                </div>
+                                <div class="title" (click)="ProductView(n)">{{ n.productName }}</div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="AllSearchItems.length === 0">
+                            <div class="search-results">
+                                <div class="title">No results</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart -->
+                <button class="icon-btn" (click)="cartpage($event)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+                </button>
             </div>
         </div>
     </header>
 
+    <!-- MOBILE MENU OVERLAY -->
+    <div class="mobile-overlay" *ngIf="showMobileMenu" (click)="closeMobileMenu()"></div>
+
+    <!-- MOBILE DRAWER (LEFT) -->
+    <div class="mobile-drawer" [class.open]="showMobileMenu">
+        <div class="drawer-header">
+            <span class="drawer-title">Menu</span>
+            <button class="drawer-close" (click)="closeMobileMenu()">✕</button>
+        </div>
+
+        <a class="drawer-link" routerLink="/home" (click)="setActive('home'); closeMobileMenu()">Home</a>
+        <a class="drawer-link" (click)="navigatetoabout(); closeMobileMenu()">About</a>
+
+        <div class="drawer-link" (click)="toggleMobileProducts()">
+            Products
+            <span class="dropdown-arrow" [class.rotated]="showMobileProducts">▼</span>
+        </div>
+
+        <div class="drawer-submenu" *ngIf="showMobileProducts">
+            <a *ngFor="let category of productCategories" class="drawer-sublink"
+                (click)="navigateToCategory(category); closeMobileMenu()">
+                {{ category.name }}
+            </a>
+        </div>
+
+        <a class="drawer-link" (click)="navigatetocontact(); closeMobileMenu()">Contact Us</a>
+
+        <a class="drawer-link" *ngIf="isLoggeIn" (click)="navigateorders(); closeMobileMenu()">My Orders</a>
+    </div>
+    
     <!-- About Section -->
-    <section class="about-section">
-        <div class="section-container" style="background-color: transparent;">
-            <iframe [src]="policyUrl" class="policy-iframe" frameborder="0">
-            </iframe>
+    <section class="about-section" id="about">
+        <div class="section-container">
+            <div class="policy-page">
+                <div class="policy-container">
+
+                    <!-- TERMS & CONDITIONS -->
+                    <div *ngIf="activePolicy === 'terms'">
+
+                        <h1>Terms & Conditions</h1>
+
+                        <h3>1.1 Company Information</h3>
+                        <p>
+                            Maitreya Traders Limited, registered in England and Wales,
+                            Registered Office: 71–75 Shelton Street, Covent Garden, London, WC2H 9JQ.
+                        </p>
+
+                        <h3>1.2 Acceptance of Terms</h3>
+                        <p>
+                            By using our website or purchasing goods or services, you agree to be bound by
+                            these Terms & Conditions.
+                        </p>
+
+                        <h3>1.3 Products and Services</h3>
+                        <p>
+                            All products and services are subject to availability. We reserve the right to
+                            amend, suspend, or withdraw any product or service at any time without prior notice.
+                        </p>
+
+                        <h3>1.4 Pricing and Payment</h3>
+                        <p>
+                            All prices are displayed in GBP (£) unless stated otherwise. Payment must be made
+                            in full before goods are dispatched.
+                        </p>
+
+                        <h3>1.5 Orders</h3>
+                        <p>
+                            Orders are confirmed only after we issue an official order confirmation.
+                            We reserve the right to refuse or cancel orders for reasonable reasons, including
+                            availability or pricing errors.
+                        </p>
+
+                        <h3>1.6 Delivery</h3>
+                        <p>
+                            Delivery times provided are estimates only and not guaranteed.
+                            Risk of loss or damage passes to the customer upon delivery.
+                        </p>
+
+                        <h3>1.7 Consumer Rights (UK)</h3>
+                        <p>
+                            Goods supplied must be as described, of satisfactory quality, and fit for purpose
+                            in accordance with the Consumer Rights Act 2015.
+                        </p>
+
+                        <h3>1.8 Returns and Refunds</h3>
+                        <p>
+                            Returns and refunds are subject to our Returns Policy.
+                            Custom-made or wholesale orders may be excluded unless found to be faulty.
+                        </p>
+
+                        <h3>1.9 Intellectual Property</h3>
+                        <p>
+                            All content on this website, including text, graphics, logos, and images,
+                            is the property of or licensed to Maitreya Traders Limited and is protected
+                            by applicable intellectual property laws.
+                        </p>
+
+                        <h3>1.10 Limitation of Liability</h3>
+                        <p>
+                            We shall not be liable for any indirect, incidental, or consequential damages.
+                            Nothing in these Terms limits liability for death or personal injury caused
+                            by negligence.
+                        </p>
+
+                        <h3>1.11 Governing Law</h3>
+                        <p>
+                            These Terms & Conditions are governed by and construed in accordance with
+                            the laws of England and Wales.
+                        </p>
+
+                    </div>
+
+                    <!-- PRIVACY -->
+                    <div *ngIf="activePolicy === 'privacy'">
+
+                        <h1>Privacy Policy (UK GDPR)</h1>
+
+                        <h3>2.1 Introduction</h3>
+                        <p>
+                            Maitreya Traders Limited is committed to protecting your personal data
+                            in accordance with the UK General Data Protection Regulation (UK GDPR)
+                            and the Data Protection Act 2018.
+                        </p>
+
+                        <h3>2.2 Data Collected</h3>
+                        <ul>
+                            <li>Name, email address, phone number, billing and delivery addresses</li>
+                            <li>Payment details (processed securely through authorised payment providers)</li>
+                            <li>Website usage data including IP address, cookies, and analytics data</li>
+                        </ul>
+
+                        <h3>2.3 How We Use Your Data</h3>
+                        <ul>
+                            <li>To process orders and payments</li>
+                            <li>To provide customer support and respond to enquiries</li>
+                            <li>To improve our products, services, and website performance</li>
+                            <li>To comply with legal and regulatory obligations</li>
+                        </ul>
+
+                        <h3>2.4 Legal Basis</h3>
+                        <p>
+                            We process personal data based on one or more of the following legal grounds:
+                            contract necessity, legal obligations, legitimate interests, or your consent.
+                        </p>
+
+                        <h3>2.5 Data Sharing</h3>
+                        <p>
+                            We do not sell your personal data. However, we may share data with trusted
+                            third parties such as payment processors, delivery couriers, IT service
+                            providers, or legal authorities where required by law.
+                        </p>
+
+                        <h3>2.6 Data Security</h3>
+                        <p>
+                            We implement appropriate technical and organisational security measures
+                            to protect your personal data against unauthorised access, loss, misuse,
+                            or disclosure.
+                        </p>
+
+                        <h3>2.7 Your Rights</h3>
+                        <p>
+                            Under UK GDPR, you have the right to request access to, correction or
+                            deletion of your personal data, object to or restrict processing,
+                            and withdraw consent at any time where consent is relied upon.
+                        </p>
+
+                        <h3>2.8 Cookies</h3>
+                        <p>
+                            Our website uses cookies to enhance functionality and user experience.
+                            For more information, please refer to our Cookie Policy.
+                        </p>
+
+                        <h3>2.9 Contact</h3>
+                        <p>
+                            For any privacy-related queries or requests, please contact us via our
+                            official contact page or email address provided on the website.
+                        </p>
+                    </div>
+
+                    <!-- REFUND -->
+                    <div *ngIf="activePolicy === 'refund'">
+
+                        <h1>Refund & Returns Policy</h1>
+
+                        <h3>3.1 Overview</h3>
+                        <p>
+                            If you are not satisfied with your purchase, you may be eligible for
+                            a refund, replacement, or repair in accordance with this policy.
+                        </p>
+
+                        <h3>3.2 Consumer Rights</h3>
+                        <p>
+                            All goods supplied must be as described, of satisfactory quality,
+                            and fit for purpose in accordance with the Consumer Rights Act 2015.
+                        </p>
+
+                        <h3>3.3 Return Conditions</h3>
+                        <ul>
+                            <li>Items must be returned in their original condition and packaging</li>
+                            <li>Custom-made or personalised items are non-returnable unless faulty</li>
+                            <li>Returns must be requested within 30 days from the date of delivery</li>
+                        </ul>
+
+                        <h3>3.4 Refund Process</h3>
+                        <ul>
+                            <li>Refunds are processed within 14 days of receiving the returned goods</li>
+                            <li>Refunds will be issued using the original payment method</li>
+                        </ul>
+
+                        <h3>3.5 Faulty Goods</h3>
+                        <p>
+                            If goods are found to be faulty, damaged, or not as described,
+                            please contact us immediately. We will arrange a replacement
+                            or issue a full refund at no additional cost.
+                        </p>
+
+                        <h3>3.6 How to Return</h3>
+                        <p>
+                            To initiate a return, please contact us with your order number
+                            and the reason for return. Items should be returned to:
+                        </p>
+
+                        <p>
+                            <strong>Maitreya Traders Limited</strong><br>
+                            71–75 Shelton Street,<br>
+                            Covent Garden,<br>
+                            London, WC2H 9JQ
+                        </p>
+                    </div>
+
+                    <!-- SHIPPING -->
+                    <div *ngIf="activePolicy === 'shipping'">
+
+                        <h1>Shipping & Delivery Policy</h1>
+
+                        <h3>4.1 Shipping Methods</h3>
+                        <ul>
+                            <li><strong>Standard Delivery:</strong> 3–7 business days</li>
+                            <li><strong>Express Delivery:</strong> 1–3 business days</li>
+                        </ul>
+
+                        <h3>4.2 Shipping Costs</h3>
+                        <p>
+                            Shipping costs are calculated at checkout based on your order and
+                            delivery location. Free shipping may be available for qualifying orders.
+                        </p>
+
+                        <h3>4.3 Delivery Times</h3>
+                        <p>
+                            Delivery times are estimates only and are not guaranteed.
+                            Delays caused by couriers, customs clearance, or adverse weather
+                            conditions are beyond our control.
+                        </p>
+
+                        <h3>4.4 Risk & Ownership</h3>
+                        <p>
+                            Risk of loss or damage passes to the customer upon delivery.
+                            Ownership of goods transfers only after full payment has been received.
+                        </p>
+
+                        <h3>4.5 International Orders</h3>
+                        <p>
+                            For international shipments, any applicable customs duties,
+                            import taxes, or additional charges are the responsibility of the customer.
+                        </p>
+                    </div>
+
+                    <!-- COOKIE -->
+                    <div *ngIf="activePolicy === 'cookie'">
+
+                        <h1>Cookie Policy</h1>
+
+                        <h3>5.1 What Are Cookies?</h3>
+                        <p>
+                            Cookies are small text files stored on your device that help improve
+                            website functionality, performance, and overall user experience.
+                        </p>
+
+                        <h3>5.2 How We Use Cookies</h3>
+                        <ul>
+                            <li>Remember your preferences and settings</li>
+                            <li>Analyse website traffic and usage patterns</li>
+                            <li>Improve website performance and user experience</li>
+                        </ul>
+
+                        <h3>5.3 Types of Cookies</h3>
+                        <ul>
+                            <li><strong>Strictly Necessary Cookies:</strong> Required for core website functionality
+                            </li>
+                            <li><strong>Performance Cookies:</strong> Help us understand how visitors use our site</li>
+                            <li><strong>Functional Cookies:</strong> Remember choices and preferences</li>
+                            <li><strong>Targeting/Advertising Cookies:</strong> Used to deliver relevant advertising
+                            </li>
+                        </ul>
+
+                        <h3>5.4 Managing Cookies</h3>
+                        <p>
+                            You can manage or disable cookies through your browser settings.
+                            Please note that blocking cookies may affect website functionality
+                            and your user experience.
+                        </p>
+
+                        <h3>5.5 Third-Party Cookies</h3>
+                        <p>
+                            Our website may use third-party cookies provided by analytics
+                            or social media platforms to help improve services and content.
+                        </p>
+                    </div>
+
+                    <!-- DISCLAIMER -->
+                    <div *ngIf="activePolicy === 'disclaimer'">
+
+                        <h1>Disclaimer Policy</h1>
+
+                        <h3>6.1 General Disclaimer</h3>
+                        <p>
+                            The content provided on this website is for general information purposes only.
+                            While we make reasonable efforts to ensure accuracy, we do not guarantee that
+                            the information is complete, current, or error-free.
+                        </p>
+
+                        <h3>6.2 Limitation of Liability</h3>
+                        <p>
+                            We shall not be liable for any indirect, incidental, or consequential damages
+                            arising from the use of this website or its content. Nothing in this disclaimer
+                            limits liability for death or personal injury caused by negligence.
+                        </p>
+
+                        <h3>6.3 External Links</h3>
+                        <p>
+                            This website may contain links to third-party websites.
+                            We are not responsible for the content, policies, or practices
+                            of any linked external sites.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </section>
 
 
-    <footer class="footer" id="contact">
+    <footer class="footer" >
         <!-- Footer Top -->
         <div class="row">
             <div class="col-md-4 footer-section logo-section">
-                <div class="logo  animate-up delay-4" #animate>
+                <div class="flogo  animate-up delay-4" #animate>
                     <img [src]="logoPath" alt="Logo" class="logo-icon">
                 </div>
                 <!-- <p class="description animate-up delay-1" #animate>{{ companyDescription }}</p> -->
@@ -145,7 +568,7 @@
             <div class="col-md-4 footer-section">
                 <h3 class="section-title2 animate-up delay-4" #animate>Contact Us</h3>
                 <div class="contact-info animate-up delay-1" #animate>
-                    <p><strong>KH No:</strong> {{ contactInfo.khNo }}<br />
+                    <p><strong>Address : </strong> {{ contactInfo.khNo }}<br />
                         {{ contactInfo.address }}
                     </p>
 
@@ -169,15 +592,16 @@
         </div>
 
         <!-- Footer Bottom -->
-        <div class="footer-bottom d-flex justify-content-between align-items-center">
+        <div class="footer-bottom">
             <p class="copyright">{{ copyrightText }}</p>
             <div class="footer-links">
-                <!-- <a href="/privacy-policy">Privacy Policy</a>
-                <a href="/terms">Terms</a> -->
-                <p>Privacy Policy</p>
-                <p>Terms</p>
+                <a [routerLink]="['/terms', 'terms']">Terms & Conditions</a>
+                <a [routerLink]="['/terms', 'privacy']">Privacy Policy</a>
+                <a [routerLink]="['/terms', 'refund']">Refund & Returns Policy</a>
+                <a [routerLink]="['/terms', 'shipping']">Shipping & Delivery Policy</a>
+                <a [routerLink]="['/terms', 'cookie']">Cookie Policy</a>
+                <a [routerLink]="['/terms', 'disclaimer']">Disclaimer Policy</a>
             </div>
-            <div></div>
         </div>
     </footer>
 

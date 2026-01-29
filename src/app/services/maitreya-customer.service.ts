@@ -7,7 +7,6 @@ import { Observable, BehaviorSubject, throwError } from 'rxjs';
 })
 export class MaitreyaCustomerService {
   public baseUrl: string = "https://live.maitreyatraderslimited.co.uk";
-  public userID: string = "";
   public checkIsLoggedIn = new BehaviorSubject(false);
   public Signout = new BehaviorSubject(false);
   showLoader = new BehaviorSubject(false);
@@ -19,11 +18,28 @@ export class MaitreyaCustomerService {
   public addcartItems: any[] = [];
   public allCategoriesList: Array<any> = [];
 
+  // private UserID: string = '';
+
+  private _userId = ''; // 🧠 memory cache
+  public userIdSubject = new BehaviorSubject<string>('NotLogin');
+
+  userId$ = this.userIdSubject.asObservable();
+
+  private latestOrder: any[] = [];
+
+
+
+  
+private latestOrderSubject = new BehaviorSubject<any[]>([]);
+latestOrder$ = this.latestOrderSubject.asObservable();
+
 
   constructor(
     private http: HttpClient
   ) {
     this.loadCartItems();
+    this.loadUSerID();
+    this.loadLatestOrder();
   }
 
 
@@ -73,9 +89,16 @@ export class MaitreyaCustomerService {
   createPaymentIntentInfo(obj: any): Observable<any> {
     return this.http.post(this.baseUrl + "/api/payment/stripepaymentinit", obj);
   }
- RegisterConference(data: any) {
+  RegisterConference(data: any) {
     return this.http.post(`${this.baseUrl}/api/Conference/userconferenceregister`, data)
   }
+
+
+  GetPromoDataDetails(data: any) {
+    return this.http.post(`${this.baseUrl}/api/product/singleproduct`, data)
+  }
+
+
   //Cart item procedures
   addToCart(item: any): void {
     const existingItem = this.addcartItems.find(cartItem => cartItem.ShopBookID === item.ShopBookID);
@@ -112,6 +135,12 @@ export class MaitreyaCustomerService {
         totqty += Number(items.Qty);
       })
       this.cartCountItems.next(this.cartCountItems.value + totqty);
+    }
+  }
+  loadUSerID() {
+    const cid = localStorage.getItem('Userid');
+    if (cid) {
+      this.userIdSubject.next(cid);
     }
   }
   addToCartincrqty(item: any) {
@@ -173,6 +202,76 @@ export class MaitreyaCustomerService {
   close() {
     this._open.next(false);
     document.body.style.overflow = '';
+  }
+
+
+  setUserId(id: string) {
+    console.log(id)
+    this._userId = id;
+    localStorage.setItem("Userid", id)
+    this.userIdSubject.next(id);
+  }
+
+  getUserId(): string {
+    return this._userId;
+  }
+
+  isLoggedIn(): boolean {
+    return !!this._userId;
+  }
+
+  clearUserId() {
+    this._userId = '';
+    this.userIdSubject.next('');
+  }
+setLatestOrder(order: any[]) {
+  localStorage.setItem('latestOrder', JSON.stringify(order));
+  this.latestOrderSubject.next(order);
+}
+
+loadLatestOrder() {
+  const stored = localStorage.getItem('latestOrder');
+  if (stored) {
+    this.latestOrderSubject.next(JSON.parse(stored));
+  }
+}
+
+clearLatestOrder() {
+  localStorage.removeItem('latestOrder');
+  this.latestOrderSubject.next([]);
+}
+
+// setLatestOrder(order: any[]) {
+//   // 🔥 persist
+//   localStorage.setItem('latestOrder', JSON.stringify(order));
+//   this.latestOrderSubject.next(order);
+// }
+
+// getLatestOrder(): any[] {
+//   // 🧠 fallback from storage
+//   const stored = localStorage.getItem('latestOrder');
+//   if (stored && this.latestOrderSubject.value.length === 0) {
+//     const parsed = JSON.parse(stored);
+//     this.latestOrderSubject.next(parsed);
+//     return parsed;
+//   }
+//   return this.latestOrderSubject.value;
+// }
+
+// /* call this once on app start */
+// loadLatestOrder() {
+//   const stored = localStorage.getItem('latestOrder');
+//   if (stored) {
+//     this.latestOrderSubject.next(JSON.parse(stored));
+//   }
+// }
+
+  UserLogin(data: any) {
+    return this.http.post(`${this.baseUrl}/api/customer/login`, data)
+  }
+
+  OrdersFetch(data: any) {
+    return this.http.post(`${this.baseUrl}/api/product/ordersfetch`, data)
   }
 
 }

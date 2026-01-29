@@ -13,19 +13,19 @@
     <!-- Header -->
     <!-- <header class="header">
         <div class="header-content">
-           <div class="logo d-md-block d-none">
+            <div class="logo d-md-block d-none">
                 <img src="../../../assets/logo.png" alt="Maitreya Traders Limited" class="logo-image">
             </div>
 
             <nav class="nav">
-             <a class="d-block d-md-none">
-                <img src="../../../assets/mlogo.png"  alt="Maitreya Traders Limited" width="70px">
-             </a>
+                <a class="d-block d-md-none">
+                    <img src="../../../assets/mlogo.png" alt="Maitreya Traders Limited" width="70px">
+                </a>
                 <a href="#" class="nav-item" [class.active]="activeSection === 'home'"
                     (click)="setActive('home')">Home</a>
 
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
-                   (click)="setActive('about'); scrollToSection('about')" >
+                    (click)="navigatetoabout()">
                     About
                 </a>
                 <div class="nav-item-wrapper">
@@ -44,11 +44,11 @@
                     </a>
                 </div>
 
-                <a class="nav-item" [class.active]="activeSection === 'contact'"  (click)="navigatetocontact()">
-                                    Contact Us
+                <a class="nav-item" [class.active]="activeSection === 'contact'" (click)="scrollToContact()">
+                    Contact Us
                 </a>
 
-                  <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
+                <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'order'"
                     (click)="navigateorders()" *ngIf="isLoggeIn">
                     My Orders
                 </a>
@@ -104,7 +104,9 @@
             </div>
         </div>
     </header> -->
-    <header class="header">
+
+    
+        <header class="header">
         <div class="header-content">
 
             <!-- LEFT: Hamburger -->
@@ -123,13 +125,8 @@
                 <a routerLink="/home" class="nav-item" [class.active]="activeSection === 'home'"
                     (click)="setActive('home')">Home</a>
 
-                
-
-
                 <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'about'"
-                    (click)="setActive('about'); scrollToSection('about')">
-                    About
-                </a>
+                    (click)="navigatetoabout()">About</a>
 
                 <div class="nav-item-wrapper">
                     <a href="javascript:void(0)" class="nav-item" [class.active]="activeSection === 'products'"
@@ -234,29 +231,97 @@
 
         <a class="drawer-link" *ngIf="isLoggeIn" (click)="navigateorders(); closeMobileMenu()">My Orders</a>
     </div>
-
+    
     <!-- About Section -->
-    <section class="about-section" id="about">
-        <div class="section-container">
-            <div class="about-content">
-                <!-- <div class="about-image-wrapper"> -->
-                <div class="about-image-wrapper animate-up delay-1" #animate>
-                    <img src="../../../assets/aboutlogo.png" alt="Plant Based Products" class="about-product-image">
+    <section class="about-section" id="contact">
+        <!-- <div class="section-container"> -->
+        <div class="contact-wrapper">
+            <!-- LEFT IMAGE -->
+            <div class="contact-image">
+                <img src="../../../assets/57568.png" alt="Contact Image" />
+            </div>
+
+            <!-- RIGHT FORM -->
+            <div class="contact-form">
+                <h1>Get in Touch</h1>
+
+                <div class="contact-info">
+                    <p>Office Address:71-75 Shelton Street, Covent Garden,<br />
+                        London, United Kingdom, WC2H 9JQ <br />
+                        Tel : +44 7982376506 <br />
+                        Email : enquiry@maitreyatraderslimited.co.uk
+                    </p>
+                    
                 </div>
 
-                <!-- <div class="about-text"> -->
-                <div class="about-text animate-up delay-2" #animate>
-                    <h2 class="about-title">About</h2>
-                    <p class="about-description">
-                        At Maitreya Traders, we believe in combining health, taste, and tradition. Our mission is to
-                        make plant-based eating exciting and accessible by offering premium-quality vegan and vegetarian
-                        frozen food sourced from around the world. We are committed to bringing only authentic,
-                        flavourful, and thoughtfully crafted products that align with your lifestyle.
-                    </p>
-                    <!-- <button class="read-more-btn">Read More</button> -->
-                </div>
+                <form (ngSubmit)="sendEmail()" #contactForm="ngForm" novalidate>
+
+                    <!-- NAME -->
+                    <div class="form-group">
+                        <input type="text" name="name" [(ngModel)]="form.name" placeholder="Name" required
+                            maxlength="70" #name="ngModel" />
+                        <small class="error" *ngIf="name.invalid && name.touched">
+                            Please enter your name
+                        </small>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+                    <div class="form-group">
+                        <input type="email" name="email" [(ngModel)]="form.email" placeholder="Email" required
+                            maxlength="100" email #email="ngModel" />
+                        <small class="error" *ngIf="email.invalid && email.touched">
+                            Please enter a valid email address
+                        </small>
+                    </div>
+
+
+                    <div class="form-group">
+                        <!-- PHONE (NUMERIC + 11 DIGITS) -->
+                        <input type="text" name="phone" [(ngModel)]="form.phone" placeholder="Phone" required
+                            (keypress)="numericOnly($event)" pattern="^[0-9]{11}$" maxlength="11" inputmode="numeric"
+                            #phone="ngModel" />
+                        <small class="error" *ngIf="phone.invalid && phone.touched">
+                            Phone number must be exactly 11 digits
+                        </small>
+
+                    </div>
+
+
+
+                    <!-- SUBJECT -->
+                    <div class="form-group">
+                        <input type="text" name="subject" [(ngModel)]="form.subject" placeholder="Subject"
+                            maxlength="70" required #subject="ngModel" />
+
+                        <small class="error" *ngIf="subject.invalid && subject.touched">
+                            Please enter your Subject
+                        </small>
+                    </div>
+
+
+                    <!-- MESSAGE -->
+                    <div class="form-group"><textarea name="message" [(ngModel)]="form.message"
+                            placeholder="Type your message here" maxlength="300" required #message="ngModel"></textarea>
+                        <small class="error" *ngIf="message.invalid && message.touched">
+                            Message is required
+                        </small>
+                    </div>
+
+
+
+                    <!-- SUBMIT -->
+                    <button type="submit" [disabled]="loading || contactForm.invalid" style="padding-top: 10px;">
+                        {{ loading ? 'Sending...' : 'Submit' }}
+                    </button>
+
+                </form>
+
             </div>
         </div>
+
+        <!-- </div> -->
     </section>
 
 

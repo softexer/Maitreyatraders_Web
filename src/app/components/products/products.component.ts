@@ -55,6 +55,7 @@ interface Product extends CartProduct {
   description?: string[]
   highlights?: string[],
   isFrozen?: boolean;
+  isTopHighlight?: boolean;
 }
 interface Testimonial {
   text: string
@@ -97,6 +98,7 @@ interface ProductPreview extends CartProduct {
   description?: string[];
   highlights?: string[];
   isFrozen?: boolean;
+  isTopHighlight?: boolean;
 }
 
 
@@ -115,6 +117,7 @@ export class ProductsComponent {
   currentTestimonial = 0
   Math = Math;
   selectedCategoryId: string | null = null;
+  IsProductView_old: boolean = false;
   slides: CarouselSlide[] = [
     {
       title: "100% vegetarian/vegan",
@@ -178,6 +181,11 @@ export class ProductsComponent {
   productCategories: ProductCategory[] = []
   selectedMainCategoryId: string | null = null;
   selectedSubCategoryId: string | null = null;
+  isLoggeIn: boolean = false;
+
+
+  showMobileMenu = false;
+  showMobileProducts = false;
 
   constructor(
     private router: Router,
@@ -200,23 +208,22 @@ export class ProductsComponent {
   selectedIndex = 0;
 
 
-  cartpage(event: MouseEvent) {
-    event.stopPropagation();
-    if (this.cartCount > 0) {
-      this.CustomerService.open();
-    }
-  }
-  setActive(section: string): void {
-    // this.IsProductView = false;  
-    this.closeEvent.emit(false);
-    this.showProductsDropdown = false;
-    this.activeSection = section;
 
-  }
 
   ngOnInit() {
+    this.CustomerService.userIdSubject.subscribe((val: any) => {
+      console.log(val);
+      if (val != 'NotLogin') {
+        this.isLoggeIn = true;
+      }
+    })
+    this.CustomerService.latestOrder$.subscribe((orders: any[]) => {
+      if (orders && orders.length > 0) {
+        this.isLoggeIn = true; // guest order = logged in
+      }
+    });
     this.baseUrl = this.CustomerService.baseUrl;
-    this.IsProductView = false;
+    // this.IsProductView = false;
     this.startAutoPlay();
     this.GetAllCategories();
 
@@ -233,17 +240,53 @@ export class ProductsComponent {
       if (this.selectedType[0].operation === 'ViewFrmHome') {
         this.dataobj = this.selectedType[0]
         console.log(this.dataobj)
-        this.IsProductView = true;
+        // this.IsProductView = true;
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        this.ViewToProductDetails(this.dataobj.sendobj)
+        this.ViewToProductDetails_home(this.dataobj.sendobj)
       }
+    }
+
+    if (this.selectedProduct?.productImagesList?.length) {
+      this.selectedImage = this.selectedProduct.productImagesList[0];
     }
   }
 
+  toggleMobileMenu() {
+    this.showMobileMenu = !this.showMobileMenu;
+    if (!this.showMobileMenu) {
+      this.showMobileProducts = false;
+    }
+  }
+
+  closeMobileMenu() {
+    this.showMobileMenu = false;
+    this.showMobileProducts = false;
+  }
+
+  toggleMobileProducts() {
+    this.showMobileProducts = !this.showMobileProducts;
+  }
+
+
+  navigatetocontact() {
+    this.router.navigate(["/ContactUs"])
+  }
   ngOnDestroy() {
     this.stopAutoPlay()
   }
+  cartpage(event: MouseEvent) {
+    event.stopPropagation();
+    if (this.cartCount > 0) {
+      this.CustomerService.open();
+    }
+  }
+  setActive(section: string): void {
+    // this.IsProductView = false;  
+    this.closeEvent.emit(false);
+    this.showProductsDropdown = false;
+    this.activeSection = section;
 
+  }
   startAutoPlay() {
     this.autoPlayInterval = setInterval(() => {
       this.nextSlide()
@@ -281,6 +324,8 @@ export class ProductsComponent {
       weightUnit: w.weightUnit,
       price: product.price
     });
+
+    this.openSnackBar('Added to cart successfully', '');
   }
 
   // Add to cart functionality
@@ -296,11 +341,56 @@ export class ProductsComponent {
       weightUnit: w.weightUnit,
       price: product.price
     });
+    this.openSnackBar('Added to cart successfully', '');
   }
   showHighlight = false;
   showDescription = false;
+  IsClickedfrmproducts: boolean = false;
 
   ViewToProductDetails(product: Product) {
+    console.log(product)
+    this.IsProductView = true;
+    this.IsClickedfrmproducts = true;
+    this.showHighlight = false; // reset showHighlight = false;
+    this.showDescription = false;
+    const firstWeight = product.weights?.[0];
+
+    this.selectedProduct = {
+      ...product,
+
+      weights: product.weights || [],
+      selectedWeight: firstWeight,
+
+      originalPrice: firstWeight?.productPrice || 0,
+      price: firstWeight
+        ? firstWeight.productPrice - (firstWeight.disCountProductprice || 0)
+        : 0,
+
+      discount: firstWeight?.disCountProductprice
+        ? Math.round(
+          (firstWeight.disCountProductprice / firstWeight.productPrice) * 100
+        )
+        : 0,
+
+      highlights: typeof product.highlights === 'string'
+        ? (product.highlights as string).split('.').filter((h: any) => h.trim())
+        : product.highlights || [],
+
+      description: typeof product.description === 'string'
+        ? (product.description as string).split('.').filter((h: any) => h.trim())
+        : product.description || []
+    };
+
+    this.selectedImage =
+      this.selectedProduct.productImagesList?.[0] || 'assets/no-image.png';
+
+    setTimeout(() => {
+      this.showHighlight = true;
+      this.observeDescription(); // start observing
+    }, 50);
+  }
+
+  ViewToProductDetails_home(product: Product) {
     console.log(product)
     this.IsProductView = true;
     this.showHighlight = false; // reset showHighlight = false;
@@ -437,6 +527,7 @@ export class ProductsComponent {
     { label: 'Home', sectionId: 'home', route: "/home" },
     { label: 'About', sectionId: 'about', route: '/about-us' },
     { label: 'Products', sectionId: 'products', route: '/products' },
+    { label: 'Contact Us', sectionId: 'contact', route: '/ContactUs' },
 
   ];
 
@@ -495,6 +586,21 @@ export class ProductsComponent {
   }
 
 
+  prevImage() {
+    const images = this.selectedProduct.productImagesList;
+    if (!images || images.length === 0) return;
+    this.selectedIndex =
+      this.selectedIndex === 0 ? images.length - 1 : this.selectedIndex - 1;
+    this.selectedImage = images[this.selectedIndex];
+  }
+
+  nextImage() {
+    const images = this.selectedProduct.productImagesList;
+    if (!images || images.length === 0) return;
+    this.selectedIndex =
+      this.selectedIndex === images.length - 1 ? 0 : this.selectedIndex + 1;
+    this.selectedImage = images[this.selectedIndex];
+  }
 
 
   // Navigate to products page on + button click
@@ -525,6 +631,7 @@ export class ProductsComponent {
       cartTitle: item.cartTitle,   // ✅ CORRECT
       locqunatity: item.locqunatity + 1
     });
+    this.openSnackBar('Added to cart successfully', '');
   }
   decrementQuantity(item: any) {
     if (item.locqunatity > 1) {
@@ -561,7 +668,8 @@ export class ProductsComponent {
         image: item.cartImage,
         categoryId: item.categoryID,
         subcatId: item.subcatID,
-        isFrozen: item.isFrozen || false
+        isFrozen: item.isFrozen || false,
+        isTopHighlight: item.isTopHighlight || false
       }));
 
     });
@@ -648,6 +756,11 @@ export class ProductsComponent {
   selectSubCategory(subCategoryId: string) {
     this.selectedSubCategoryId = subCategoryId;
 
+    console.log(this.IsClickedfrmproducts)
+    if (this.IsClickedfrmproducts) {
+      this.IsProductView = false;
+    }
+
     // persist selection (optional but recommended)
     localStorage.setItem('SerhSubCat', subCategoryId);
 
@@ -669,64 +782,123 @@ export class ProductsComponent {
           localStorage.removeItem('SerhSubCat');
 
 
-          const mappedProducts: Product[] = res.ProductDetails.map(
-            (item: any, index: number) => ({
-              id: index + 1,
-              type: item.categoryName ? `(${item.categoryName})` : '',
-              name: item.productName,
-              subtitle: item.subCategoryName ? `(${item.subCategoryName})` : '',
-              image:
-                item.productImagesList?.length && item.productImagesList[0]
-                  ? this.baseUrl + item.productImagesList[0]
-                  : 'assets/no-image.png',
+          // const mappedProducts: Product[] = res.ProductDetails.map(
+          //   (item: any, index: number) => ({
+          //     id: index + 1,
+          //     type: item.categoryName ? `(${item.categoryName})` : '',
+          //     name: item.productName,
+          //     subtitle: item.subCategoryName ? `(${item.subCategoryName})` : '',
+          //     image:
+          //       item.productImagesList?.length && item.productImagesList[0]
+          //         ? this.baseUrl + item.productImagesList[0]
+          //         : 'assets/no-image.png',
 
-              productImagesList: item.productImagesList?.length
-                ? item.productImagesList.map((img: string) => this.baseUrl + img)
-                : item.image
-                  ? [item.image]
+          //     productImagesList: item.productImagesList?.length
+          //       ? item.productImagesList.map((img: string) => this.baseUrl + img)
+          //       : item.image
+          //         ? [item.image]
+          //         : ['assets/no-image.png'],
+
+          //     categoryId: item.categoryID,
+          //     subcatId: item.subCategoryID,
+          //     productID: item.productID,
+
+          //     weights: item.weightList || [],
+          //     selectedWeight: item.weightList?.[0],
+          //     originalPrice: item.weightList?.[0]?.productPrice || item.productPrice,
+
+          //     price:
+          //       item.weightList?.[0]
+          //         ? (item.weightList[0].productPrice -
+          //           (item.weightList[0].disCountProductprice || 0))
+          //         : item.productPrice || 0,
+
+          //     discount: item.weightList?.[0]?.disCountProductprice || item.disCountProductprice
+          //       ? Math.round((item.weightList?.[0]?.disCountProductprice / item.weightList?.[0]?.productPrice) * 100)
+          //       : 0,
+
+          //     highlights: item.productHighlight,
+          //     description: item.productDescription,
+          //     isFrozen: item.isfrozenProduct || false,
+          //     isTopHighlight: item.isHighlightedProduct || false,
+          //     isFreeItem: false,
+          //     promoId: null
+          //   })
+          // );
+
+          // ⭐ SORT highlighted products first
+
+
+
+
+          const mappedProducts: Product[] = res.ProductDetails.map(
+            (item: any, index: number) => {
+
+              // ✅ STEP 1: Sort weights (g < kg)
+              const sortedWeights = (item.weightList || []).slice().sort((a: any, b: any) => {
+                const toGrams = (w: any) =>
+                  w.weightUnit === 'kg' ? w.weightNumber * 1000 : w.weightNumber;
+                return toGrams(a) - toGrams(b);
+              });
+
+              // ✅ STEP 2: Pick smallest weight
+              const defaultWeight = sortedWeights[0];
+
+              return {
+                id: index + 1,
+                type: item.categoryName ? `(${item.categoryName})` : '',
+                name: item.productName,
+                subtitle: item.subCategoryName ? `(${item.subCategoryName})` : '',
+                image:
+                  item.productImagesList?.length && item.productImagesList[0]
+                    ? this.baseUrl + item.productImagesList[0]
+                    : 'assets/no-image.png',
+
+                productImagesList: item.productImagesList?.length
+                  ? item.productImagesList.map((img: string) => this.baseUrl + img)
                   : ['assets/no-image.png'],
 
-              // discount: this.getDiscount(item.offerPercentage),
-              // originalPrice: item.productPrice,
-              // price: item.disCountProductprice > 0
-              //   ? item.disCountProductprice
-              //   : item.productPrice,
-              // weights: item.weightList || [],
-              // selectedWeight: item.weightList?.[0] || '',
-              categoryId: item.categoryID,
-              subcatId: item.subCategoryID,
-              productID: item.productID,
+                categoryId: item.categoryID,
+                subcatId: item.subCategoryID,
+                productID: item.productID,
 
-              weights: item.weightList || [],
-              selectedWeight: item.weightList?.[0],
-              originalPrice: item.weightList?.[0]?.productPrice || item.productPrice,
-              // price:
-              //   item.weightList?.[0]?.disCountProductprice > 0
-              //     ? item.weightList[0].disCountProductprice
-              //     : item.weightList?.[0]?.productPrice || item.productPrice,
+                // 🔥 UPDATED PART
+                weights: sortedWeights,
+                selectedWeight: defaultWeight,
 
-              price:
-                item.weightList?.[0]
-                  ? (item.weightList[0].productPrice -
-                    (item.weightList[0].disCountProductprice || 0))
-                  : item.productPrice || 0,
+                originalPrice: defaultWeight?.productPrice || item.productPrice,
+                price:
+                  defaultWeight
+                    ? defaultWeight.productPrice -
+                    (defaultWeight.disCountProductprice || 0)
+                    : item.productPrice || 0,
 
-              discount: item.weightList?.[0]?.disCountProductprice || item.disCountProductprice
-                ? Math.round((item.weightList?.[0]?.disCountProductprice / item.weightList?.[0]?.productPrice) * 100)
-                : 0,
+                discount:
+                  defaultWeight?.disCountProductprice
+                    ? Math.round(
+                      (defaultWeight.disCountProductprice / defaultWeight.productPrice) * 100
+                    )
+                    : 0,
 
-              highlights: item.productHighlight,
-              description: item.productDescription,
-              isFrozen: item.isfrozenProduct || false,
-              isFreeItem: false,
-              promoId: null
-            })
+                highlights: item.productHighlight,
+                description: item.productDescription,
+                isFrozen: item.isfrozenProduct || false,
+                isTopHighlight: item.isHighlightedProduct || false,
+                isFreeItem: false,
+                promoId: null
+              };
+            }
           );
+
+
+
+          mappedProducts.sort((a, b) => Number(b.isTopHighlight) - Number(a.isTopHighlight));
 
           this.newLaunchedProducts = [
             ...this.newLaunchedProducts,
             ...mappedProducts
           ];
+          this.LoadPromoData();
 
         } else {
           this.openSnackBar(res.message, '');
@@ -740,6 +912,53 @@ export class ProductsComponent {
       }
     );
   }
+  LoadPromoData() {
+    const promoList = JSON.parse(localStorage.getItem('BUY_GET_PROMO') || 'null');
+    console.log("BUY GET PROMOS >>>", promoList);
+
+    if (!promoList || !promoList.length) return;
+
+    const promo = promoList[0]; // ✅ THIS IS IMPORTANT
+
+    this.CustomerService.showLoader.next(true);
+
+    const payload = {
+      categoryID: promo.applicableIds?.[0],
+      productID: promo.selectFreeProductID
+    };
+
+    console.log('Payload >>>', payload);
+
+    this.CustomerService.GetPromoDataDetails(payload).subscribe(
+      (posRes: any) => {
+        console.log(posRes);
+
+        if (posRes.response === 3) {
+          const proproduct = posRes.ProductData;
+
+          const Proimage =
+            proproduct?.productImagesList?.length
+              ? this.baseUrl + proproduct.productImagesList[0]
+              : 'assets/no-image.png';
+
+          localStorage.setItem('ForFreeItmSubID', proproduct.subCategoryID);
+          localStorage.setItem('ForFreeImg', Proimage)
+
+        } else {
+          this.openSnackBar(posRes.message, '');
+        }
+
+        this.CustomerService.showLoader.next(false);
+      },
+      (err) => {
+        this.openSnackBar(err.message, '');
+        this.CustomerService.showLoader.next(false);
+        console.warn(err.error);
+      }
+    );
+  }
+
+
   onWeightChange(product: {
     selectedWeight: {
       productPrice: number;
@@ -796,10 +1015,17 @@ export class ProductsComponent {
 
     return numericValue ? Number(numericValue) : 0;
   }
+  // openSnackBar(message: string, action: string) {
+  //   this.snackBar.open(message, action, {
+  //     duration: 3000,
+  //     panelClass: "red-snackbar",
+  //   });
+  // }
   openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action, {
       duration: 3000,
-      panelClass: "red-snackbar",
+      panelClass: ['center-snackbar'],
+      horizontalPosition: 'center'
     });
   }
   toggleProductsDropdown(event: Event): void {
@@ -1011,7 +1237,22 @@ export class ProductsComponent {
     this.router.navigate(["/about-us"])
   }
 
-
+  navigateorders() {
+    this.router.navigate(["/OrderSummary"])
+  }
+  Logout() {
+    this.cartItems = [];
+    localStorage.removeItem('cartItems');
+    localStorage.removeItem('paymentStatus');
+    this.shopService.clearCart();
+    // localStorage.removeItem('Userid');
+    let userid = "NotLogin";                 // 🔥 IMPORTANT
+    this.CustomerService.setUserId(userid);
+    this.shopService.cartCountItems.next(0);
+    localStorage.clear();
+    // this.openSnackBar('You’ve been logged out successfully.', '');
+    this.router.navigateByUrl('/home');
+  }
 
   @ViewChildren('productCard') cards!: QueryList<ElementRef>;
   @ViewChildren('animate') elements!: QueryList<ElementRef>;

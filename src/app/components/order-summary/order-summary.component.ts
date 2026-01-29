@@ -1,11 +1,17 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MaitreyaCustomerService } from 'src/app/services/maitreya-customer.service';
+
+import { HttpErrorResponse } from '@angular/common/http';
+import { ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ShopsService } from 'src/app/services/shops.service';
 import emailjs from '@emailjs/browser';
 import { AfterViewInit, QueryList, ViewChildren } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { LoginComponent } from '../login/login.component';
+
 interface CarouselSlide {
   title: string
   titleHighlight: string
@@ -48,12 +54,7 @@ interface Product {
   subcatId: string;
 
   description?: string[]
-  highlights?: string[],
-  isFrozen?: boolean;
-  isTopHighlight?: boolean;
-
-  isFreeItem?: boolean;
-  promoId?: string;
+  highlights?: string[]
 }
 
 
@@ -70,30 +71,39 @@ interface ProductCategory {
   route: string
 }
 
-@Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
-})
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  isSubmitting = false;
-  isSubmitted = false;
-  submittedText: string = "";
+interface OrderResponse {
+  response: number;
+  OrderData: any[];
+}
+
+@Component({
+  selector: 'app-order-summary',
+  templateUrl: './order-summary.component.html',
+  styleUrls: ['./order-summary.component.css']
+})
+export class OrderSummaryComponent {
+
+  orders: any[] = [];
+  loading = true;
+  baseUrl: string = "";
+  userid: string = "";
+
+  activeSection: string = 'order';
   currentSlide = 0
   autoPlayInterval: any
   @ViewChild("bestSellersScroll") bestSellersScroll!: ElementRef
   currentTestimonial = 0
   Math = Math
-  baseUrl: string = '';
-  showMobileMenu = false;
-  showMobileProducts = false;
+  activePolicy: string = 'terms'
+
+  showProductsDropdown = false;
   @ViewChildren('animate') elements!: QueryList<ElementRef>;
   slides: CarouselSlide[] = [
     {
       title: "100% Vegetarian/Vegan",
       titleHighlight: "frozen food",
-      description: "We are committed to bringing you authentic, flavourful, and thoughtfully crafted foods that celebrate global culinary heritage.",
+      description: "Lorem ipsum dolor sit amet consectetur. Aenean mau risnam tortor curabitur phasellus.",
       customerAvatars: ["../../../assets/Ellipse5.png",
         "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
       rating: 4.8,
@@ -104,191 +114,219 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       productRating: 4,
       price: "5.80",
     },
-
     {
-      title: "Wholesome &",
-      titleHighlight: "Premium",
+      title: "Delicious Organic",
+      titleHighlight: "vegan meals",
+      description: "Experience the best taste with our handcrafted organic vegan products.",
+      customerAvatars: ["../../../assets/Ellipse5.png",
+        "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
+      rating: 4.9,
+      reviewCount: "22.3k Review",
+      productImage: "../../../assets/Rectangle2.png",
+      productIcon: "../../../assets/Rectangle2.png",
+      productName: "Vegan Mix",
+      productRating: 5,
+      price: "7.50",
+    },
+    {
+      title: "Premium Quality",
+      titleHighlight: "plant-based",
       description: "Sourced from the finest ingredients for your healthy lifestyle.",
       customerAvatars: ["../../../assets/Ellipse5.png",
         "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
       rating: 4.7,
       reviewCount: "15.8k Review",
-      productImage: "../../../assets/fishball.avif",
-      productIcon: "../../../assets/fishball.avif",
-      productName: "FishBall",
-      productRating: 4,
-      price: "6.20",
-    },
-    {
-      title: "Premium Quality",
-      titleHighlight: "Premium ingredients",
-      description: "Carefully sourced ingredients to nourish your healthy lifestyle",
-      customerAvatars: ["../../../assets/Ellipse5.png",
-        "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
-      rating: 4.7,
-      reviewCount: "15.8k Review",
-      productImage: "../../../assets/vegandk.jpg",
-      productIcon: "../../../assets/vegandk.jpg",
-      productName: "VegHKBBQ",
-      productRating: 4,
-      price: "6.20",
-    },
-    {
-      title: "Plant-Powered",
-      titleHighlight: "Perfection",
-      description: "Where quality ingredients meet healthy living.",
-      customerAvatars: ["../../../assets/Ellipse5.png",
-        "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
-      rating: 4.7,
-      reviewCount: "15.8k Review",
-      productImage: "../../../assets/vegblack.avif",
-      productIcon: "../../../assets/vegblack.avif",
-      productName: "Black Fish",
-      productRating: 4,
-      price: "6.20",
-    },
-    {
-      title: "Good Food, Great",
-      titleHighlight: "Plants ",
-      description: "Made using the finest plant-based ingredients for everyday wellness.",
-      customerAvatars: ["../../../assets/Ellipse5.png",
-        "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
-      rating: 4.7,
-      reviewCount: "15.8k Review",
-      productImage: "../../../assets/SVF-ROASTED-DUCK1.jpg",
-      productIcon: "../../../assets/SVF-ROASTED-DUCK1.jpg",
-      productName: "VeganDuck",
-      productRating: 4,
-      price: "6.20",
-    },
-    {
-      title: "High-quality sourcing for ",
-      titleHighlight: "high-quality living",
-      description: "Powered by high-quality, responsibly sourced plant ingredients.",
-      customerAvatars: ["../../../assets/Ellipse5.png",
-        "../../../assets/Ellipse6.png", "../../../assets/Ellipse7.png"],
-      rating: 4.7,
-      reviewCount: "15.8k Review",
-      productImage: "../../../assets/mushroom1.avif",
-      productIcon: "../../../assets/mushroom1.avif",
-      productName: "MuttonMushroom",
+      productImage: "../../../assets/Rectangle3.png",
+      productIcon: "../../../assets/Rectangle3.png",
+      productName: "Plant Bowl",
       productRating: 4,
       price: "6.20",
     },
   ]
 
-
-  bannerslides: any[] = [];
-  currentSlide_bnr = 0;
-  autoPlayInterval2: any
-
+showMobileMenu = false;
+showMobileProducts = false;
   newLaunchedProducts: Product[] = [];
   bestSellers: Product[] = []
   isCartOpen: boolean = false;
   cartCount: number = 0;
-  activeSection: string = 'home';
-  bgimage: string = '../../../assets/home_bg.png';
-
-
-@ViewChild('bs2Scroll', { static: false }) bs2Scroll!: ElementRef;
-
-  isOfferApplicable: boolean = false;
-  offerProductId = "";
-  offerText: string = '';
-  offerProductImage = "../../../assets/side1.png"
-  buyGetPromotion: any = null;
-
-  isLoggeIn: boolean = false;
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
     private CustomerService: MaitreyaCustomerService,
-    private shopService: ShopsService
+    private shopService: ShopsService,
+    private route: ActivatedRoute,
+    private dialog: MatDialog,
   ) {
     this.shopService.cartCountItems.subscribe(count => {
       this.cartCount = count;
     });
-  }
+    // this.CustomerService.userId$
+    //   .subscribe(uid => {
+    //     console.log('UserID from observable:', uid);
+
+    //     // ✅ IF condition
+    //     if (uid && uid.trim() !== '') {
+    //       if (uid !== this.userid) {
+    //         this.userid = uid;
+
+    //       }
+    //     }
+    //     // ✅ ELSE condition (logout / not logged in)
+    //     else {
+    //       this.userid = '';
+    //       this.orders = [];
+    //       console.log('No user → open login if needed');
+    //     }
+    //     this.loadOrders();
+    //   });
 
 
-  setActive(section: string): void {
-    this.activeSection = section;
+    // console.log(this.userid)
+
   }
 
   ngOnInit() {
     this.baseUrl = this.CustomerService.baseUrl;
     this.startAutoPlay();
-
-    this.GetAllCategories();
     this.GetHomepageData();
-    // this.LoadPromoData();
-    this.startAutoPlay2();
+    this.GetAllCategories();
     this.newLaunchedProducts.forEach(p => {
       if (!p.selectedWeight) {
         p.selectedWeight = p.weights?.[0];
       }
     });
-    this.CustomerService.userIdSubject.subscribe((val: any) => {
-      console.log(val);
-      if (val != 'NotLogin') {
-        this.isLoggeIn = true;
-      }
-    })
-    this.CustomerService.latestOrder$.subscribe((orders: any[]) => {
-      if (orders && orders.length > 0) {
-        this.isLoggeIn = true; // guest order = logged in
-      }
-    });
-
-    this.CustomerService.latestOrder$.subscribe((orders: any[]) => {
-      if (orders && orders.length > 0) {
-        this.isLoggeIn = true;
-      }
-    });
-
 
     this.subscribeCart();
+    this.route.params.subscribe(params => {
+      this.activePolicy = params['type'];
+      window.scrollTo(0, 0);
+    });
+
+    this.CustomerService.latestOrder$.subscribe((orders: any[]) => {
+      this.orders = orders;
+      console.log(this.orders)
+    });
+
+  }
+
+  setActive(section: string): void {
+    console.log(section)
+    this.activeSection = section;
+  }
+   navigatetocontact() {
+    this.router.navigate(["/ContactUs"])
+  }
+ 
+  loadOrders2() {
+    if (this.userid != '') {
+      let payload = {
+        userID: this.userid,
+        orderID: "All"
+      }
+      console.log(payload)
+      this.CustomerService.OrdersFetch(payload).subscribe(
+        (res: any) => {
+          console.log(res)
+          if (res.response === 3) {
+            this.orders = res.OrderData.sort(
+              (a: any, b: any) => b.orderTimeStamp - a.orderTimeStamp
+            );
+            console.log(this.orders)
+            this.loading = false;
+
+          } else {
+            this.orders = [];
+            this.loading = false;
+            this.openSnackBar(res.message, '');
+            this.CustomerService.showLoader.next(false);
+          }
+        },
+        (err) => {
+          this.openSnackBar(err.message, '');
+          this.CustomerService.showLoader.next(false);
+        }
+      );
+    }
+    if (!this.userid || this.userid.trim() === '') {
+      this.loading = false; // ✅ stop loader
+
+      let dailogRef = this.dialog.open(LoginComponent, {
+        panelClass: 'col-md-3',
+        hasBackdrop: true,
+        disableClose: true,
+        data: {
+        }
+      });
+      dailogRef.afterClosed().subscribe((res) => {
+        console.log(res)
+        if (res) {
+          this.router.navigate(["/home"])
+
+        }
+      });
+    }
+
+  }
+
+  loadOrders() {
+    // 🔥 IMPORTANT FIX
+    if (!this.userid || this.userid.trim() === '') {
+      this.loading = false; // ✅ stop loader
+
+      const dialogRef = this.dialog.open(LoginComponent, {
+        panelClass: 'col-md-3',
+        hasBackdrop: true,
+        disableClose: true
+      });
+
+      dialogRef.afterClosed().subscribe(res => {
+        if (res) {
+          // this.router.navigate(['/home']);
+          //  this.router.navigate(['/OrderSummary']);
+          return; // ⛔ stop execution
+        }
+      });
+
+
+    } else {
+
+
+
+      // ✅ Logged-in user flow
+      this.loading = true;
+
+      const payload = {
+        userID: this.userid,
+        orderID: 'All'
+      };
+
+      this.CustomerService.OrdersFetch(payload).subscribe(
+        (res: any) => {
+          if (res.response === 3 && res.OrderData?.length) {
+            this.orders = res.OrderData.sort(
+              (a: any, b: any) => b.orderTimeStamp - a.orderTimeStamp
+            );
+          } else {
+            this.orders = [];
+          }
+          this.loading = false;
+        },
+        (err) => {
+          this.loading = false;
+          this.openSnackBar(err.message, '');
+        }
+      );
+    }
+  }
+
+  getOrderDate(ts: string) {
+    return new Date(Number(ts));
   }
 
   ngOnDestroy() {
     this.stopAutoPlay()
-    this.stopAutoPlay2();
   }
-
-private getBs2ScrollAmount(): number {
-  const container = this.bs2Scroll?.nativeElement;
-  if (!container) return 0;
-
-  const card = container.querySelector('.bs2-card') as HTMLElement;
-  if (!card) return 0;
-
-  const styles = window.getComputedStyle(container);
-  const gap = parseFloat(styles.gap || '0');
-
-  return card.getBoundingClientRect().width + gap;
-}
-
-scrollBs2Left() {
-  const container = this.bs2Scroll?.nativeElement;
-  if (!container) return;
-
-  const scrollAmount = this.getBs2ScrollAmount();
-  if (!scrollAmount) return;
-
-  container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-}
-
-scrollBs2Right() {
-  const container = this.bs2Scroll?.nativeElement;
-  if (!container) return;
-
-  const scrollAmount = this.getBs2ScrollAmount();
-  if (!scrollAmount) return;
-
-  container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-}
-
-
 
   startAutoPlay() {
     this.autoPlayInterval = setInterval(() => {
@@ -296,20 +334,9 @@ scrollBs2Right() {
     }, 5000)
   }
 
-  startAutoPlay2() {
-    this.autoPlayInterval2 = setInterval(() => {
-      this.nextSlide2()
-    }, 5000)
-  }
   stopAutoPlay() {
     if (this.autoPlayInterval) {
       clearInterval(this.autoPlayInterval)
-    }
-  }
-
-  stopAutoPlay2() {
-    if (this.autoPlayInterval2) {
-      clearInterval(this.autoPlayInterval2)
     }
   }
 
@@ -327,26 +354,7 @@ scrollBs2Right() {
     this.startAutoPlay()
   }
 
-
-  nextSlide2() {
-    this.currentSlide_bnr = (this.currentSlide_bnr + 1) % this.bannerslides.length
-  }
-
-  prevSlide2() {
-    this.currentSlide_bnr = this.currentSlide_bnr === 0 ? this.bannerslides.length - 1 : this.currentSlide_bnr - 1
-  }
-
-  goToSlide2(index: number) {
-    this.currentSlide_bnr = index
-    this.stopAutoPlay2()
-    this.startAutoPlay2()
-  }
-
-  get firstRowProducts() {
-    return this.newLaunchedProducts.slice(0, 5);
-  }
   addToCart(product: Product) {
-    console.log(product)
     const w = product.selectedWeight;
     if (!w) return;
 
@@ -355,109 +363,37 @@ scrollBs2Right() {
       weightKey: w.weightKey,
       weightNumber: w.weightNumber,
       weightUnit: w.weightUnit,
-      price: product.price,
-      promoId: product.promoId,
-      isFreeItem: product.isFreeItem || false
+      price: product.price
     });
-    this.openSnackBar('Added to cart successfully', '');
   }
 
-
   scrollBestSellersLeft() {
-    if (!this.bestSellersScroll) return;
-
-    const container = this.bestSellersScroll.nativeElement;
-    const card = container.querySelector('.product-card2') as HTMLElement;
-
-    if (!card) return;
-
-    const styles = window.getComputedStyle(container);
-    const gap = parseInt(styles.columnGap || styles.gap || '0', 10);
-
-    const scrollAmount = card.offsetWidth + gap;
-
-    container.scrollBy({
-      left: -scrollAmount,
-      behavior: 'smooth'
-    });
+    if (this.bestSellersScroll) {
+      this.bestSellersScroll.nativeElement.scrollBy({
+        left: -350,
+        behavior: "smooth",
+      })
+    }
+  }
+  navigatetoabout() {
+    this.router.navigate(["/about-us"])
   }
 
   scrollBestSellersRight() {
-    if (!this.bestSellersScroll) return;
-
-    const container = this.bestSellersScroll.nativeElement;
-    const card = container.querySelector('.product-card2') as HTMLElement;
-
-    if (!card) return;
-
-    const styles = window.getComputedStyle(container);
-    const gap = parseInt(styles.columnGap || styles.gap || '0', 10);
-
-    const scrollAmount = card.offsetWidth + gap;
-
-    container.scrollBy({
-      left: scrollAmount,
-      behavior: 'smooth'
-    });
+    if (this.bestSellersScroll) {
+      this.bestSellersScroll.nativeElement.scrollBy({
+        left: 350,
+        behavior: "smooth",
+      })
+    }
   }
 
-
-  // scrollBestSellersLeft() {
-  //   if (!this.bestSellersScroll) return;
-
-  //   const container = this.bestSellersScroll.nativeElement;
-  //   const card = container.querySelector('.product-card2');
-
-  //   if (!card) return;
-
-  //   // const cardWidth = card.offsetWidth;
-
-  //   // container.scrollBy({
-  //   //   left: -cardWidth,
-  //   //   behavior: 'smooth',
-  //   // });
-  //   const gap = 30; // MUST match CSS gap
-  //   const scrollAmount = card.offsetWidth + gap;
-
-  //   container.scrollBy({
-  //     left: -scrollAmount,
-  //     behavior: 'smooth'
-  //   });
-
-  //   requestAnimationFrame(() => this.animateBestSellers());
-  // }
-
-  // scrollBestSellersRight() {
-  //   if (!this.bestSellersScroll) return;
-
-  //   const container = this.bestSellersScroll.nativeElement;
-  //   const card = container.querySelector('.product-card2');
-
-  //   if (!card) return;
-
-  //   // const cardWidth = card.offsetWidth;
-
-
-  //   // container.scrollBy({
-  //   //   left: cardWidth,
-  //   //   behavior: 'smooth',
-  //   // });
-  //   const gap = 30;
-  //   const scrollAmount = card.offsetWidth + gap;
-
-  //   container.scrollBy({
-  //     left: scrollAmount,
-  //     behavior: 'smooth'
-  //   });
-
-  //   requestAnimationFrame(() => this.animateBestSellers());
-  // }
 
   reviewerAvatars: string[] = ["../../../assets/testi_1.png", "../../../assets/testi_2.png", "../../../assets/testi_3.png"]
 
   testimonials: Testimonial[] = [
     {
-      text: "I absolutely love these plant-based delights! Every bite is fresh, flavorful, and satisfying. The variety and quality make it easy to enjoy healthy meals without compromising on taste.",
+      text: "Lorem ipsum dolor sit amet consectetur. Aenean maurisnam tortor curabitur phasellus. Lorem ipsum dolor sit amet consectetur. Aenean maurisnam tortor curabitur phasellus.",
       name: "Theresa Jordan",
       role: "Food Enthusiast",
       avatar: "../../../assets/testi_1.png",
@@ -491,16 +427,24 @@ scrollBs2Right() {
       behavior: 'smooth'
     });
   }
+
   scrollToSection(sectionId: string): void {
+    console.log(sectionId)
     const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
+
+    if (!element) return;
+
+    const yOffset = -300; // 👈 adjust this value
+    const y =
+      element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+    window.scrollTo({
+      top: y,
+      behavior: 'smooth'
+    });
   }
-  showProductsDropdown = false;
+
+
 
   goToProduct(section: string) {
     // this.showProductsDropdown = false;
@@ -522,7 +466,7 @@ scrollBs2Right() {
     { label: 'Home', sectionId: 'home', route: "/home" },
     { label: 'About', sectionId: 'about', route: '/about-us' },
     { label: 'Products', sectionId: 'products', route: '/products' },
-    { label: 'Contact Us', sectionId: 'contact', route: '/ContactUs' },
+      { label: 'Contact Us', sectionId: 'contact', route: '/ContactUs' },
 
   ];
 
@@ -553,22 +497,12 @@ scrollBs2Right() {
 
   }
 
-  // openSnackBar(message: string, action: string) {
-  //   this.snackBar.open(message, action, {
-  //     duration: 3000,
-  //     panelClass: "red-snackbar",
-  //   });
-  // }
-
-
   openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action, {
       duration: 3000,
-      panelClass: ['center-snackbar'],
-      horizontalPosition: 'center'
+      panelClass: "red-snackbar",
     });
   }
-
 
   productCategories: ProductCategory[] = []
 
@@ -605,65 +539,6 @@ scrollBs2Right() {
     this.activeSection = section
     this.router.navigate(["/products"])
   }
-
-  mapProducts(products: any[]) {
-    const promo = JSON.parse(localStorage.getItem('BUY_GET_PROMO') || 'null');
-
-    this.newLaunchedProducts = products.map((item: any, index: number): Product => {
-
-      const weights: ProductWeight[] = (item.weightList || []).map((w: any) => ({
-        ...w,
-        weightKey: `${w.weightNumber}_${w.weightUnit}`
-      }));
-
-      const selectedWeight = weights[0];
-
-      const isPromoApplicable = promo && (
-        (promo.applicableOn === 'CATEGORY' && promo.applicableIds.includes(item.categoryID)) ||
-        (promo.applicableOn === 'SUBCATEGORY' && promo.applicableIds.includes(item.subCategoryID))
-      );
-
-      return {
-        id: index + 1,
-        productID: item.productID,
-        name: item.productName,
-        subtitle: item.subCategoryName ? `(${item.subCategoryName})` : '',
-        image: item.productImagesList?.length
-          ? this.baseUrl + item.productImagesList[0]
-          : 'assets/no-image.png',
-
-        productImagesList: item.productImagesList?.map(
-          (img: string) => this.baseUrl + img
-        ),
-
-        weights,
-        selectedWeight,
-
-        originalPrice: selectedWeight?.productPrice || 0,
-        price: selectedWeight?.productPrice || 0,
-
-        discount: selectedWeight?.disCountProductprice
-          ? Math.round(
-            (selectedWeight.disCountProductprice / selectedWeight.productPrice) * 100
-          )
-          : 0,
-
-        type: item.categoryName ? `(${item.categoryName})` : '',
-        categoryId: item.categoryID,
-        subcatId: item.subCategoryID,
-
-        highlights: item.productHighlight,
-        description: item.productDescription,
-        isFrozen: item.isfrozenProduct || false,
-        isTopHighlight: item.isTopHighlight || false,
-
-        // ✅ PROMO FLAGS
-        isFreeItem: false,
-        promoId: isPromoApplicable ? promo.promotionID : null
-      };
-    });
-  }
-
   GetHomepageData() {
     this.CustomerService.showLoader.next(true);
 
@@ -672,46 +547,6 @@ scrollBs2Right() {
         console.log(posRes);
 
         if (posRes.response === 3) {
-          const promo = JSON.parse(localStorage.getItem('BUY_GET_PROMO') || 'null');
-
-          const buyGetPromos = posRes.BuyGetPromotions_Data?.filter(
-            (p: any) => p.isActive === true
-          ) || [];
-
-          console.log("BUY GET PROMOS >>>", buyGetPromos);
-
-          /* Set banner image (first active promo) */
-          this.bgimage = buyGetPromos.length
-            ? this.baseUrl + buyGetPromos[0].advertisementImage
-            : '';
-
-          // Convert promos to carousel slides
-          this.bannerslides = buyGetPromos.map((promo: any) => ({
-            image: encodeURI(this.baseUrl + promo.advertisementImage)
-          }));
-
-
-          console.log(this.bannerslides)
-
-          /* Store or remove promo */
-          if (buyGetPromos.length) {
-            this.shopService.setBuyGetPromotion(buyGetPromos);
-          } else {
-            localStorage.removeItem('BUY_GET_PROMO');
-          }
-
-          const discountPromo = posRes.DiscountPromotions_Data?.filter(
-            (p: any) => p.isActive === true
-          ) || [];
-
-
-          if (discountPromo) {
-            this.shopService.setDiscountPromotion(discountPromo);
-          }
-
-          console.log("discountPromo >>>", discountPromo);
-
-          this.LoadPromoData();
           /* 🔥 NEW LAUNCHED PRODUCTS */
           this.newLaunchedProducts = posRes.NewProducts.map(
             (item: any, index: number): Product => {
@@ -722,12 +557,6 @@ scrollBs2Right() {
               }));
 
               const selectedWeight = weights[0];
-              const isPromoApplicable = promo && (
-                promo.applicableOn === 'CATEGORY' &&
-                promo.applicableIds.includes(item.categoryID)
-              );
-
-
 
               return {
                 id: index + 1,
@@ -762,13 +591,7 @@ scrollBs2Right() {
                 subcatId: item.subCategoryID,
 
                 highlights: item.productHighlight,
-                description: item.productDescription,
-                isFrozen: item.isfrozenProduct || false,
-                isTopHighlight: item.isHighlightedProduct || false,
-
-                // 🎯 NEW PROMO FLAGS
-                isFreeItem: !!isPromoApplicable,
-                promoId: isPromoApplicable ? promo.promotionID : null
+                description: item.productDescription
               };
             }
           );
@@ -785,11 +608,6 @@ scrollBs2Right() {
               }));
 
               const selectedWeight = weights[0];
-              const isPromoApplicable = promo && (
-                promo.applicableOn === 'CATEGORY' &&
-                promo.applicableIds.includes(item.categoryID)
-              );
-
 
               return {
                 id: index + 1,
@@ -823,22 +641,12 @@ scrollBs2Right() {
                 categoryId: item.categoryID,
                 subcatId: item.subCategoryID,
                 highlights: item.productHighlight,
-                description: item.productDescription,
-                isFrozen: item.isfrozenProduct || false,
-                isTopHighlight: item.isHighlightedProduct || false,
-
-                // 🎯 NEW PROMO FLAGS
-                isFreeItem: !!isPromoApplicable,
-                promoId: isPromoApplicable ? promo.promotionID : null
+                description: item.productDescription
               };
             }
           );
-          // ✅ THIS IS THE KEY
-          setTimeout(() => {
-            this.animateBestSellers();
-          }, 0);
 
-          // this.resolveProductNavigation(this.bestSellers);
+
           this.CustomerService.showLoader.next(false);
 
         } else {
@@ -854,65 +662,7 @@ scrollBs2Right() {
     );
   }
 
-  LoadPromoData() {
-    const promoList = JSON.parse(localStorage.getItem('BUY_GET_PROMO') || 'null');
-    console.log("BUY GET PROMOS >>>", promoList);
 
-    if (!promoList || !promoList.length) return;
-
-    const promo = promoList[0]; // ✅ THIS IS IMPORTANT
-
-    this.CustomerService.showLoader.next(true);
-
-    const payload = {
-      categoryID: promo.applicableIds?.[0],
-      productID: promo.selectFreeProductID
-    };
-
-    console.log('Payload >>>', payload);
-
-    this.CustomerService.GetPromoDataDetails(payload).subscribe(
-      (posRes: any) => {
-        console.log(posRes);
-
-        if (posRes.response === 3) {
-          const proproduct = posRes.ProductData;
-
-          const Proimage =
-            proproduct?.productImagesList?.length
-              ? this.baseUrl + proproduct.productImagesList[0]
-              : 'assets/no-image.png';
-
-          localStorage.setItem('ForFreeItmSubID', proproduct.subCategoryID);
-          localStorage.setItem('ForFreeImg', Proimage)
-
-        } else {
-          this.openSnackBar(posRes.message, '');
-        }
-
-        this.CustomerService.showLoader.next(false);
-      },
-      (err) => {
-        this.openSnackBar(err.message, '');
-        this.CustomerService.showLoader.next(false);
-        console.warn(err.error);
-      }
-    );
-  }
-
-
-  // private resolveProductNavigation(products: Product[]) {
-  //   const productId = localStorage.getItem('BuyXY_ProID');
-  //   console.log(productId)
-  //   if (!productId) return;
-
-  //   const product = products.find(p => p.productID === productId);
-  //   console.log(product)
-  //   if (!product) return;
-
-  //   localStorage.setItem('ForFreeItmCatID', product.categoryId);
-  //   localStorage.setItem('ForFreeItmSubID', product.subcatId);
-  // }
   onWeightChange(product: Product) {
     const w = product.selectedWeight;
 
@@ -1009,16 +759,13 @@ scrollBs2Right() {
 
 
   incrementQuantity(item: any) {
-    // if (item.isFreeItem) return;
     this.shopService.updateItem({
       productID: item.productID,
       cartTitle: item.cartTitle,   // ✅ CORRECT
       locqunatity: item.locqunatity + 1
     });
-    this.openSnackBar('Added to cart successfully', '');
   }
   decrementQuantity(item: any) {
-    // if (item.isFreeItem) return;
     if (item.locqunatity > 1) {
       this.shopService.updateItem({
         productID: item.productID,
@@ -1033,42 +780,102 @@ scrollBs2Right() {
     }
   }
 
+  // incrementQuantity(item: any) {
+  //   this.shopService.updateItem({
+  //     productID: item.productID,
+  //     cartTitle: item.weight,          // ✅ REQUIRED
+  //     locqunatity: item.locqunatity + 1
+  //   });
+  // }
+
+  // decrementQuantity(item: any) {
+  //   if (item.locqunatity > 1) {
+  //     this.shopService.updateItem({
+  //       productID: item.productID,
+  //       cartTitle: item.weight,        // ✅ REQUIRED
+  //       locqunatity: item.locqunatity - 1
+  //     });
+  //   } else {
+  //     this.shopService.removeFromCart(item.productID, item.weight);
+  //   }
+  // }
 
 
-
-  private getEligibleQty(): number {
-    if (!this.buyGetPromotion) return 0;
-
-    return this.cartItems
-      .filter(item =>
-        !item.isFreeItem &&
-        this.buyGetPromotion.applicableOn === 'CATEGORY' &&
-        this.buyGetPromotion.applicableIds.includes(item.categoryId)
-      )
-      .reduce((sum, item) => sum + item.locqunatity, 0);
-  }
   private subscribeCart() {
+    // this.shopService.getCart().subscribe(cart => {
+    //   // this.serverCartItems = cart;
+
+    //   this.cartItems = cart.map((item: any) => ({
+    //     id: item.itemID,
+    //     name: item.categoryName,
+    //     weight: item.cartTitle || '',
+    //     originalPrice: Number(item.price),
+    //     salePrice: Number(item.price),
+    //     quantity: item.locqunatity,
+    //     image: item.cartImage,
+    //     categoryId: item.categoryID,
+    //     subcatId: item.subcatID,
+    //     productID: item.productID,
+    //     locqunatity: item.locqunatity,
+    //   }));
+    // });
+
+
     this.shopService.getCart().subscribe(cart => {
       // this.serverCartItems = cart;
+      // console.log(this.serverCartItems)
+      // this.cartItems = cart.map((item: any) => {
+      //   const w = item.cartTitle;
+      //   return {
+      //     id: item.itemID,
+      //     name: item.categoryName,
+
+      //     // ✅ Weight display
+      //     weight: w ? `${w.weightNumber} ${w.weightUnit}` : '',
+
+      //     // ✅ Prices from cartTitle
+      //     originalPrice: w?.productPrice || 0,
+      //     salePrice:
+      //       w?.disCountProductprice && w.disCountProductprice > 0
+      //         ? w.disCountProductprice
+      //         : w?.productPrice || 0,
+
+      //     quantity: item.locqunatity,
+      //     locqunatity: item.locqunatity,
+
+      //     image: item.cartImage,
+      //     categoryId: item.categoryID,
+      //     subcatId: item.subcatID,
+      //     productID: item.productID,
+      //   };
+      // });
 
       this.cartItems = cart.map((item: any) => ({
         id: item.itemID,
         productID: item.productID,
         name: item.categoryName,
-        cartTitle: item.cartTitle,
+
+        cartTitle: item.cartTitle,   // 👈 REQUIRED
+
         weightLabel: `${item.cartTitle.weightNumber} ${item.cartTitle.weightUnit}`,
+
         originalPrice: item.cartTitle.productPrice,
-        salePrice: item.isFreeItem ? 0 : item.price,
+        // salePrice:
+        //   item.cartTitle.disCountProductprice > 0
+        //     ? item.cartTitle.disCountProductprice
+        //     : item.cartTitle.productPrice,
+
+        salePrice: item.price,
+
         quantity: item.locqunatity,
         locqunatity: item.locqunatity,
+
         image: item.cartImage,
         categoryId: item.categoryID,
         subcatId: item.subcatID,
-        isFrozen: item.isFrozen || false,
-        isFreeItem: item.isFreeItem || false,
-        promoId: item.promoId || null,
-        isTopHighlight: item.isTopHighlight || false
+        isFrozen: item.isFrozen || false
       }));
+
     });
   }
   newsletterEmail: string = '';
@@ -1079,47 +886,50 @@ scrollBs2Right() {
       return;
     }
 
+    // this.openSnackBar('Send to email in progress', '');
+
+    // 👉 call API / EmailJS here
+
+    // ✅ clear input after snackbar
     this.newsletterEmail = '';
   }
-
-
+  isSubmitting = false;
+  isSubmitted = false;
+  submittedText: string = "";
   async sendEmail() {
     if (this.isSubmitting) return;
 
     this.isSubmitting = true;
-
-    // 🔥 Force UI update
-    await new Promise(resolve => setTimeout(resolve));
-
     const apipayload = {
-      title: 'Maitreya Traders Customer contact us page',
-      name: 'Maitreya Traders',
+      title: "Maitreya Traders Customer contact us page ",
+      name: "Maitreya Traders",
       email: this.newsletterEmail,
     };
+    console.log(apipayload)
+    // "service_xd7q9u7","template_slg27hy"  template_slg27hy
+    let response = await emailjs.send("service_xd7q9u7", "template_slg27hy", apipayload, { publicKey: 'FXF6rxTuZE6ZIsRz2' });
+    console.log(response)
+    if (response.status == 200) {
+      // this.submittedText = 'Your Details Submitted! We will update your email.';
 
-    try {
-      const response = await emailjs.send(
-        'service_4i31vcn',
-        'template_vm2sdr9',
-        apipayload,
-        { publicKey: '0TocvA3hn_6xpQ9SV' }
-      );
+      this.openSnackBar('Your Details Submitted! We will update your email.', '');
 
-      if (response.status === 200) {
-        this.openSnackBar(
-          'Your Details Submitted! We will update your email.',
-          ''
-        );
+      setTimeout(() => {
+        this.isSubmitting = false;
+        this.isSubmitted = true;
         this.resetForm();
-      }
-    } catch (error) {
-      console.error(error);
+
+        setTimeout(() => {
+          this.isSubmitted = false;
+        }, 5000);
+      }, 2000);
+
+
+    } else {
+      // this.submittedText = 'Your Details Not Submitted!';
       this.openSnackBar('Your Details Not Submitted!', '');
-    } finally {
-      this.isSubmitting = false;
     }
   }
-
   resetForm() {
     this.newsletterEmail = ''
   }
@@ -1197,16 +1007,7 @@ scrollBs2Right() {
 
   Close_scientic_suply(event: any) {
     this.subDisplayPage = false;
-
-    setTimeout(() => {
-      this.elements.forEach(el => {
-        el.nativeElement.classList.remove('animate-up');
-        void el.nativeElement.offsetWidth; // force reflow
-        el.nativeElement.classList.add('animate-up');
-      });
-    }, 50);
   }
-
 
   scrollToContact() {
     this.activeSection = 'contact';
@@ -1223,16 +1024,44 @@ scrollBs2Right() {
       behavior: 'smooth'
     });
   }
-  navigatetocontact() {
-    this.router.navigate(["/ContactUs"])
+
+
+
+  ngAfterViewInit(): void {
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    this.elements.forEach(el => observer.observe(el.nativeElement));
   }
 
-  navigatetoabout() {
-    this.router.navigate(["/about-us"])
-  }
   navigateorders() {
     this.router.navigate(["/OrderSummary"])
   }
+
+toggleMobileMenu() {
+  this.showMobileMenu = !this.showMobileMenu;
+  if (!this.showMobileMenu) {
+    this.showMobileProducts = false;
+  }
+}
+
+closeMobileMenu() {
+  this.showMobileMenu = false;
+  this.showMobileProducts = false;
+}
+
+toggleMobileProducts() {
+  this.showMobileProducts = !this.showMobileProducts;
+}
   Logout() {
     this.cartItems = [];
     localStorage.removeItem('cartItems');
@@ -1246,77 +1075,4 @@ scrollBs2Right() {
     // this.openSnackBar('You’ve been logged out successfully.', '');
     // this.router.navigateByUrl('/home');
   }
-
-
-  @ViewChildren('productCard') cards!: QueryList<ElementRef>;
-  @ViewChildren('bestSellerCard') bestSellerCards!: QueryList<ElementRef>;
-
-  ngAfterViewInit(): void {
-    this.GetHomepageData();
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('show');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    this.elements?.forEach(el =>
-      observer.observe(el.nativeElement)
-    );
-
-    this.cards?.changes.subscribe(() => {
-      this.cards.forEach(card =>
-        observer.observe(card.nativeElement)
-      );
-    });
-
-    this.cards?.forEach(card =>
-      observer.observe(card.nativeElement)
-    );
-
-    // ===== BEST SELLERS: NO OBSERVER =====
-    this.animateBestSellers();
-  }
-
-  animateBestSellers(): void {
-    if (!this.bestSellerCards || this.bestSellerCards.length === 0) return;
-
-    // Reset animation
-    this.bestSellerCards.forEach(card => {
-      card.nativeElement.classList.remove('show');
-    });
-
-    // Trigger animation in next paint cycle (BEST way)
-    requestAnimationFrame(() => {
-      this.bestSellerCards.forEach(card => {
-        card.nativeElement.classList.add('show');
-      });
-    });
-  }
-
-
-
-  toggleMobileMenu() {
-    this.showMobileMenu = !this.showMobileMenu;
-    if (!this.showMobileMenu) {
-      this.showMobileProducts = false;
-    }
-  }
-
-  closeMobileMenu() {
-    this.showMobileMenu = false;
-    this.showMobileProducts = false;
-  }
-
-  toggleMobileProducts() {
-    this.showMobileProducts = !this.showMobileProducts;
-  }
-
-
 }
-

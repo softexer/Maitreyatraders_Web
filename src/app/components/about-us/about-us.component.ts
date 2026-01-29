@@ -81,7 +81,7 @@ export class AboutUsComponent implements OnInit, OnDestroy {
   baseUrl: string = '';
 
   showProductsDropdown = false;
-    @ViewChildren('animate') elements!: QueryList<ElementRef>;
+  @ViewChildren('animate') elements!: QueryList<ElementRef>;
   slides: CarouselSlide[] = [
     {
       title: "100% Vegetarian/Vegan",
@@ -128,6 +128,8 @@ export class AboutUsComponent implements OnInit, OnDestroy {
   ]
 
 
+showMobileMenu = false;
+  showMobileProducts = false;
   newLaunchedProducts: Product[] = [];
   bestSellers: Product[] = []
   isCartOpen: boolean = false;
@@ -144,12 +146,24 @@ export class AboutUsComponent implements OnInit, OnDestroy {
   }
 
   activeSection: string = 'about';
+  isLoggeIn: boolean = false;
 
   setActive(section: string): void {
     this.activeSection = section;
   }
 
   ngOnInit() {
+    this.CustomerService.userIdSubject.subscribe((val: any) => {
+      console.log(val);
+      if (val != 'NotLogin') {
+        this.isLoggeIn = true;
+      }
+    })
+    this.CustomerService.latestOrder$.subscribe((orders: any[]) => {
+      if (orders && orders.length > 0) {
+        this.isLoggeIn = true; // guest order = logged in
+      }
+    });
     this.baseUrl = this.CustomerService.baseUrl;
     this.startAutoPlay();
     this.GetHomepageData();
@@ -163,10 +177,28 @@ export class AboutUsComponent implements OnInit, OnDestroy {
     this.subscribeCart();
   }
 
+  toggleMobileMenu() {
+    console.log(this.showMobileMenu)
+    this.showMobileMenu = !this.showMobileMenu;
+    if (!this.showMobileMenu) {
+      this.showMobileProducts = false;
+    }
+  }
+
+  closeMobileMenu() {
+    this.showMobileMenu = false;
+    this.showMobileProducts = false;
+  }
+
+  toggleMobileProducts() {
+    this.showMobileProducts = !this.showMobileProducts;
+  }
   ngOnDestroy() {
     this.stopAutoPlay()
   }
-
+  navigatetoabout() {
+    this.router.navigate(["/about-us"])
+  }
   startAutoPlay() {
     this.autoPlayInterval = setInterval(() => {
       this.nextSlide()
@@ -274,19 +306,19 @@ export class AboutUsComponent implements OnInit, OnDestroy {
   // }
 
   scrollToSection(sectionId: string): void {
-  const element = document.getElementById(sectionId);
+    const element = document.getElementById(sectionId);
 
-  if (!element) return;
+    if (!element) return;
 
-  const yOffset = -300; // 👈 adjust this value
-  const y =
-    element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    const yOffset = -300; // 👈 adjust this value
+    const y =
+      element.getBoundingClientRect().top + window.pageYOffset + yOffset;
 
-  window.scrollTo({
-    top: y,
-    behavior: 'smooth'
-  });
-}
+    window.scrollTo({
+      top: y,
+      behavior: 'smooth'
+    });
+  }
 
 
 
@@ -303,13 +335,14 @@ export class AboutUsComponent implements OnInit, OnDestroy {
   logoPath = '../../../assets/logo.png';
 
   // Company description
-    companyDescription = 'At Maitreya Traders, we believe in combining health, taste, and tradition. Our mission is to make plant-based eating exciting and accessible by offering premium-quality vegan and vegetarian products sourced from around the world. ';
+  companyDescription = 'At Maitreya Traders, we believe in combining health, taste, and tradition. Our mission is to make plant-based eating exciting and accessible by offering premium-quality vegan and vegetarian products sourced from around the world. ';
 
   // Quick Links
   quickLinks = [
-     { label: 'Home', sectionId: 'home', route:"/home" },
+    { label: 'Home', sectionId: 'home', route: "/home" },
     { label: 'About', sectionId: 'about', route: '/about-us' },
     { label: 'Products', sectionId: 'products', route: '/products' },
+    { label: 'Contact Us', sectionId: 'contact', route: '/ContactUs' },
 
   ];
 
@@ -716,7 +749,7 @@ export class AboutUsComponent implements OnInit, OnDestroy {
         image: item.cartImage,
         categoryId: item.categoryID,
         subcatId: item.subcatID,
-        isFrozen : item.isFrozen || false
+        isFrozen: item.isFrozen || false
       }));
 
     });
@@ -870,7 +903,7 @@ export class AboutUsComponent implements OnInit, OnDestroy {
 
 
 
-    ngAfterViewInit(): void {
+  ngAfterViewInit(): void {
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
@@ -885,6 +918,28 @@ export class AboutUsComponent implements OnInit, OnDestroy {
 
     this.elements.forEach(el => observer.observe(el.nativeElement));
   }
+
+  navigateorders() {
+    this.router.navigate(["/OrderSummary"])
+  }
+  Logout() {
+    this.cartItems = [];
+    localStorage.removeItem('cartItems');
+    localStorage.removeItem('paymentStatus');
+    this.shopService.clearCart();
+    // localStorage.removeItem('Userid');
+    let userid = "NotLogin";                 // 🔥 IMPORTANT
+    this.CustomerService.setUserId(userid);
+    this.shopService.cartCountItems.next(0);
+    localStorage.clear();
+    // this.openSnackBar('You’ve been logged out successfully.', '');
+    this.router.navigateByUrl('/home');
+  }
+
+  navigatetocontact() {
+    this.router.navigate(["/ContactUs"])
+  }
+  
 
 }
 

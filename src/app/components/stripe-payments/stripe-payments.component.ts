@@ -96,11 +96,13 @@ export class StripePaymentsComponent implements OnInit {
       name: this.data.name
       // name: "Munvar"
     })
-   this.name= this.data.name;
+    this.name = this.data.name;
     this.getCustomerID();
     // this.stripeCustomerID = "cus_OQjZMb6QdKsd1x";
 
-    this.budjet = "" + Number(1 * 0.012);
+    // this.budjet = "" + Number(Number(this.data.totalAmt) * 1.27);
+    // this.budjet = "" + Number(Number(this.data.totalAmt) * 1.27);
+    this.budjet = this.data.totalAmt;
     this.inrCurrency = "" + 1;
   }
 
@@ -133,24 +135,28 @@ export class StripePaymentsComponent implements OnInit {
   createPamentInten(cardelemt: any) {
     // this.user.userID="7989354047"
     let obj = {
-      // customerID: this.stripeCustomerID,
-      // description: "To Payment Maitreya Traders - " + "7989354047",
-      // amount: "" + (0.01 * 100),
-      // currencyCode: "USD",
-      // paymentMethod: ["card"]
+      //       {
+      //     "totalAmt": 11.89,
+      //     "inrAmt": 1,
+      //     "name": "Zuoiz",
+      //     "email": "syed.sultana85@gmail.com",
+      //     "address": "Momin street",
+      //     "phno": "07989354047"
+      // }
 
       customerID: this.data.email,
       //  customerID:this.stripeCustomerID,
       description: "testing",
-      amount: "1000",
+      amount : this.budjet.toString(),
+      // amount: (Math.floor(parseFloat(this.budjet) * 100) / 100).toFixed(2).toString(),
       shipping: {
-        "name": this.data.name,
+        name: this.data.name,
         address: {
-          "line1": this.data.address,
-          "postal_code": "515001",
-          "city": "ATP",
-          "state": "Andra Pradesh",
-          "country": "India"
+          line1: this.data.address.address,
+          postal_code: this.data.address.pinCode,
+          city: this.data.address.city,
+          state: this.data.address.state,
+          country: this.data.address.country,
         }
       },
       currencyCode: "gbp",
@@ -167,27 +173,29 @@ export class StripePaymentsComponent implements OnInit {
           this.stripeService
             .confirmCardPayment(clientSecret, {
               payment_method: {
-              card: cardelemt,
-              billing_details: {
-                name: "Munvar Sultana",
-                email: "syed.sultana85@gmail.com",
-                address: {
-                  line1: '354 Oyster Point Blvd',
-                  line2: '',
-                  city: 'South San Francisco',
-                  state: 'CA',
-                  postal_code: '94080',
-                  country: 'US',
-                }
-              },
-            }
+                card: cardelemt,
+                billing_details: {
+                  name: this.data.name,
+                  email: this.data.email,
+                  address: {
+                    line1: this.data.address.address,
+                    line2: '',
+                    city: this.data.address.city,
+                    state: this.data.address.state,
+                    postal_code: this.data.address.pinCode,
+                    country: this.data.address.country,
+                  }
+                },
+              }
             })
             .subscribe(result => {
+
               console.log('Stripe Result:', result);
 
               // ❌ Stripe error
               if (result.error) {
                 console.error(result.error.message);
+                this.openSnackBar(result.error.message?.toString() || "An error occurred","");
                 this.loginService.showLoader.next(false);
                 return;
               }
@@ -293,7 +301,7 @@ export class StripePaymentsComponent implements OnInit {
     let obj = {
       budjet: this.budjet,
       inramt: this.inrCurrency,
-      pstatus: true,
+      pstatus: false,
       paymentData: "success",
 
     }
